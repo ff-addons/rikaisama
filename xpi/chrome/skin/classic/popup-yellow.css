@@ -1,0 +1,208 @@
+
+/* this is to reset almost everything under the popup to a sane value */
+
+#rikaichan-popup, #rikaichan-popup * { 
+	width:auto;
+	height:auto;
+	background:transparent;
+	color:#000000;
+	border:none !important;
+	border-spacing:0px;
+	margin:0px;
+	padding:0px;
+	letter-spacing:normal;
+	text-align:left;
+	text-decoration:none;
+	text-indent:0px;
+	text-transform:none;
+	white-space:normal;
+	word-spacing:normal;
+	font:normal 14px sans-serif;
+	visibility: visible;
+}
+
+
+/* the popup DIV */
+
+#rikaichan-popup { 
+	position: absolute;
+	z-index: 7777;
+	border: 1px solid #CCB !important;
+	padding: 4px;
+	background: #FFFFD7;
+	top: 5px; 
+	left: 5px;
+}
+
+
+/* used for word definitions */
+
+#rikaichan-popup .w-kanji {
+	font-size: 18px;
+	color: #7070FF;
+}
+
+#rikaichan-popup .w-kana {
+	font-size: 18px;
+	color: #20A020;
+}
+
+#rikaichan-popup .w-conj {
+	color: #A0A0A0;
+	font-size: 13px;
+}
+	
+#rikaichan-popup .w-def {
+	font-size: 13px;
+}
+
+
+/* used for kanji information */
+
+#rikaichan-popup .k-main-tb {
+	width: 300px;
+}
+
+#rikaichan-popup .k-kanji {
+	font-family: serif;
+	font-size: 48px;
+}
+
+#rikaichan-popup .k-eigo {
+	font-size: 12px;
+}
+
+/* kanji: readings */
+
+#rikaichan-popup .k-yomi {
+	font-size: 14px;
+	color: #090;
+	margin: 4px 0px;
+}
+
+#rikaichan-popup .k-yomi-hi {
+	color: #555;
+}
+
+#rikaichan-popup .k-yomi-ti {
+	font-size: 11px;
+	color: #666;
+}
+
+/* kanji radical, grade, freq, strokes box */
+
+#rikaichan-popup .k-abox-tb {
+	width: 120px;
+	margin-bottom: 4px;
+	float: right;
+	clear: right;
+}
+
+#rikaichan-popup .k-abox-r {
+	font-size: 12px;
+	background: #F7F7D0;
+	text-align: center;
+	padding: 1px 4px;
+}
+
+#rikaichan-popup .k-abox-g {
+	font-size: 12px;
+	background: #F0F0B0;
+	text-align: center;
+	padding: 1px 4px;
+}
+
+#rikaichan-popup .k-abox-f {
+	font-size: 12px;
+	background: #F0F0B0;
+	text-align: center;
+	padding: 1px 4px;
+}
+
+#rikaichan-popup .k-abox-s {
+	font-size: 12px;
+	background: #F7F7D0;
+	text-align: center;
+	padding: 1px 4px;
+}
+
+/* kanji components box */
+
+#rikaichan-popup .k-bbox-tb {
+	width: 120px;
+	margin-bottom: 4px;
+	float: right;
+	clear: right;
+}
+
+#rikaichan-popup .k-bbox-0a {
+	vertical-align: top;
+	font-size: 11px;
+	padding: 1px 3px;
+	background: #F0F0B0;
+	color: #090;
+}
+
+#rikaichan-popup .k-bbox-0b {
+	vertical-align: top;
+	font-size: 11px;
+	padding: 1px 3px;
+	background: #F0F0B0;
+}
+
+#rikaichan-popup .k-bbox-1a {
+	vertical-align: top;
+	font-size: 11px;
+	padding: 1px 3px;
+	background: #F7F7D0;
+	color: #090;
+}
+
+#rikaichan-popup .k-bbox-1b {
+	vertical-align: top;
+	font-size: 11px;
+	padding: 1px 3px;
+	background: #F7F7D0;
+}
+
+
+/* kanji: misc index */
+
+#rikaichan-popup .k-mix-tb {
+	width:100%
+}
+
+#rikaichan-popup .k-mix-td0 {
+	background: #F7F7D0;
+	font-size: 12px;
+}
+
+#rikaichan-popup .k-mix-td1 {
+	background: #F0F0B0;
+	font-size: 12px;
+}
+
+
+
+
+/* manual query */
+
+#rikaichan-popup .q-tb {
+}
+
+#rikaichan-popup .q-w {
+	border-right: 1px dotted #A0A7AF !important;
+	padding: 0px 2px;
+	vertical-align: top;
+}
+
+#rikaichan-popup .q-k {
+	border-left: 1px dotted #A0A7AF !important;
+	padding: 0px 2px;
+	vertical-align: top;
+}
+
+
+
+
+

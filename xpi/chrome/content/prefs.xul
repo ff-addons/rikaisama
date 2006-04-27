@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!DOCTYPE overlay SYSTEM "chrome://rikaichan/locale/prefs.dtd">
+
+<dialog id="prefs" title="&rikaichan.prefs.preferences;"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        buttons="accept,cancel"
+        ondialogaccept="return rcxPrefs.onOK();"
+        ondialogcancel="return true;"
+        onload="rcxPrefs.onLoad();">
+
+<script type="application/x-javascript" src="chrome://rikaichan/content/prefs.js"/>
+<script type="application/x-javascript" src="chrome://rikaichan/content/data.js"/>
+
+<groupbox flex="0">
+	<caption label="&rikaichan.prefs.keyboard.shortcuts;" />
+	
+	<hbox>
+		<label value="&rikaichan.prefs.enabledisable;" style="width:8em" />
+		<checkbox id="accel-toggle"	label="Ctrl / Cmd" />
+		<checkbox id="alt-toggle"	label="Alt" />
+		<checkbox id="shift-toggle"	label="Shift" />
+		<menulist id="key-toggle" editable="true" oninput="rcxPrefs.onKeyChanged(this)" oncommand="rcxPrefs.onKeyChanged(this)">
+			<menupopup id="key-toggle-mp" />
+		</menulist>
+	</hbox>
+
+	<hbox>
+		<label value="&rikaichan.prefs.lookupaword;" style="width:8em" />
+		<checkbox id="accel-lookup"	label="Ctrl / Cmd" />
+		<checkbox id="alt-lookup"	label="Alt" />
+		<checkbox id="shift-lookup"	label="Shift" />
+		<menulist id="key-lookup" editable="true" oninput="rcxPrefs.onKeyChanged(this)" oncommand="rcxPrefs.onKeyChanged(this)">
+			<menupopup id="key-lookup-mp" />
+		</menulist>
+	</hbox>
+
+	<description value="&rikaichan.prefs.restart;" />
+</groupbox>
+
+<hbox>
+	<groupbox flex="1">
+		<caption label="&rikaichan.prefs.showincontext;" />
+		<checkbox id="showcm-toggle" label="&rikaichan.prefs.enabledisable;" />
+		<checkbox id="showcm-lookup" label="&rikaichan.prefs.lookupaword;" />
+	</groupbox>
+
+	<groupbox flex="1">
+		<caption label="Show in tools menu" />
+		<checkbox id="showtm-toggle" label="&rikaichan.prefs.enabledisable;" />
+		<checkbox id="showtm-lookup" label="&rikaichan.prefs.lookupaword;" />
+	</groupbox>
+</hbox>
+
+<groupbox flex="0">
+	<vbox flex="1">
+		<label value="&rikaichan.prefs.popupdelay;" />
+		<hbox flex="1" >
+			<textbox id="rc-popdelay" maxlength="5" size="5" flex="1" />
+		</hbox>
+	</vbox>
+
+	<vbox flex="1">
+		<label value="&rikaichan.prefs.colorscheme;" />
+		<menulist id="rc-colors" flex="1">
+			<menupopup>
+				<menuitem label="&rikaichan.prefs.blue;" value="blue" />
+				<menuitem label="&rikaichan.prefs.black;" value="black" />
+				<menuitem label="&rikaichan.prefs.yellow;" value="yellow" />
+			</menupopup>
+		</menulist>
+	</vbox>
+
+	<vbox flex="1" id="rc-dovbox">
+		<label value="&rikaichan.prefs.do;" />
+		<menulist id="rc-dictorder" flex="1" >
+			<menupopup>
+				<menuitem label="&rikaichan.prefs.dosko;" value="0" />
+				<menuitem label="&rikaichan.prefs.doskn;" value="1" />
+				<menuitem label="&rikaichan.prefs.dosnk;" value="2" />
+			</menupopup>
+		</menulist>
+	</vbox>
+	
+	<checkbox id="rc-delaynames" label="&rikaichan.prefs.delaynames;" />
+	<checkbox id="rc-highlight" label="&rikaichan.prefs.enablehi;" />
+</groupbox>	
+
+<vbox flex="10" />
+
+</dialog>

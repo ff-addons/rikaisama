@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet href="chrome://rikaichan/skin/rikaichan.css" type="text/css"?>
+<!DOCTYPE overlay SYSTEM "chrome://rikaichan/locale/rikaichan.dtd">
+
+<overlay id="rikaichan" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+	<script type="application/x-javascript" src="chrome://rikaichan/content/rikaichan.js" />
+	<script type="application/x-javascript" src="chrome://rikaichan/content/data.js" />
+
+	<commandset id="composeCommands">
+		<command id="rikaichan-toggle-cmd" oncommand="rcxMain.inlineToggle();" />
+		<command id="rikaichan-lookup-cmd" oncommand="rcxMain.lbToggle();" />
+	</commandset>
+	
+	<popup id="msgComposeContext">
+		<menuseparator id="rikaichan-separator-cm" hidden="true" />
+		<menuitem id="rikaichan-toggle-cm" label="&rikaichan.inline.cm;" accesskey="&rikaichan.inline.cm.key;"  key="rikaichan-toggle-key" command="rikaichan-toggle-cmd" hidden="true" insertafter="context-selectall" />
+		<menuitem id="rikaichan-lookup-cm" label="&rikaichan.lookup.cm;" accesskey="&rikaichan.lookup.cm.key;"  key="rikaichan-lookup-key" command="rikaichan-lookup-cmd" hidden="true" insertafter="context-selectall" />
+	</popup>
+	
+	<menupopup id="taskPopup">
+		<menuseparator id="rikaichan-separator-tm" hidden="true" />
+		<menuitem id="rikaichan-toggle-tm" label="&rikaichan.inline.tm;" accesskey="&rikaichan.inline.tm.key;" key="rikaichan-toggle-key" command="rikaichan-toggle-cmd"  hidden="true" />
+		<menuitem id="rikaichan-lookup-tm" label="&rikaichan.lookup.cm;" accesskey="&rikaichan.lookup.tm.key;" key="rikaichan-lookup-key" command="rikaichan-lookup-cmd"  hidden="true" />
+	</menupopup>
+	
+	<window id="msgcomposeWindow">
+		<toolbar id="rikaichan-lookup" hidden="true" align="center"
+			fullscreentoolbar="true">
+			
+			<toolbarbutton id="rikaichan-lookup-close" tooltiptext="&rikaichan.lookupbar.close.tip;"
+				oncommand="rcxMain.lbHide(true);" />
+			<toolbarbutton id="rikaichan-lookup-sticky" tooltiptext="&rikaichan.lookupbar.sticky.tip;"
+				oncommand="rcxMain.lbToggleSticky();" />
+			<textbox id="rikaichan-lookup-text"
+				type="timed" timeout="750"
+				oncommand="rcxMain.lbSearch();"
+				onkeypress="rcxMain.lbKey(event)"
+				onfocus="rcxMain.lbFocus();"
+				onblur="rcxMain.lbBlur();" />
+		</toolbar>
+	</window>
+
+
+	<toolbarpalette id="MsgComposeToolbarPalette">
+		<toolbarbutton id="rikaichan-inline-button" class="toolbarbutton-1"
+			label="&rikaichan.toolbar.inline;" tooltiptext="&rikaichan.toolbar.inline.tip;"
+		command="rikaichan-toggle-cmd"/>
+		<toolbarbutton id="rikaichan-lookup-button" class="toolbarbutton-1"
+			label="&rikaichan.toolbar.lookup;" tooltiptext="&rikaichan.toolbar.lookup.tip;"
+			command="rikaichan-lookup-cmd"/>
+	</toolbarpalette>
+
+</overlay>

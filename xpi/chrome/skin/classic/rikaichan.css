@@ -1,0 +1,39 @@
+
+#rikaichan-lookup-sticky {
+	border: 1px solid transparent;
+	padding: 3px 2px 4px 2px !important;
+	list-style-image: url("chrome://rikaichan/skin/widgets.png"); 
+	-moz-image-region: rect(40px, 15px, 55px, 0px);
+}
+
+#rikaichan-lookup-sticky[checked="true"] {
+	-moz-image-region: rect(40px, 31px, 55px, 16px);
+}
+
+#rikaichan-lookup-close {
+	border: 1px solid transparent;
+	padding: 3px 2px 4px 2px !important;
+	list-style-image: url("chrome://rikaichan/skin/widgets.png"); 
+	-moz-image-region: rect(40px, 47px, 55px, 32px);
+}
+
+
+#rikaichan-inline-button {
+	list-style-image: url("chrome://rikaichan/skin/widgets.png"); 
+	-moz-image-region: rect(0px, 23px, 23px, 0px);
+}
+
+toolbar[iconsize="small"] #rikaichan-inline-button {
+	-moz-image-region: rect(24px, 15px, 39px, 0px);
+}
+
+#rikaichan-lookup-button {
+	list-style-image: url("chrome://rikaichan/skin/widgets.png"); 
+	-moz-image-region: rect(0px, 47px, 23px, 24px);
+}
+
+toolbar[iconsize="small"] #rikaichan-lookup-button {
+	-moz-image-region: rect(24px, 31px, 39px, 16px);
+}
+
+

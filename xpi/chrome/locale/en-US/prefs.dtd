@@ -1,0 +1,18 @@
+
+<!ENTITY rikaichan.prefs.preferences "Preferences">
+<!ENTITY rikaichan.prefs.keyboard.shortcuts "Keyboard shortcuts">
+<!ENTITY rikaichan.prefs.enabledisable "Toggle">
+<!ENTITY rikaichan.prefs.lookupaword "Lookup a word">
+<!ENTITY rikaichan.prefs.restart "Note: Browser must be restarted after changing the keyboard shortcuts.">
+<!ENTITY rikaichan.prefs.showincontext "Show in context menu">
+<!ENTITY rikaichan.prefs.popupdelay "Popup delay (ms)">
+<!ENTITY rikaichan.prefs.colorscheme "Color scheme">
+<!ENTITY rikaichan.prefs.blue "Blue">
+<!ENTITY rikaichan.prefs.black "Black">
+<!ENTITY rikaichan.prefs.yellow "Yellow">
+<!ENTITY rikaichan.prefs.enablehi "Enable highlighting">
+<!ENTITY rikaichan.prefs.do "Dictionary order">
+<!ENTITY rikaichan.prefs.dosko "Show kanji only">
+<!ENTITY rikaichan.prefs.doskn "Show kanji then names">
+<!ENTITY rikaichan.prefs.dosnk "Show names then kanji">
+<!ENTITY rikaichan.prefs.delaynames "Delay loading of the names dictionary">

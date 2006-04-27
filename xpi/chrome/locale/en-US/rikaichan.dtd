@@ -1,0 +1,20 @@
+
+<!ENTITY rikaichan.inline.cm "Toggle rikaichan">
+<!ENTITY rikaichan.inline.cm.key "K">
+
+<!ENTITY rikaichan.lookup.cm "Lookup with rikaichan">
+<!ENTITY rikaichan.lookup.cm.key "L">
+
+<!ENTITY rikaichan.inline.tm "Toggle rikaichan">
+<!ENTITY rikaichan.inline.tm.key "K">
+
+<!ENTITY rikaichan.lookup.tm "Lookup with rikaichan">
+<!ENTITY rikaichan.lookup.tm.key "L">
+
+<!ENTITY rikaichan.lookupbar.close.tip "Close">
+<!ENTITY rikaichan.lookupbar.sticky.tip "Sticky">
+
+<!ENTITY rikaichan.toolbar.inline "rikaichan">
+<!ENTITY rikaichan.toolbar.inline.tip "Toggle rikaichan">
+<!ENTITY rikaichan.toolbar.lookup "lookup">
+<!ENTITY rikaichan.toolbar.lookup.tip "Toggle rikaichan lookupbar">
