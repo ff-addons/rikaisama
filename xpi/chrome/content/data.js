@@ -145,10 +145,26 @@ rcxDict.prototype = {
 		this.wordDict = this.fileRead(rcxWordDict.datURI, rcxWordDict.datCharset);
 		this.wordIndex = this.fileRead(rcxWordDict.idxURI, rcxWordDict.idxCharset);
 
-		this.kanjiData = this.fileRead("chrome://rikaichan/content/kanji.dat", "EUC-JP");
+		this.kanjiData = this.fileRead("chrome://rikaichan/content/kanji.dat", "UTF-8");
 		this.radData = this.fileReadArray("chrome://rikaichan/content/radicals.dat", "UTF-8");
+		
+//		this.test_kanji();
 	},
-
+/*
+	test_kanji: function() {
+		var a = this.kanjiData.split("\n");
+		
+		alert("begin test. a.length=" + a.length);
+		var start = (new Date()).getTime();
+		for (var i = 0; i < a.length; ++i) {
+			if (this.kanjiInfo(a[i].charAt(0)) == '') {
+				alert("error @" + i + ": " + a[i]);
+				return;
+			}
+		}
+		alert("time = " + ((new Date()).getTime() - start));
+	},
+*/
 /*
 	test_index: function() {
 		var ixF = this.fileRead("chrome://rikaichan/content/dict.idx", "EUC-JP");
@@ -525,7 +541,6 @@ if (0) {
 	
 	//
 
-	
 	kanjiInfo: function(kanji) {
 		var kdEntry = this.binSearchF(this.kanjiData, kanji);
 		if (!kdEntry) return "";
@@ -543,25 +558,27 @@ if (0) {
 		
 		// kana
 		for (beg = 15; (beg < kdEntry.length) && (kdEntry.charCodeAt(beg) < 256); beg++) { ; }
-		for (end = beg + 1;(end < kdEntry.length) && (kdEntry.charAt(end) != "{"); end++) { ; }
-		
+		for (end = beg + 1; (end < kdEntry.length) && (kdEntry.charAt(end) != "{"); end++) { ; }
+
 		// misc info
-		t = kdEntry.substring(7, beg - 1).split(/\s+/);
+		t = kdEntry.substring(2, beg - 1).split(' ');
 		for (i = 0; i < t.length; i++) {
 			if (t[i].match(/^([A-Z]+)(.*)/)) {
 				if (!moreinfo[RegExp.$1]) moreinfo[RegExp.$1] = RegExp.$2;
 					else moreinfo[RegExp.$1] += " " + RegExp.$2;
 			}
 		}
-
+		
+		i = kanji.charCodeAt(0);
+		const hex = "0123456789ABCDEF";
+		moreinfo["U"] = hex[(i >>> 12) & 15] + hex[(i >>> 8) & 15] + hex[(i >>> 4) & 15] + hex[i & 15];
 
 		// =format=
 
 		// English meanings
-		var eigo = '<div class="k-eigo">' + 
-				kdEntry.substring(end).replace(/\{/g, "").replace(/}\s*/g, ", ").replace(/,\s*$/, "") +
-				'</div>';
-
+		var eigo = '<div class="k-eigo">';
+		if (kdEntry.match(/{(.+)}/)) eigo += RegExp.$1;
+		eigo += '</div>';
 
 		// Japanese readings
 		var readings = 
@@ -574,7 +591,6 @@ if (0) {
 				.replace(/(\u3001 )?T2\u3001 /, "<br/><span class=\"k-yomi-ti\">\u90E8\u9996\u540D</span> ") +
 				'</div>';
 	
-		
 		// radical, grade, freq, strokes box
 		j = moreinfo['B'] - 1;
 		t = moreinfo['G'];
@@ -589,7 +605,7 @@ if (0) {
 			'<td class="k-abox-f">freq<br/>' + (moreinfo['F'] ? moreinfo['F'] : '-') + '</td>' +
 			'<td class="k-abox-s">strokes<br/>' + parseInt(moreinfo['S']) + '</td>' +
 			'</tr></table>';
-		
+
 		// components of a kanji
 		// ^^ j = moreinfo['B'] - 1;
 		t = this.radData[j].split("\t");
@@ -610,7 +626,6 @@ if (0) {
 		}
 		xbox += '</table>';
 
-		
 		// index & stuff
 		const dc = [
 //			"C", 	"Classical Radical",
@@ -642,7 +657,7 @@ if (0) {
 			mix += '<tr><td' + cls + '>' + dc[i + 1] + '</td><td' + cls + '>' + (s ? s : '-') + '</td></tr>';
 		}
 		if (mix != '') mix = '<table class="k-mix-tb">' + mix + '</table>';
-		
+
 		return '<table class="k-main-tb">' +
 			'<tr><td valign="top">' + xbox + '<span class="k-kanji">' + kanji + '</span><br/>' +
 			eigo + readings + '</td></tr>' +

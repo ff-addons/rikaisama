@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 // used for debugging
-
 /*
 rcd_con("**RIKAICHAN** --- HEY, COMMENT THESE DEBUGGING THINGS OUT ---");
 
@@ -430,7 +429,7 @@ var rcxMain = {
 	unicodeInfo: function(c) {
 		const hex = "0123456789ABCDEF";
 		const u = c.charCodeAt(0);
-		return c + " U" + hex[(u >> 12) & 15] + hex[(u >> 8) & 15] + hex[(u >> 4) & 15] + hex[u & 15];
+		return c + " U" + hex[(u >>> 12) & 15] + hex[(u >>> 8) & 15] + hex[(u >>> 4) & 15] + hex[u & 15];
 	},
 
 
