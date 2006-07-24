@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 
-
 // used for debugging
 /*
 rcd_con("**RIKAICHAN** --- HEY, COMMENT THESE DEBUGGING THINGS OUT ---");
@@ -65,11 +64,9 @@ function rcd_clip(s) {
 		.getService(Components.interfaces.nsIClipboardHelper)
 		.copyString(s);
 }
-
-
 /**/
 
-// the extension
+
 
 var rcxMain = {
 
@@ -78,8 +75,7 @@ var rcxMain = {
 
 	init: function() {
 		window.addEventListener("load", this.onLoad, false);
-        this.is_tbird =
-          navigator.userAgent.match(" Thunderbird/[\\d.]+$") ? true : false;
+        this.is_tbird = (navigator.userAgent.search(/Thunderbird\/\d+/) != -1);
 	},
 
     getCurrentBrowser: function() {
@@ -94,28 +90,45 @@ var rcxMain = {
 		}
     },
 
+	tbObs: {
+		observe: function(subject, topic, data) {
+			if (topic == 'mail:composeOnSend') {
+				var e;
+				e = window.content.document.getElementById("rikaichan-css");
+				if (e) e.parentNode.removeChild(e);
+				e = window.content.document.getElementById("rikaichan-popup");
+				if (e) e.parentNode.removeChild(e);
+			}
+		}
+	},
+	
     onLoad: function() { rcxMain._onLoad(); },
 	_onLoad: function() {
 		window.addEventListener("unload", this.onUnload, false);
 
 		this.haveNames = this.canDoNames = rcxHaveNames();
 
-		var pbi = Components.classes["@mozilla.org/preferences-service;1"]
-                              .getService(Components.interfaces.nsIPrefBranch)
-							  .QueryInterface(Components.interfaces.nsIPrefBranchInternal);
-		pbi.addObserver("rikaichan.", this.prefobs, false);
-		
-		// note: setting keys seem to only work during startup
+		Components.classes["@mozilla.org/preferences-service;1"]
+			.getService(Components.interfaces.nsIPrefBranch)
+			.QueryInterface(Components.interfaces.nsIPrefBranchInternal)
+			.addObserver("rikaichan.", this.prefobs, false);
 		
 		var mks;
 
 		if (this.is_tbird) {
+			Components.classes["@mozilla.org/observer-service;1"]
+				.getService(Components.interfaces.nsIObserverService)
+				.addObserver(this.tbObs, "mail:composeOnSend", false);
+		
 			mks = document.getElementById("mailKeys");
-			if (!mks) mks = document.getElementById("editorKeys");	// composer
+			if (!mks) mks = document.getElementById("editorKeys");
 		}
 		else {
 			mks = document.getElementById("mainKeyset");
 		}
+
+		
+		// note: setting keys seem to only work during startup
 		
 	    var br = this.getPrefBranch();
 		var tolo = ["toggle", "lookup"];
@@ -146,8 +159,14 @@ var rcxMain = {
 
 	onUnload: function() { rcxMain._onUnload(); },
 	_onUnload: function() {
-        // Thunderbird has no tabs
-        if (!this.is_tbird) gBrowser.mTabContainer.removeEventListener("select", this.onTabSelect, false);
+        if (this.is_tbird) {
+			Components.classes["@mozilla.org/observer-service;1"]
+				.getService(Components.interfaces.nsIObserverService)
+				.removeObserver(this.tbObs, "mail:composeOnSend");
+		}
+		else {
+			gBrowser.mTabContainer.removeEventListener("select", this.onTabSelect, false);
+		}		
 
 		Components.classes["@mozilla.org/preferences-service;1"]
 				.getService(Components.interfaces.nsIPrefBranch)
@@ -381,8 +400,6 @@ var rcxMain = {
 				// under the popup title
 				if ((elem.title) && (elem.title != "")) v += 20;
 				
-//				rcd_status("pW=" + pW + " y=" + y + " v=" + v + " pH=" + pH + " ==" + (y + v + pH) + " ih=" + content.innerHeight);
-				
 				// go up if necessary
 				if ((y + v + pH) > content.innerHeight) {
 					var t = y - pH - 20;
@@ -406,7 +423,10 @@ var rcxMain = {
 
 	hidePopup: function() {
 		var popup = window.content.document.getElementById("rikaichan-popup");
-		if (popup) popup.style.display = "none";
+		if (popup) {
+			popup.style.display = "none";
+			popup.innerHTML = "";
+		}
 	},
 
 	/////
@@ -421,7 +441,6 @@ var rcxMain = {
 		tdata.prevSelView.getSelection().removeAllRanges();
 		tdata.prevSelView = null;
 		tdata.kanjiChar = null;
-		tdata.shiftMode = 0;
 	},
 	
 	/////
@@ -679,7 +698,13 @@ x	FF66 - FF9D	Katakana half-width
 
 
 	getSelectedText: function(win) {
-		var text;		var sel = win.getSelection();		if (sel) {			text = sel.toString();			if (text.search(/[^\s]/) != -1) return text;		}		for (var i = 0; i < win.frames.length; ++i) {
+		var text;
+		var sel = win.getSelection();
+		if (sel) {
+			text = sel.toString();
+			if (text.search(/[^\s]/) != -1) return text;
+		}
+		for (var i = 0; i < win.frames.length; ++i) {
 			text = this.getSelectedText(win.frames[i]);
 			if (text.length > 0) return text;
 		}
