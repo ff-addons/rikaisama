@@ -11,18 +11,21 @@
 	<commandset id="mailCommands">
 		<command id="rikaichan-toggle-cmd" oncommand="rcxMain.inlineToggle();" />
 		<command id="rikaichan-lookup-cmd" oncommand="rcxMain.lbToggle();" />
+		<command id="rikaichan-clip-cmd" oncommand="rcxMain.copyToClip();" />
 	</commandset>
 
 	<popup id="messagePaneContext">
 		<menuseparator id="rikaichan-separator-cm" hidden="true" />
 		<menuitem id="rikaichan-toggle-cm" label="&rikaichan.inline.cm;" accesskey="&rikaichan.inline.cm.key;"  key="rikaichan-toggle-key" command="rikaichan-toggle-cmd" hidden="true" insertafter="context-selectall" />
 		<menuitem id="rikaichan-lookup-cm" label="&rikaichan.lookup.cm;" accesskey="&rikaichan.lookup.cm.key;"  key="rikaichan-lookup-key" command="rikaichan-lookup-cmd" hidden="true" insertafter="context-selectall" />
+		<menuitem id="rikaichan-clip-cm" label="&rikaichan.clip.cm;" accesskey="&rikaichan.clip.cm.key;"  key="rikaichan-clip-key" command="rikaichan-clip-cmd" hidden="true" insertafter="context-selectall" />
 	</popup>
 	
 	<menupopup id="taskPopup">
 		<menuseparator id="rikaichan-separator-tm" hidden="true" />
 		<menuitem id="rikaichan-toggle-tm" label="&rikaichan.inline.tm;" accesskey="&rikaichan.inline.tm.key;" key="rikaichan-toggle-key" command="rikaichan-toggle-cmd"  hidden="true" />
 		<menuitem id="rikaichan-lookup-tm" label="&rikaichan.lookup.tm;" accesskey="&rikaichan.lookup.tm.key;" key="rikaichan-lookup-key" command="rikaichan-lookup-cmd"  hidden="true" />
+		<menuitem id="rikaichan-clip-tm" label="&rikaichan.clip.tm;" accesskey="&rikaichan.clip.tm.key;" key="rikaichan-clip-key" command="rikaichan-clip-cmd"  hidden="true" />
 	</menupopup>
 	
 	<window id="messengerWindow">
@@ -37,6 +40,8 @@
 				onkeypress="rcxMain.lbKey(event)"
 				onfocus="rcxMain.lbFocus();"
 				onblur="rcxMain.lbBlur();" />
+			<toolbarbutton id="rikaichan-lookup-clip" tooltiptext="&rikaichan.lookupbar.clip.tip;"
+				oncommand="rcxMain.copyToClip();" />
 		</toolbar>
 	</window>
 

@@ -530,7 +530,7 @@ if (0) {
 			}
 			else {
 				if ((i = r.indexOf("\n", r.length / 2)) > 0) {
-					r = "<table><tr><td valign='top' style='padding-right:20px'>" + r.substr(0, i) + "</td><td width=20>&#32;</td><td valign='top'>" + r.substr(i + 1) + "</td></tr></table>";
+					r = "<table><tr><td valign='top' style='padding-right:20px'>" + r.substr(0, i + 1) + "</td><td width=20>&#32;</td><td valign='top'>" + r.substr(i + 1) + "</td></tr></table>";
 				}
 			}
 		}

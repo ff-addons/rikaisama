@@ -1,7 +1,7 @@
 
 /* this is to reset almost everything under the popup to a sane value */
 
-#rikaichan-popup, #rikaichan-popup * { 
+#rikaichan-window, #rikaichan-window * { 
 	width: auto;
 	height: auto;
 	background: transparent;
@@ -24,7 +24,7 @@
 
 /* the popup DIV */
 
-#rikaichan-popup { 
+#rikaichan-window { 
 	position: absolute;
 	z-index: 7777;
 	border: 1px solid #444 !important;
@@ -38,69 +38,69 @@
 
 /* used for word definitions */
 
-#rikaichan-popup .w-kanji {
+#rikaichan-window .w-kanji {
 	font-size: 18px;
 	color: #88E;
 }
 
-#rikaichan-popup .w-kana {
+#rikaichan-window .w-kana {
 	font-size: 18px;
 	color: #20A020;
 }
 
-#rikaichan-popup .w-conj {
+#rikaichan-window .w-conj {
 	font-size: 13px;
 	color: #A0A0A0;
 }
 	
-#rikaichan-popup .w-def {
+#rikaichan-window .w-def {
 	font-size: 13px;
 }
 
 
 /* used for kanji information */
 
-#rikaichan-popup .k-main-tb {
+#rikaichan-window .k-main-tb {
 	width: 300px;
 }
 
-#rikaichan-popup .k-kanji {
+#rikaichan-window .k-kanji {
 	font-family: serif;
 	font-size: 48px;
 	color: #FFFFFF;
 }
 
-#rikaichan-popup .k-eigo {
+#rikaichan-window .k-eigo {
 	font-size: 12px;
 }
 
 /* kanji: readings */
 
-#rikaichan-popup .k-yomi {
+#rikaichan-window .k-yomi {
 	font-size: 14px;
 	color: #88D;
 	margin: 4px 0px;
 }
 
-#rikaichan-popup .k-yomi-hi {
+#rikaichan-window .k-yomi-hi {
 	color: #AAA;
 }
 
-#rikaichan-popup .k-yomi-ti {
+#rikaichan-window .k-yomi-ti {
 	font-size: 11px;
 	color: #777;
 }
 
 /* kanji radical, grade, freq, strokes box */
 
-#rikaichan-popup .k-abox-tb {
+#rikaichan-window .k-abox-tb {
 	width: 120px;
 	margin-bottom: 4px;
 	float: right;
 	clear: right;
 }
 
-#rikaichan-popup .k-abox-r {
+#rikaichan-window .k-abox-r {
 	font-size:12px;
 	color:#E0E0E0;
 	background:#303030;
@@ -108,7 +108,7 @@
 	padding:1px 4px;
 }
 
-#rikaichan-popup .k-abox-g {
+#rikaichan-window .k-abox-g {
 	font-size:12px;
 	color:#E0E0E0;
 	background:#202020;
@@ -116,7 +116,7 @@
 	padding:1px 4px;
 }
 
-#rikaichan-popup .k-abox-f {
+#rikaichan-window .k-abox-f {
 	font-size:12px;
 	color:#E0E0E0;
 	background:#202020;
@@ -124,7 +124,7 @@
 	padding:1px 4px;
 }
 
-#rikaichan-popup .k-abox-s {
+#rikaichan-window .k-abox-s {
 	font-size:12px;
 	color:#E0E0E0;
 	background:#303030;
@@ -134,14 +134,14 @@
 
 /* kanji components box */
 
-#rikaichan-popup .k-bbox-tb {
+#rikaichan-window .k-bbox-tb {
 	width: 120px;
 	margin-bottom: 4px;
 	float: right;
 	clear: right;
 }
 
-#rikaichan-popup .k-bbox-0a {
+#rikaichan-window .k-bbox-0a {
 	vertical-align: top;
 	font-size: 11px;
 	padding: 1px 3px;
@@ -149,7 +149,7 @@
 	color: #88D;
 }
 
-#rikaichan-popup .k-bbox-0b {
+#rikaichan-window .k-bbox-0b {
 	vertical-align: top;
 	font-size: 11px;
 	padding: 1px 3px;
@@ -157,7 +157,7 @@
 	color: #CCC;
 }
 
-#rikaichan-popup .k-bbox-1a {
+#rikaichan-window .k-bbox-1a {
 	vertical-align: top;
 	font-size: 11px;
 	padding: 1px 3px;
@@ -165,7 +165,7 @@
 	color: #88D;
 }
 
-#rikaichan-popup .k-bbox-1b {
+#rikaichan-window .k-bbox-1b {
 	vertical-align: top;
 	font-size: 11px;
 	padding: 1px 3px;
@@ -176,17 +176,17 @@
 
 /* kanji: misc index */
 
-#rikaichan-popup .k-mix-tb {
+#rikaichan-window .k-mix-tb {
 	width: 100%
 }
 
-#rikaichan-popup .k-mix-td0 {
+#rikaichan-window .k-mix-td0 {
 	font-size:12px;
 	color:#E0E0E0;
 	background:#202020;
 }
 
-#rikaichan-popup .k-mix-td1 {
+#rikaichan-window .k-mix-td1 {
 	font-size:12px;
 	color:#D0D0D0;
 	background:#303030;
@@ -197,16 +197,16 @@
 
 /* manual query */
 
-#rikaichan-popup .q-tb {
+#rikaichan-window .q-tb {
 }
 
-#rikaichan-popup .q-w {
+#rikaichan-window .q-w {
 	border-right:1px dotted #404040 !important;
 	padding:0px 2px;
 	vertical-align: top;
 }
 
-#rikaichan-popup .q-k {
+#rikaichan-window .q-k {
 	border-left:1px dotted #404040 !important;
 	padding:0px 2px;
 	vertical-align: top;

@@ -16,7 +16,7 @@
 	<caption label="&rikaichan.prefs.keyboard.shortcuts;" />
 	
 	<hbox>
-		<label value="&rikaichan.prefs.enabledisable;" style="width:8em" />
+		<label value="&rikaichan.prefs.enabledisable;" style="width:9em" />
 		<checkbox id="accel-toggle"	label="Ctrl / Cmd" />
 		<checkbox id="alt-toggle"	label="Alt" />
 		<checkbox id="shift-toggle"	label="Shift" />
@@ -26,7 +26,7 @@
 	</hbox>
 
 	<hbox>
-		<label value="&rikaichan.prefs.lookupaword;" style="width:8em" />
+		<label value="&rikaichan.prefs.lookupaword;" style="width:9em" />
 		<checkbox id="accel-lookup"	label="Ctrl / Cmd" />
 		<checkbox id="alt-lookup"	label="Alt" />
 		<checkbox id="shift-lookup"	label="Shift" />
@@ -35,6 +35,16 @@
 		</menulist>
 	</hbox>
 
+	<hbox>
+		<label value="&rikaichan.prefs.copytoclip;" style="width:9em" />
+		<checkbox id="accel-clip"	label="Ctrl / Cmd" />
+		<checkbox id="alt-clip"	label="Alt" />
+		<checkbox id="shift-clip"	label="Shift" />
+		<menulist id="key-clip" editable="true" oninput="rcxPrefs.onKeyChanged(this)" oncommand="rcxPrefs.onKeyChanged(this)">
+			<menupopup id="key-clip-mp" />
+		</menulist>
+	</hbox>
+	
 	<description value="&rikaichan.prefs.restart;" />
 </groupbox>
 
@@ -43,12 +53,14 @@
 		<caption label="&rikaichan.prefs.showincontext;" />
 		<checkbox id="showcm-toggle" label="&rikaichan.prefs.enabledisable;" />
 		<checkbox id="showcm-lookup" label="&rikaichan.prefs.lookupaword;" />
+		<checkbox id="showcm-clip" label="&rikaichan.prefs.copytoclip;" />
 	</groupbox>
 
 	<groupbox flex="1">
-		<caption label="Show in tools menu" />
+		<caption label="&rikaichan.prefs.showintools;" />
 		<checkbox id="showtm-toggle" label="&rikaichan.prefs.enabledisable;" />
 		<checkbox id="showtm-lookup" label="&rikaichan.prefs.lookupaword;" />
+		<checkbox id="showtm-clip" label="&rikaichan.prefs.copytoclip;" />
 	</groupbox>
 </hbox>
 

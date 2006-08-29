@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 // used for debugging
+
 /*
 rcd_con("**RIKAICHAN** --- HEY, COMMENT THESE DEBUGGING THINGS OUT ---");
 
@@ -79,7 +80,6 @@ var rcxMain = {
 	},
 
     getCurrentBrowser: function() {
-//        return this.is_tbird ? document.getElementById("messagepane") : gBrowser.mCurrentBrowser;
 		if (this.is_tbird) {
 			var b = document.getElementById("messagepane");
 			if (b) return b;
@@ -96,12 +96,12 @@ var rcxMain = {
 				var e;
 				e = window.content.document.getElementById("rikaichan-css");
 				if (e) e.parentNode.removeChild(e);
-				e = window.content.document.getElementById("rikaichan-popup");
+				e = window.content.document.getElementById("rikaichan-window");
 				if (e) e.parentNode.removeChild(e);
 			}
 		}
 	},
-	
+
     onLoad: function() { rcxMain._onLoad(); },
 	_onLoad: function() {
 		window.addEventListener("unload", this.onUnload, false);
@@ -112,14 +112,14 @@ var rcxMain = {
 			.getService(Components.interfaces.nsIPrefBranch)
 			.QueryInterface(Components.interfaces.nsIPrefBranchInternal)
 			.addObserver("rikaichan.", this.prefobs, false);
-		
+
 		var mks;
 
 		if (this.is_tbird) {
 			Components.classes["@mozilla.org/observer-service;1"]
 				.getService(Components.interfaces.nsIObserverService)
 				.addObserver(this.tbObs, "mail:composeOnSend", false);
-		
+
 			mks = document.getElementById("mailKeys");
 			if (!mks) mks = document.getElementById("editorKeys");
 		}
@@ -127,17 +127,14 @@ var rcxMain = {
 			mks = document.getElementById("mainKeyset");
 		}
 
-		
-		// note: setting keys seem to only work during startup
-		
-	    var br = this.getPrefBranch();
-		var tolo = ["toggle", "lookup"];
-		
-		for (var i = 1; i >= 0; --i) {
-			var na = tolo[i];
-//			var key = document.getElementById("rikaichan-key-" + na)
-//			if (key) key.parentNode.removeChild(key);
 
+		// note: setting keys seem to only work during startup
+
+	    var br = this.getPrefBranch();
+		var names = ["toggle", "lookup", "clip"];
+
+		for (var i = 2; i >= 0; --i) {
+			var na = names[i];
 			var v = br.getCharPref(na + ".key");
 			if (v.length > 0) {
 				var key = document.createElementNS(
@@ -150,7 +147,7 @@ var rcxMain = {
 				mks.appendChild(key);
 			}
 		}
-		
+
 		this.loadPrefs();
 
         // Thunderbird has no tabs
@@ -166,13 +163,13 @@ var rcxMain = {
 		}
 		else {
 			gBrowser.mTabContainer.removeEventListener("select", this.onTabSelect, false);
-		}		
+		}
 
 		Components.classes["@mozilla.org/preferences-service;1"]
 				.getService(Components.interfaces.nsIPrefBranch)
 				.QueryInterface(Components.interfaces.nsIPrefBranchInternal)
 				.removeObserver("rikaichan.", this.prefobs);
-		
+
 		if (this.dict) rcxMain.dict.unlock();
 	},
 
@@ -183,10 +180,10 @@ var rcxMain = {
 				.getService(Components.interfaces.nsIPrefService)
 				.getBranch("rikaichan.");
 	},
-	
+
 	prefobs: {
 		observe: function(aSubject, aTopic, aPrefName) {
-            if (this.is_tbird) return;		// seems safe; to do: fix br ref
+            if (this.is_tbird) return;
 
             rcxMain.loadPrefs();
 			for (var i = 0; i < gBrowser.browsers.length; ++i) {
@@ -195,22 +192,25 @@ var rcxMain = {
 			}
 		}
 	},
-	
+
 	loadPrefs: function() {
 	    var br = this.getPrefBranch();
 		var xm = ["cm", "tm"];
 		var i;
-		var a, b;
-		
+		var a, b, c;
+
 		for (i = 1; i >= 0; --i) {
 			a = !br.getBoolPref("toggle.showin" + xm[i]);
 			b = !br.getBoolPref("lookup.showin" + xm[i]);
+			c = !br.getBoolPref("clip.showin" + xm[i]);
 			document.getElementById("rikaichan-toggle-" + xm[i]).hidden = a;
 			document.getElementById("rikaichan-lookup-" + xm[i]).hidden = b;
-			if (!this.is_tbird)
-				document.getElementById("rikaichan-separator-" + xm[i]).hidden = a || b;
+			document.getElementById("rikaichan-clip-" + xm[i]).hidden = c;
+			if (!this.is_tbird) {
+				document.getElementById("rikaichan-separator-" + xm[i]).hidden = a || b || c;
+			}
 		}
-		
+
 		var s = br.getCharPref("css");
 		if (s.indexOf("/") != -1) this.cssUrl = s;
 			else this.cssUrl = "chrome://rikaichan/skin/popup-" + s + ".css";
@@ -237,8 +237,8 @@ var rcxMain = {
 		this.delayNames = br.getBoolPref("delaynames");
 		this.lbUpdateSticky();
 	},
-	
-	
+
+
 	//
 
 
@@ -264,7 +264,7 @@ var rcxMain = {
 		}
 		return true;
 	},
-	
+
 	onTabSelect: function() {
 		var b = document.getElementById("rikaichan-inline-button");
 		if (b) b.checked = (this.getCurrentBrowser().rikaichan != undefined);
@@ -273,10 +273,9 @@ var rcxMain = {
 	/////
 
 	showPopup: function(text, elem, x, y, looseWidth) {
-
 		const topdoc = content.document;
-	
-		var popup = topdoc.getElementById("rikaichan-popup");
+
+		var popup = topdoc.getElementById("rikaichan-window");
 		if (!popup) {
 			var css = topdoc.createElementNS("http://www.w3.org/1999/xhtml", "link");
 			css.setAttribute("rel", "stylesheet");
@@ -284,18 +283,18 @@ var rcxMain = {
 			css.setAttribute("href", this.cssUrl);
 			css.setAttribute("id", "rikaichan-css");
 			topdoc.getElementsByTagName("head")[0].appendChild(css);
-			
+
 			popup = topdoc.createElementNS("http://www.w3.org/1999/xhtml", "div");
-			popup.setAttribute("id", "rikaichan-popup");
+			popup.setAttribute("id", "rikaichan-window");
 			topdoc.documentElement.appendChild(popup);
 //			topdoc.body.appendChild(popup);
-/*			popup.addEventListener("mouseover", 
+/*			popup.addEventListener("mouseover",
 				function(ev) {
 					if (!rcxMain.lbVisible) ev.currentTarget.style.visibility = "hidden";
 				}, false);*/
-				
+
 			// handle this or we end up with weird results in tb composer
-			popup.addEventListener("mousedown", 
+			popup.addEventListener("mousedown",
 				function (ev) {
 					ev.preventDefault();
 					popup.style.display = "none";
@@ -311,10 +310,10 @@ var rcxMain = {
 			popup.style.top = "-1000px";
 			popup.style.left = "0px";
 			popup.style.display = "";
-		
+
 			var pW = popup.offsetWidth;
 			var pH = popup.offsetHeight;
-			
+
 			// we may need to just guess!
 			if (pW <= 0) pW = 200;
 			if (pH <= 0) {
@@ -329,7 +328,7 @@ var rcxMain = {
 
 			// these things are always on top, so go sideways
 			if (elem instanceof Components.interfaces.nsIDOMHTMLOptionElement) {
-/*			
+/*
 				// FF104: ebo.screen* doesn't return screen coordinates with some sites, result
 				// is same as first half of below... (this seems to have been fixed in DP)
 				var ebo = elem.ownerDocument.getBoxObjectFor(elem);
@@ -354,7 +353,7 @@ var rcxMain = {
 						e = e.defaultView.frameElement;
 					}
 				}
-				
+
 				// need another loop since elements like scrollable DIVs (any others?) are
 				// probably not in the path of offsetParent
 				const mainBody = window.content.document.body;
@@ -384,10 +383,10 @@ var rcxMain = {
 			}
 			else {
                 const bbo = this.getCurrentBrowser().boxObject;
-				
+
 				x -= bbo.screenX;
 				y -= bbo.screenY;
-				
+
 				// go left if necessary
 				if ((x + pW) > (content.innerWidth - 15)) {
 					x = (content.innerWidth - pW) - 15;
@@ -396,17 +395,17 @@ var rcxMain = {
 
 				// below the mouse
 				var v = 20;
-				
+
 				// under the popup title
 				if ((elem.title) && (elem.title != "")) v += 20;
-				
+
 				// go up if necessary
 				if ((y + v + pH) > content.innerHeight) {
 					var t = y - pH - 20;
 					if (t >= 0) y = t;
 				}
 				else y += v;
-				
+
 				x += content.scrollX;
 				y += content.scrollY;
 			}
@@ -422,15 +421,20 @@ var rcxMain = {
 	},
 
 	hidePopup: function() {
-		var popup = window.content.document.getElementById("rikaichan-popup");
+		var popup = window.content.document.getElementById("rikaichan-window");
 		if (popup) {
 			popup.style.display = "none";
 			popup.innerHTML = "";
 		}
 	},
 
+	isVisible: function() {
+		var popup = window.content.document.getElementById("rikaichan-window");
+		return (popup) && (popup.style.display != "none");
+	},
+
 	/////
-	
+
 	clearHi: function() {
 		var tdata = this.getCurrentBrowser().rikaichan;
 		if ((!tdata) || (!tdata.prevSelView)) return;
@@ -442,18 +446,113 @@ var rcxMain = {
 		tdata.prevSelView = null;
 		tdata.kanjiChar = null;
 	},
-	
+
 	/////
 
-	unicodeInfo: function(c) {
-		const hex = "0123456789ABCDEF";
-		const u = c.charCodeAt(0);
-		return c + " U" + hex[(u >>> 12) & 15] + hex[(u >>> 8) & 15] + hex[(u >>> 4) & 15] + hex[u & 15];
+	lastData: '',
+
+	copyToClip: function() {
+		var i, j, n;
+		var s;
+
+		// messy? no way... :)
+		// but, it might be better than slowing down the main lookup code
+
+		var clip = '';
+
+		var lines = this.lastData.split('\n');
+		for (i = 0; i < lines.length; ++i) {
+			var kan;
+			s = lines[i];
+			if (s.match(/<span class="w-kanji">(.+?)<\/span>/)) kan = RegExp.$1;
+				else kan = null;
+			if (s.match(/<span class="w-kana">(?:&#32;)?(.*?)<\/span>.+<br\/><span class="w-def">..(.*?)<\/span>/)) {
+				if (kan) clip += kan + '\t';
+				clip += RegExp.$1 + '\t' + RegExp.$2 + '\n';
+			}
+		}
+
+		var ktables = this.lastData.split('<table class="k-main-tb">');
+		for (i = 0; i < ktables.length; ++i) {
+			var k = ktables[i];
+			if (k.match(/<span class="k-kanji">(.)<\/span>/)) {
+				var kanji = RegExp.$1;
+				var eigo = k.match(/<div class="k-eigo">(.*?)<\/div>/) ? RegExp.$1 : '-';
+				var nanori = '';
+				var bushumei = '';
+				var yomi = '';
+				if (k.match(/<div class="k-yomi">(.*?)<\/div>/)) {
+					yomi = RegExp.$1
+							.replace(/<span class="k-yomi-hi">(.*?)<\/span>/g, '\uFF08$1\uFF09')
+							.replace(/ +/g, '');
+
+					if (yomi.match(/^(.*?)<(.*)$/)) {
+						yomi = RegExp.$1;
+						s = RegExp.$2;
+						nanori = s.match(/\u540D\u4E57\u308A<\/span>(.*)(<|$)/) ? RegExp.$1 : '';
+						bushumei = s.match(/\u90E8\u9996\u540D<\/span>(.*)(<|$)/) ? RegExp.$1 : '';
+					}
+				}
+
+				var misc = '';
+				
+				if (k.match(/<table class="k-bbox-tb">(.*?)<\/table>/)) {
+					s = RegExp.$1.split('</tr>');
+					for (j = 0; j < s.length; ++j) {
+						if (s[j].match(/<td.*>(.*?)<\/td><td.*>(.*?)<\/td><td.*>(.*?)<\/td>/)) {
+							misc += RegExp.$1 + '\t' + RegExp.$2 + '\t' + RegExp.$3 + '\n';
+						}
+					}
+				}
+
+				if (k.match(/<table class="k-abox-tb">(.*?)<\/table>/)) {
+					s = RegExp.$1.split('</tr>');
+					for (j = 0; j < s.length; ++j) {
+						if (s[j].match(/<td.*>(.*?)<br\/>(.*?)<\/td><td.*>(.*?)<br\/>(.*?)<\/td>/)) {
+							misc += RegExp.$1 + '\t' + RegExp.$2 + '\n';
+							misc += RegExp.$3 + '\t' + RegExp.$4 + '\n';
+						}
+					}
+				}
+				
+				if (k.match(/<table class="k-mix-tb">(.*?)<\/table>/)) {
+					s = RegExp.$1.split('</tr>');
+					for (j = 0; j < s.length; ++j) {
+						if (s[j].match(/<td.+>(.*?)<\/td><td.+>(.*?)<\/td>/)) {
+							misc += RegExp.$1 + '\t' + RegExp.$2 + '\n';
+						}
+					}
+				}
+
+				if (clip.length) clip += '\n';
+				clip += kanji + '\n' + eigo + '\n' + yomi + '\n';
+				if (nanori.length) clip += '\u540D\u4E57\u308A: ' + nanori + '\n';
+				if (bushumei.length) clip += '\u90E8\u9996\u540D: ' + bushumei + '\n';
+				clip += misc.replace('&amp;', '&');
+			}
+		}
+		
+/*
+		clip += '\n\n';
+
+		clip += "if (1) {\n";
+		clip += "text = '';\n";
+		for (i = 0; i < lines.length; ++i) {
+			clip += "text += '" + lines[i] + "\\n';\n";
+		}
+		clip += "}\n";
+*/
+//		if (clip.length == 0) return;
+
+		Components.classes["@mozilla.org/widget/clipboardhelper;1"]
+			.getService(Components.interfaces.nsIClipboardHelper)
+			.copyString(clip);
 	},
 
+	/////
 
 	shiftDown: false,
-	
+
 	onKeyDown: function(ev) {
 		if ((ev.keyCode == 16) && (!rcxMain.shiftDown)) {	// shift
 			rcxMain.shiftDown = true;
@@ -462,19 +561,19 @@ var rcxMain = {
 			rcxMain.show(tdata);
 		}
 	},
-	
+
 	onKeyUp: function(ev) {
 		if (ev.keyCode == 16) rcxMain.shiftDown = false;
 	},
 
 
 	mouseButtons: 0,
-	
+
 	onMouseDown: function(ev) {
 		rcxMain.mouseButtons |= (1 << ev.button);
 		rcxMain.hidePopup();
 	},
-	
+
 	onMouseUp: function(ev) {
 		rcxMain.mouseButtons &= ~(1 << ev.button);
 	},
@@ -498,20 +597,26 @@ x	FF66 - FF9D	Katakana half-width
 
 */
 
+	unicodeInfo: function(c) {
+		const hex = "0123456789ABCDEF";
+		const u = c.charCodeAt(0);
+		return c + " U" + hex[(u >>> 12) & 15] + hex[(u >>> 8) & 15] + hex[(u >>> 4) & 15] + hex[u & 15];
+	},
+
 	kanjiN: 1,
 	namesN: 2,
-	
+
 	show: function(tdata) {
 		var rp = tdata.prevRangeNode;
 		var ro = tdata.prevRangeOfs;
 		var u;
-		
+
 		if (!rp) {
 			this.clearHi();
 			this.hidePopup();
 			return;
 		}
-		
+
 		// if we have "   XYZ", where whitespace is compressed, X never seems to get selected
 		while (((u = rp.data.charCodeAt(ro)) == 32) || (u == 9) || (u == 10)) {
 			++ro;
@@ -533,12 +638,12 @@ x	FF66 - FF9D	Katakana half-width
 			this.hidePopup();
 			return;
 		}
-	
+
 		var text = rp.data.substr(ro, 12);
 		var rp = tdata.prevRangeNode;
 		var de = ['', 0];
 		var again;
-		
+
 		do {
 			again = false;
 			switch (tdata.showMode) {
@@ -579,7 +684,11 @@ x	FF66 - FF9D	Katakana half-width
 			sel.addRange(r);
 			tdata.prevSelView = doc.defaultView;
 		}
-		
+
+		if (de[1] > 0) {
+			this.lastData = de[0];
+		}
+
 		this.showPopup((de[1] > 0) ? de[0] : ("no kanji information about " + 	this.unicodeInfo(text.charAt(0))),
 			tdata.prevTarget, tdata.popX, tdata.popY, false);
 	},
@@ -590,7 +699,7 @@ x	FF66 - FF9D	Katakana half-width
 		var rp = ev.rangeParent;
 		var ro = ev.rangeOffset;
 
-		if ((ev.target == tdata.prevTarget) && 
+		if ((ev.target == tdata.prevTarget) &&
 			(rp == tdata.prevRangeNode) && (ro == tdata.prevRangeOfs)) return;
 
 		if (tdata.timer) {
@@ -603,7 +712,7 @@ x	FF66 - FF9D	Katakana half-width
 			rp = null;
 			ro = -1;
 		}
-		
+
 		tdata.prevTarget = ev.target;
 		tdata.prevRangeNode = rp;
 		tdata.prevRangeOfs = ro;
@@ -611,7 +720,7 @@ x	FF66 - FF9D	Katakana half-width
 		if ((this.mouseButtons != 0) || (this.lbFocused)) return;
 
 //		this.clearHi();
-		
+
 /*
 		if ((rp) && ((!rp.data) || (ro >= rp.data.length))) {
 			rcd_status("!data || ro > length");
@@ -623,7 +732,7 @@ x	FF66 - FF9D	Katakana half-width
 			tdata.popX = ev.screenX;
 			tdata.popY = ev.screenY;
 			tdata.timer = setTimeout(
-				function(tdata) { 
+				function(tdata) {
 					rcxMain.show(tdata);
 				}, this.popDelay, tdata);
 		}
@@ -633,10 +742,10 @@ x	FF66 - FF9D	Katakana half-width
 		}
 
 	},
-	
+
 	inlineEnable: function(bro) {
 		var time;
-	
+
 		if (!this.dict) {
 			time = (new Date()).getTime();
 			if (!this.loadDictionary()) return;
@@ -654,11 +763,11 @@ x	FF66 - FF9D	Katakana half-width
 //		bro.addEventListener("unload", this.onTabClose, true);	-- also gets called when location changes
 
 //		changeSelectionColor(true);
-		
+
 		if (time) this.showPopup("Dictionary loaded in " + time + " seconds. rikaichan ready!", null, 5, 5, true);
 		this.setStatus("Ready");
 	},
-	
+
 	inlineDisable: function(bro) {
 		bro.removeEventListener("mousemove", this.onMouseMove, false);
 		bro.removeEventListener("mousedown", this.onMouseDown, false);
@@ -670,12 +779,12 @@ x	FF66 - FF9D	Katakana half-width
 		var e;
 		e = bro.contentDocument.getElementById("rikaichan-css");
 		if (e) e.parentNode.removeChild(e);
-		e = bro.contentDocument.getElementById("rikaichan-popup");
+		e = bro.contentDocument.getElementById("rikaichan-window");
 		if (e) e.parentNode.removeChild(e);
 
 		this.clearHi();
 		delete bro.rikaichan;
-		
+
 		this.setStatus("Disabled");
 	},
 
@@ -689,11 +798,11 @@ x	FF66 - FF9D	Katakana half-width
 			else this.inlineEnable(bro);
 
 		this.onTabSelect();
-		
+
 //		var b = document.getElementById("rikaichan-inline-button");
 //		if (b) b.checked = (bro.rikaichan != undefined);
 	},
-	
+
 	/////
 
 
@@ -714,7 +823,7 @@ x	FF66 - FF9D	Katakana half-width
 	lbFocused: false,
 	lbVisible: false,
 	lbSticky: false,
-	
+
 	lbToggle: function() {
 		if (this.lbVisible) {
 			if (this.lbSticky) this.lbDefaultSearch();
@@ -723,14 +832,14 @@ x	FF66 - FF9D	Katakana half-width
 			this.lbShow();
 		}
 	},
-	
+
 	lbShow: function() {
 		this.lbVisible = true;
 		this.lbLastText = "";
-		
+
 		var bar = document.getElementById("rikaichan-lookup");
 		bar.hidden = false;
-		
+
 		this.lbText = document.getElementById("rikaichan-lookup-text");
 
 		var b = document.getElementById("rikaichan-lookup-button");
@@ -738,7 +847,7 @@ x	FF66 - FF9D	Katakana half-width
 
 		this.lbDefaultSearch();
 	},
-	
+
 	lbHide: function(refocus) {
 		document.getElementById("rikaichan-lookup").hidden = true;
 		this.lbVisible = false;
@@ -746,7 +855,7 @@ x	FF66 - FF9D	Katakana half-width
 
 		var b = document.getElementById("rikaichan-lookup-button");
 		if (b) b.checked = false;
-		
+
 		this.hidePopup();
 
 		if (refocus) window.content.focus();
@@ -755,45 +864,44 @@ x	FF66 - FF9D	Katakana half-width
 	lbDefaultSearch: function() {
 		this.lbText.value = this.getSelectedText(window.content).substr(0, 30);
 		this.lbSearch();
-	
+
 		this.lbVisible = false;
 		this.lbText.select();
 		this.lbText.focus();
 		this.lbVisible = true;
 	},
-	
+
 	lbFocus: function() {
 		this.lbFocused = true;
 	},
-	
+
 	lbBlur: function() {
 		this.lbFocused = false;
 		if (!this.lbVisible) return;
-		if (this.lbSticky) this.hidePopup();
-			else this.lbHide(false);
+		if (!this.lbSticky) this.lbHide(false);
 	},
-	
+
 	lbSearch: function() {
 		var s = this.lbText.value;
 		var doNames = false;
 
 		if (this.haveNames) {
-			if (this.lbLastText == s) {
+			if ((this.lbLastText == s) && (this.isVisible())) {
 				this.lbLastText = "";
 				doNames = true;
 			}
 			else this.lbLastText = s;
 		}
-		
+
 		s = s.replace(/[^\u3001-\uFFFF]/g, "");
 		if (s.length == 0) {
 			this.hidePopup();
 			return;
 		}
-	
+
 		if (!this.loadDictionary()) return;
 		var w = this.dict.lookup(s, doNames);
-		
+
 		var maxK = Math.max(Math.floor((content.innerWidth - 10) / 310) - 1, 1);
 		var k = "";
 		var have = [];
@@ -806,12 +914,16 @@ x	FF66 - FF9D	Katakana half-width
 			k += "<td class='q-k'>" + x + "</td>";
 			if (--maxK <= 0) break;
 		}
-		i = 0;
-		this.showPopup("<table class='q-tb'><tr><td class='q-w'>" + 
+
+		if (w[1]) {
+			this.lastData = w[0] + k;
+		}
+
+		this.showPopup("<table class='q-tb'><tr><td class='q-w'>" +
 			(w[1] ? w[0] : ("no information about " + s)) +
 			"</td>" + k + "</tr></table>", null, 5, 5, true);
 	},
-	
+
 	lbKey: function(ev) {
 		if (ev.keyCode ==  27) {
 			ev.preventDefault();
@@ -824,11 +936,11 @@ x	FF66 - FF9D	Katakana half-width
 		document.getElementById("rikaichan-lookup-text").focus();
 		this.getPrefBranch().setBoolPref("sticky", this.lbSticky);
 	},
-	
+
 	lbUpdateSticky: function() {
 		document.getElementById("rikaichan-lookup-sticky").checked = this.lbSticky;
 	}
-	
+
 };
 
 ///

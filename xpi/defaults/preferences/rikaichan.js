@@ -9,6 +9,11 @@ pref("rikaichan.lookup.keymod", "alt");
 pref("rikaichan.lookup.showincm", false);
 pref("rikaichan.lookup.showintm", true);
 
+pref("rikaichan.clip.key", "");
+pref("rikaichan.clip.keymod", "");
+pref("rikaichan.clip.showincm", false);
+pref("rikaichan.clip.showintm", false);
+
 pref("rikaichan.popdelay", 50);
 pref("rikaichan.css", "blue");
 pref("rikaichan.dictorder", 1);

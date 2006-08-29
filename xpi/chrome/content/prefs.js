@@ -23,8 +23,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 var rcxPrefs = {
-	funcNames: ['toggle', 'lookup'],
-	keyModNames: ['accel', 'alt', 'shift'],
+	funcNames: ["toggle", "lookup", "clip"],
+	keyModNames: ["accel", "alt", "shift"],
 
 	onLoad: function() {
 		const keyCodes = [
@@ -120,7 +120,6 @@ var rcxPrefs = {
 				}
 			}
 			br.setCharPref(na + ".keymod", v);
-			
 			br.setBoolPref(na + ".showincm", document.getElementById("showcm-" + na).checked);
 			br.setBoolPref(na + ".showintm", document.getElementById("showtm-" + na).checked);
 		}

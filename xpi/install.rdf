@@ -6,7 +6,7 @@ xmlns:em="http://www.mozilla.org/2004/em-rdf#">
 
 		<em:id>{0AA9101C-D3C1-4129-A9B7-D778C6A17F82}</em:id>
 		<em:name>rikaichan</em:name>
-		<em:version>0.5.11</em:version>
+		<em:version>0.5.12</em:version>
 		<em:description>Popup Japanese dictionary. Licensed under GNU GPL.</em:description>
 		<em:creator>Jonathan Zarate</em:creator>
 		<em:contributor>Based on rikaiXUL by Todd Rudick</em:contributor>
