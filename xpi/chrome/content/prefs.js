@@ -25,7 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 var rcxPrefs = {
 	funcNames: ["toggle", "lookup", "clip"],
 	keyModNames: ["accel", "alt", "shift"],
-
+	indexCodes: ["COMP", "H","L","DK","N","V","Y","P","IN","I","U"],
+	
 	onLoad: function() {
 		const keyCodes = [
 			"(disabled)",
@@ -76,15 +77,14 @@ var rcxPrefs = {
 		document.getElementById("rc-colors").value = br.getCharPref("css");
 		document.getElementById("rc-highlight").checked = br.getBoolPref("hion");
 		
-		x = document.getElementById("rc-delaynames");
-		this.haveNames = rcxHaveNames();
-		if (this.haveNames) {
-			x.checked = br.getBoolPref("delaynames");
-			document.getElementById("rc-dictorder").value = br.getIntPref("dictorder");
-		}
-		else {
-			x.hidden = true;
-			document.getElementById("rc-dovbox").hidden = true;
+		document.getElementById("rc-delaynames").checked = br.getBoolPref("delaynames");
+		document.getElementById("rc-dictorder").value = br.getIntPref("dictorder");
+		
+		v = br.getCharPref("kindex").split(",");
+		for (i = 0; i < v.length; ++i) {
+			if ((e = document.getElementById("rc-index-" + v[i])) != null) {
+				e.checked = true;
+			}
 		}
 	},
 
@@ -128,10 +128,16 @@ var rcxPrefs = {
 		br.setCharPref("css", document.getElementById("rc-colors").value);
 		br.setBoolPref("hion", document.getElementById("rc-highlight").checked);
 		
-		if (this.haveNames) {
-			br.setIntPref("dictorder", document.getElementById("rc-dictorder").value);
-			br.setBoolPref("delaynames", document.getElementById("rc-delaynames").checked);
+		br.setIntPref("dictorder", document.getElementById("rc-dictorder").value);
+		br.setBoolPref("delaynames", document.getElementById("rc-delaynames").checked);
+		
+		v = [];
+		for (i = 0; i < this.indexCodes.length; ++i) {
+			if (document.getElementById("rc-index-" + this.indexCodes[i]).checked) {
+				v.push(this.indexCodes[i]);
+			}
 		}
+		br.setCharPref("kindex", v.join(","));
 		return true;
 	},
 

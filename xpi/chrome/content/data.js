@@ -64,7 +64,7 @@ rcxDict.prototype = {
 	},
 
 	//
-
+	
 	fileRead: function(url, charset) {
 		var ios = Components.classes["@mozilla.org/network/io-service;1"]
 					.getService(Components.interfaces.nsIIOService);
@@ -541,6 +541,12 @@ if (0) {
 	
 	//
 
+	kanjiDisplay: [],
+	
+	setKanjiDisplay: function(k) {
+		this.kanjiDisplay = k;
+	},
+	
 	kanjiInfo: function(kanji) {
 		var kdEntry = this.binSearchF(this.kanjiData, kanji);
 		if (!kdEntry) return "";
@@ -607,24 +613,26 @@ if (0) {
 			'</tr></table>';
 
 		// components of a kanji
-		// ^^ j = moreinfo['B'] - 1;
-		t = this.radData[j].split("\t");
-		xbox += '<table class="k-bbox-tb">' +
-				'<tr><td class="k-bbox-1a">' + t[0] + '</td>' +
-				'<td class="k-bbox-1b">' + t[2] + '</td>' +
-				'<td class="k-bbox-1b">' + t[3] + '</td></tr>';
-		n = 1;
-		for (i = 0; i < this.radData.length; ++i) {
-			s = this.radData[i];
-			if ((j != i) && (s.indexOf(kanji) != -1)) {
-				t = s.split("\t");
-				cls = ' class="k-bbox-' + (n ^= 1);
-				xbox += '<tr><td' + cls + 'a">' + t[0] + '</td>' +
-						'<td' + cls + 'b">' + t[2] + '</td>' +
-						'<td' + cls + 'b">' + t[3] + '</td></tr>';
-			}			
+		if (this.kanjiDisplay["COMP"] == 1) {
+			// ^^ j = moreinfo['B'] - 1;
+			t = this.radData[j].split("\t");
+			xbox += '<table class="k-bbox-tb">' +
+					'<tr><td class="k-bbox-1a">' + t[0] + '</td>' +
+					'<td class="k-bbox-1b">' + t[2] + '</td>' +
+					'<td class="k-bbox-1b">' + t[3] + '</td></tr>';
+			n = 1;
+			for (i = 0; i < this.radData.length; ++i) {
+				s = this.radData[i];
+				if ((j != i) && (s.indexOf(kanji) != -1)) {
+					t = s.split("\t");
+					cls = ' class="k-bbox-' + (n ^= 1);
+					xbox += '<tr><td' + cls + 'a">' + t[0] + '</td>' +
+							'<td' + cls + 'b">' + t[2] + '</td>' +
+							'<td' + cls + 'b">' + t[3] + '</td></tr>';
+				}			
+			}
+			xbox += '</table>';
 		}
-		xbox += '</table>';
 
 		// index & stuff
 		const dc = [
@@ -652,9 +660,11 @@ if (0) {
 		var mix = '';
 		n = 0;
 		for (i = 0; i < dc.length; i += 2) {
-			s = moreinfo[dc[i]];
-			cls = ' class="k-mix-td' + (n ^= 1) + '"';
-			mix += '<tr><td' + cls + '>' + dc[i + 1] + '</td><td' + cls + '>' + (s ? s : '-') + '</td></tr>';
+			if (this.kanjiDisplay[dc[i]] == 1) {
+				s = moreinfo[dc[i]];
+				cls = ' class="k-mix-td' + (n ^= 1) + '"';
+				mix += '<tr><td' + cls + '>' + dc[i + 1] + '</td><td' + cls + '>' + (s ? s : '-') + '</td></tr>';
+			}
 		}
 		if (mix != '') mix = '<table class="k-mix-tb">' + mix + '</table>';
 

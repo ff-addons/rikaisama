@@ -76,11 +76,11 @@ var rcxMain = {
 
 	init: function() {
 		window.addEventListener("load", this.onLoad, false);
-        this.is_tbird = (navigator.userAgent.search(/Thunderbird\/\d+/) != -1);
+        this.isTB = (navigator.userAgent.search(/Thunderbird\/\d+/) != -1);
 	},
 
     getCurrentBrowser: function() {
-		if (this.is_tbird) {
+		if (this.isTB) {
 			var b = document.getElementById("messagepane");
 			if (b) return b;
 			return document.getElementById("content-frame");	// compose
@@ -115,7 +115,7 @@ var rcxMain = {
 
 		var mks;
 
-		if (this.is_tbird) {
+		if (this.isTB) {
 			Components.classes["@mozilla.org/observer-service;1"]
 				.getService(Components.interfaces.nsIObserverService)
 				.addObserver(this.tbObs, "mail:composeOnSend", false);
@@ -151,12 +151,12 @@ var rcxMain = {
 		this.loadPrefs();
 
         // Thunderbird has no tabs
-        if (!this.is_tbird) gBrowser.mTabContainer.addEventListener("select", this.onTabSelect, false);
+        if (!this.isTB) gBrowser.mTabContainer.addEventListener("select", this.onTabSelect, false);
 	},
 
 	onUnload: function() { rcxMain._onUnload(); },
 	_onUnload: function() {
-        if (this.is_tbird) {
+        if (this.isTB) {
 			Components.classes["@mozilla.org/observer-service;1"]
 				.getService(Components.interfaces.nsIObserverService)
 				.removeObserver(this.tbObs, "mail:composeOnSend");
@@ -183,7 +183,7 @@ var rcxMain = {
 
 	prefobs: {
 		observe: function(aSubject, aTopic, aPrefName) {
-            if (this.is_tbird) return;
+            if (this.isTB) return;
 
             rcxMain.loadPrefs();
 			for (var i = 0; i < gBrowser.browsers.length; ++i) {
@@ -206,7 +206,7 @@ var rcxMain = {
 			document.getElementById("rikaichan-toggle-" + xm[i]).hidden = a;
 			document.getElementById("rikaichan-lookup-" + xm[i]).hidden = b;
 			document.getElementById("rikaichan-clip-" + xm[i]).hidden = c;
-			if (!this.is_tbird) {
+			if (!this.isTB) {
 				document.getElementById("rikaichan-separator-" + xm[i]).hidden = a || b || c;
 			}
 		}
@@ -233,8 +233,16 @@ var rcxMain = {
 
 		this.highlight = br.getBoolPref("hion");
 		this.popDelay = br.getIntPref("popdelay");
-		this.lbSticky = br.getBoolPref("sticky");
 		this.delayNames = br.getBoolPref("delaynames");
+		
+		this.kanjiDisplay = [];
+		a = br.getCharPref("kindex").split(",");
+		for (i = 0; i < a.length; ++i) {
+			this.kanjiDisplay[a[i]] = 1;
+		}
+		if (this.dict) this.dict.setKanjiDisplay(this.kanjiDisplay);
+		
+		this.lbSticky = br.getBoolPref("sticky");
 		this.lbUpdateSticky();
 	},
 
@@ -255,6 +263,7 @@ var rcxMain = {
 			try {
 				this.setStatus("Loading dictionary...");
 				this.dict = new rcxDict(this.haveNames && !this.delayNames);
+				this.dict.setKanjiDisplay(this.kanjiDisplay);
 				this.setStatus("Dictionary loaded.");
 			}
 			catch (ex) {
@@ -531,18 +540,6 @@ var rcxMain = {
 				clip += misc.replace('&amp;', '&');
 			}
 		}
-		
-/*
-		clip += '\n\n';
-
-		clip += "if (1) {\n";
-		clip += "text = '';\n";
-		for (i = 0; i < lines.length; ++i) {
-			clip += "text += '" + lines[i] + "\\n';\n";
-		}
-		clip += "}\n";
-*/
-//		if (clip.length == 0) return;
 
 		Components.classes["@mozilla.org/widget/clipboardhelper;1"]
 			.getService(Components.interfaces.nsIClipboardHelper)
@@ -552,18 +549,39 @@ var rcxMain = {
 	/////
 
 	shiftDown: false,
-
+	enterDown: false,
+	
 	onKeyDown: function(ev) {
-		if ((ev.keyCode == 16) && (!rcxMain.shiftDown)) {	// shift
+		switch (ev.keyCode) {
+		case 13:
+			if (rcxMain.enterDown) return;
+			rcxMain.enterDown = true;
+			if (!rcxMain.isVisible()) return;
+			ev.preventDefault();
+			break;
+		case 16:
+			if (rcxMain.shiftDown) return;
 			rcxMain.shiftDown = true;
-			var tdata = ev.currentTarget.rikaichan;	// per-tab data
-			tdata.showMode = (tdata.showMode + 1) % (rcxMain.canDoNames ? 3 : 2);
-			rcxMain.show(tdata);
+			if (!rcxMain.isVisible()) return;
+			break;
+		default:
+			return;
 		}
+		
+		var tdata = ev.currentTarget.rikaichan;
+		tdata.showMode = (tdata.showMode + 1) % (rcxMain.canDoNames ? 3 : 2);
+		rcxMain.show(tdata);
 	},
 
 	onKeyUp: function(ev) {
-		if (ev.keyCode == 16) rcxMain.shiftDown = false;
+		switch (ev.keyCode) {
+		case 13:
+			rcxMain.enterDown = false;
+			break;
+		case 16:
+			rcxMain.shiftDown = false;
+			break;
+		}
 	},
 
 
@@ -707,7 +725,6 @@ x	FF66 - FF9D	Katakana half-width
 			tdata.timer = null;
 		}
 
-//		rcd_status(ev.timeStamp + ": eot=" + ev.explicitOriginalTarget.nodeName + " rp=" + (rp?rp.nodeName:"null"));
 		if ((ev.explicitOriginalTarget.nodeType != 3) && !("form" in ev.target)) {
 			rp = null;
 			ro = -1;
@@ -719,14 +736,6 @@ x	FF66 - FF9D	Katakana half-width
 
 		if ((this.mouseButtons != 0) || (this.lbFocused)) return;
 
-//		this.clearHi();
-
-/*
-		if ((rp) && ((!rp.data) || (ro >= rp.data.length))) {
-			rcd_status("!data || ro > length");
-			return;
-		}
-*/
 		if ((rp) && (rp.data) && (ro < rp.data.length)) {
 			tdata.showMode = ev.shiftKey ? 1 : 0;
 			tdata.popX = ev.screenX;
@@ -760,7 +769,6 @@ x	FF66 - FF9D	Katakana half-width
 		bro.addEventListener("mouseup", this.onMouseUp, false);
 		bro.addEventListener("keydown", this.onKeyDown, true);
 		bro.addEventListener("keyup", this.onKeyUp, true);
-//		bro.addEventListener("unload", this.onTabClose, true);	-- also gets called when location changes
 
 //		changeSelectionColor(true);
 
@@ -774,7 +782,6 @@ x	FF66 - FF9D	Katakana half-width
 		bro.removeEventListener("mouseup", this.onMouseUp, false);
 		bro.removeEventListener("keydown", this.onKeyDown, true);
 		bro.removeEventListener("keyup", this.onKeyUp, true);
-//		bro.removeEventListener("unload", this.onTabClose, true);
 
 		var e;
 		e = bro.contentDocument.getElementById("rikaichan-css");
@@ -798,9 +805,6 @@ x	FF66 - FF9D	Katakana half-width
 			else this.inlineEnable(bro);
 
 		this.onTabSelect();
-
-//		var b = document.getElementById("rikaichan-inline-button");
-//		if (b) b.checked = (bro.rikaichan != undefined);
 	},
 
 	/////

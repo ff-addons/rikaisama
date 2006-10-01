@@ -6,7 +6,7 @@
 <!ENTITY rikaichan.prefs.copytoclip "Copy to clipboard">
 <!ENTITY rikaichan.prefs.restart "Note: Browser must be restarted after changing the keyboard shortcuts.">
 <!ENTITY rikaichan.prefs.showincontext "Show in context menu">
-<!ENTITY rikaichan.prefs.showintools "Show in context menu">
+<!ENTITY rikaichan.prefs.showintools "Show in tools menu">
 <!ENTITY rikaichan.prefs.popupdelay "Popup delay (ms)">
 <!ENTITY rikaichan.prefs.colorscheme "Color scheme">
 <!ENTITY rikaichan.prefs.blue "Blue">

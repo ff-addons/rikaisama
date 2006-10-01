@@ -17,7 +17,10 @@ pref("rikaichan.clip.showintm", false);
 pref("rikaichan.popdelay", 50);
 pref("rikaichan.css", "blue");
 pref("rikaichan.dictorder", 1);
-pref("rikaichan.delaynames", true);
 pref("rikaichan.hion", true);
 
+pref("rikaichan.delaynames", true);
+pref("rikaichan.kindex", "COMP,H,L,DK,N,V,Y,P,IN,I,U");
+
 pref("rikaichan.sticky", true);
+

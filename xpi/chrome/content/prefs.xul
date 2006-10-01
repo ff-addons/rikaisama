@@ -83,7 +83,11 @@
 		</menulist>
 	</vbox>
 
-	<vbox flex="1" id="rc-dovbox">
+	<checkbox id="rc-highlight" label="&rikaichan.prefs.enablehi;" />
+</groupbox>	
+
+<groupbox flex="0">
+	<vbox flex="1">
 		<label value="&rikaichan.prefs.do;" />
 		<menulist id="rc-dictorder" flex="1" >
 			<menupopup>
@@ -93,10 +97,31 @@
 			</menupopup>
 		</menulist>
 	</vbox>
-	
 	<checkbox id="rc-delaynames" label="&rikaichan.prefs.delaynames;" />
-	<checkbox id="rc-highlight" label="&rikaichan.prefs.enablehi;" />
-</groupbox>	
+</groupbox>
+
+<groupbox flex="0">
+	<caption label="Kanji information to display" />
+	<hbox>
+		<vbox>
+			<checkbox id="rc-index-COMP" label="Kanji Components" />
+			<checkbox id="rc-index-H" label="Halpern" />
+			<checkbox id="rc-index-L" label="Heisig" />
+			<checkbox id="rc-index-DK" label="Kanji Learners Dictionary" />
+		</vbox>
+		<vbox>
+			<checkbox id="rc-index-N" label="Nelson" />
+			<checkbox id="rc-index-V" label="New Nelson" />
+			<checkbox id="rc-index-Y" label="PinYin" />
+			<checkbox id="rc-index-P" label="Skip Pattern" />
+		</vbox>
+		<vbox>
+			<checkbox id="rc-index-IN" label="Tuttle Kanji &amp; Kana" />
+			<checkbox id="rc-index-I" label="Tuttle Kanji Dictionary" />
+			<checkbox id="rc-index-U" label="Unicode" />
+		</vbox>
+	</hbox>
+</groupbox>
 
 <vbox flex="10" />
 
