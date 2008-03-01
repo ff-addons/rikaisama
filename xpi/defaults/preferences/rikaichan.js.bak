@@ -3,7 +3,6 @@ pref('rikaichan.popdelay', 50);
 pref('rikaichan.highlight', 1);
 pref('rikaichan.resizedoc', 1);
 pref('rikaichan.dictorder', 1);
-pref('rikaichan.title', 1);
 
 pref('rikaichan.cmtoggle', true);
 pref('rikaichan.cmlbar', false);

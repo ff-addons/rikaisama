@@ -1,34 +1,37 @@
 /*
 
-rikaichan
-Copyright (C) 2005-2006 Jonathan Zarate
-http://www.polarcloud.com/
+	Rikaichan
+	Copyright (C) 2005-2008 Jonathan Zarate
+	http://www.polarcloud.com/
 
-Based on rikaiXUL 0.4 by Todd Rudick
-http://rikaixul.mozdev.org/
+	---
 
----
+	Based on rikaiXUL 0.4 by Todd Rudick
+	http://rikaixul.mozdev.org/
+	http://www.rikai.com/
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+	---
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+	---
+
+	Please do not change or remove any of the copyrights or links to web pages
+	when modifying any of the files. - Jon
 
 */
-
-
-function rcxHaveNames() {
-	return typeof(rcxNamesDict) != "undefined";
-}
 
 function rcxDict(loadNames) {
 	var hWindow = Components.classes["@mozilla.org/appshell/appShellService;1"]
@@ -39,24 +42,24 @@ function rcxDict(loadNames) {
 		hWindow.rikaichan_dict.lock();
 		return hWindow.rikaichan_dict;
 	}
-	
+
 	this.loadDictionary();
 	if (loadNames) this.loadNames();
-	this.loadDifRules();
-	
+	this.loadDIF();
+
 	this.lock();
 	this.hWindow = hWindow;
 	hWindow.rikaichan_dict = this;
 }
 
 rcxDict.prototype = {
-	
+
 	lockCount: 0,
-	
+
 	lock: function() {
 		++this.lockCount;
 	},
-	
+
 	unlock: function() {
 		if (--this.lockCount == 0) {
 			delete this.hWindow.rikaichan_dict;
@@ -64,69 +67,61 @@ rcxDict.prototype = {
 	},
 
 	//
-	
+
+	config: {},
+
+	setConfig: function(c) {
+		this.config = c;
+	},
+
+	//
+
 	fileRead: function(url, charset) {
-		var ios = Components.classes["@mozilla.org/network/io-service;1"]
-					.getService(Components.interfaces.nsIIOService);
-		var ss = Components.classes["@mozilla.org/scriptableinputstream;1"]
-					.getService(Components.interfaces.nsIScriptableInputStream);
-		var ch = ios.newChannel(url, null, null);
-		var inp = ch.open();
+		var ss;
+		var inp;
+		var buffer;
+		var conv;
+
+		ss = Components.classes['@mozilla.org/scriptableinputstream;1']
+				.getService(Components.interfaces.nsIScriptableInputStream);
+		inp = Components.classes['@mozilla.org/network/io-service;1']
+				.getService(Components.interfaces.nsIIOService)
+				.newChannel(url, null, null)
+				.open();
 		ss.init(inp);
-		var buffer = ss.read(inp.available());
+		buffer = ss.read(inp.available());
 		ss.close();
 		inp.close();
-		
 		if (!charset) return buffer;
-		
-		var conv = Components.classes['@mozilla.org/intl/scriptableunicodeconverter']
-						.createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+
+		conv = Components.classes['@mozilla.org/intl/scriptableunicodeconverter']
+					.createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
 		conv.charset = charset;
 		return conv.ConvertToUnicode(buffer);
 	},
-	
+
 	fileReadArray: function(name, charset) {
-		var a = this.fileRead(name, charset).split("\n");
+		var a = this.fileRead(name, charset).split('\n');
 		while ((a.length > 0) && (a[a.length - 1].length == 0)) a.pop();
 		return a;
 	},
-	
-	//
-	/*
-	binSearchX: function(data, text) {
-		var tlen = text.length;
-		var midi;
-		var mids;
-		var start = 0;
-		var end = data.length - 1;
-		while (start <= end) {
-			midi = (start + end) >> 1;
-			mids = data[midi].substr(0, tlen);
-			if (text > mids) start = midi + 1;
-				else if (text < mids) end = midi - 1;
-					else return midi;
-		}
-		return -1;
-	},	
-	*/
 
-	// slow, but uses a lot less memory than array search; someone improve me!
-	binSearchF: function(data, text) {
+	find: function(data, text) {
 		const tlen = text.length;
 		var beg = 0;
 		var end = data.length - 1;
 		var i;
 		var mi;
 		var mis;
-		
+
 		while (beg < end) {
 			mi = (beg + end) >> 1;
-			i = data.lastIndexOf("\n", mi) + 1;
-			
+			i = data.lastIndexOf('\n', mi) + 1;
+
 			mis = data.substr(i, tlen);
 			if (text < mis) end = i - 1;
-				else if (text > mis) beg = data.indexOf("\n", mi + 1) + 1;
-					else return data.substring(i, data.indexOf("\n", mi + 1));
+				else if (text > mis) beg = data.indexOf('\n', mi + 1) + 1;
+					else return data.substring(i, data.indexOf('\n', mi + 1));
 		}
 		return null;
 	},
@@ -138,63 +133,62 @@ rcxDict.prototype = {
 		this.nameDict = this.fileRead(rcxNamesDict.datURI, rcxNamesDict.datCharset);
 		this.nameIndex = this.fileRead(rcxNamesDict.idxURI, rcxNamesDict.idxCharset);
 	},
-	
-	loadDictionary: function() {
-//		this.test_index(); return;
 
+	//	Note: These are mostly flat text files; loaded as one continous string to reduce memory use
+	loadDictionary: function() {
 		this.wordDict = this.fileRead(rcxWordDict.datURI, rcxWordDict.datCharset);
 		this.wordIndex = this.fileRead(rcxWordDict.idxURI, rcxWordDict.idxCharset);
+		this.kanjiData = this.fileRead('chrome://rikaichan/content/kanji.dat', 'UTF-8');
+		this.radData = this.fileReadArray('chrome://rikaichan/content/radicals.dat', 'UTF-8');
 
-		this.kanjiData = this.fileRead("chrome://rikaichan/content/kanji.dat", "UTF-8");
-		this.radData = this.fileReadArray("chrome://rikaichan/content/radicals.dat", "UTF-8");
-		
-//		this.test_kanji();
+		//	this.test_kanji();
 	},
 /*
 	test_kanji: function() {
-		var a = this.kanjiData.split("\n");
-		
-		alert("begin test. a.length=" + a.length);
+		var a = this.kanjiData.split('\n');
+
+		alert('begin test. a.length=' + a.length);
 		var start = (new Date()).getTime();
 		for (var i = 0; i < a.length; ++i) {
-			if (this.kanjiInfo(a[i].charAt(0)) == '') {
-				alert("error @" + i + ": " + a[i]);
+			if (!this.kanjiSearch(a[i].charAt(0))) {
+				alert('error @' + i + ': ' + a[i]);
 				return;
 			}
 		}
-		alert("time = " + ((new Date()).getTime() - start));
+		alert('time = ' + ((new Date()).getTime() - start));
 	},
 */
+
 /*
 	test_index: function() {
-		var ixF = this.fileRead("chrome://rikaichan/content/dict.idx", "EUC-JP");
-		var ixA = ixF.split("\n");
+		var ixF = this.fileRead('chrome://rikaichan/content/dict.idx', 'EUC-JP');
+		var ixA = ixF.split('\n');
 
 		while ((ixA.length > 0) && (ixA[ixA.length - 1].length == 0)) ixA.pop();
-		
-//		alert("length=" + ixA.length + " / " + ixF.length);
-if (0) {		
+
+//		alert('length=' + ixA.length + ' / ' + ixF.length);
+if (0) {
 		var timeA = (new Date()).getTime();
 		for (var i = ixA.length - 1; i >= 0; --i) {
-			if ((i & 0xFF) == 0) window.status = "A: " + i;
+			if ((i & 0xFF) == 0) window.status = 'A: ' + i;
 			var s = ixA[i];
-			var r = this.binSearchX(ixA, s.substr(0, s.indexOf(",") + 1));
+			var r = this.binSearchX(ixA, s.substr(0, s.indexOf(',') + 1));
 			if ((r == -1) || (ixA[r] != s)) {
-				alert("A failed: " + s);
+				alert('A failed: ' + s);
 				return;
 			}
 		}
-}		
+}
 		timeA = ((new Date()).getTime() - timeA) / 1000;
 
 
 		var timeF = (new Date()).getTime();
 		for (var i = ixA.length - 1; i >= 0; --i) {
-			if ((i & 0xFF) == 0) window.status = "F: " + i;
+			if ((i & 0xFF) == 0) window.status = 'F: ' + i;
 			var s = ixA[i];
-			var r = this.binSearchF(ixF, s.substr(0, s.indexOf(",") + 1));
+			var r = this.find(ixF, s.substr(0, s.indexOf(',') + 1));
 			if (r != s) {
-				alert("F failed: " + s);
+				alert('F failed: ' + s);
 				return;
 			}
 		}
@@ -203,47 +197,47 @@ if (0) {
 		var timeX = (new Date()).getTime();
 if (0) {
 		for (var i = ixA.length - 1; i >= 0; --i) {
-			if ((i & 0xFF) == 0) window.status = "X: " + i;
+			if ((i & 0xFF) == 0) window.status = 'X: ' + i;
 			var s = ixA[i];
-			
-			var w = s.substr(0, s.indexOf(",") + 1);
+
+			var w = s.substr(0, s.indexOf(',') + 1);
 			var j = 0;
-			r = "";
+			r = '';
 			if (ixF.substr(0, w.length) == w) {
-				r = ixF.substr(0, ixF.indexOf("\n"));
+				r = ixF.substr(0, ixF.indexOf('\n'));
 			}
 			else {
-				w = "\n" + w;
+				w = '\n' + w;
 				j = ixF.indexOf(w);
-				if (j != -1) r = ixF.substring(j + 1, ixF.indexOf("\n", j + 1));
+				if (j != -1) r = ixF.substring(j + 1, ixF.indexOf('\n', j + 1));
 			}
-				
+
 			if (r != s) {
-				alert("X failed:\n[" + s + "]\n[" + r + "]");
+				alert('X failed:\n[' + s + ']\n[' + r + ']');
 				return;
 			}
 		}
 }
 		timeX = ((new Date()).getTime() - timeX) / 1000;
 
-		alert("A=" + timeA + " / F=" + timeF + " / X=" + timeX);
+		alert('A=' + timeA + ' / F=' + timeF + ' / X=' + timeX);
 	},
 
-*/	
+*/
 	///
-	
-	loadDifRules: function() {
+
+	loadDIF: function() {
 		this.difReasons = [];
 		this.difRules = [];
 		this.difExact = [];
-		
-		var buffer = this.fileReadArray("chrome://rikaichan/content/deinflect.dat", "UTF-8");
+
+		var buffer = this.fileReadArray('chrome://rikaichan/content/deinflect.dat', 'UTF-8');
 		var prevLen = -1;
 		var g, o;
-		
+
 		// i = 1: skip header
 		for (var i = 1; i < buffer.length; ++i) {
-			var f = buffer[i].split("\t");
+			var f = buffer[i].split('\t');
 
 			if (f.length == 1) {
 				this.difReasons.push(f[0]);
@@ -254,7 +248,7 @@ if (0) {
 				o.to = f[1];
 				o.type = f[2];
 				o.reason = f[3];
-				
+
 				if (prevLen != o.from.length) {
 					prevLen = o.from.length;
 					g = [];
@@ -264,9 +258,9 @@ if (0) {
 				g.push(o);
 			}
 		}
-		
+
 	},
-	
+
 	deinflect: function(word) {
 		var r = [];
 		var have = [];
@@ -275,11 +269,11 @@ if (0) {
 		o = {};
 		o.word = word;
 		o.type = 0xFF;
-		o.reason = "";
-		//o.debug = "root";
+		o.reason = '';
+		//o.debug = 'root';
 		r.push(o);
 		have[word] = 0;
-	
+
 		var i, j, k;
 
 		i = 0;
@@ -301,17 +295,17 @@ if (0) {
 							if (have[newWord] != undefined) {
 								o = r[have[newWord]];
 								o.type |= (rule.type >> 8);
-								
-								//o.reason += " / " + r[i].reason + " " + this.difReasons[rule.reason];
-								//o.debug += " @ " + rule.debug;
+
+								//o.reason += ' / ' + r[i].reason + ' ' + this.difReasons[rule.reason];
+								//o.debug += ' @ ' + rule.debug;
 								continue;
 							}
 							have[newWord] = r.length;
-							if (r[i].reason.length) o.reason = r[i].reason + " " + this.difReasons[rule.reason];
+							if (r[i].reason.length) o.reason = r[i].reason + ' ' + this.difReasons[rule.reason];
 								else o.reason = this.difReasons[rule.reason];
 							o.type = rule.type >> 8;
 							o.word = newWord;
-							//o.debug = r[i].debug + " $ " + rule.debug;
+							//o.debug = r[i].debug + ' $ ' + rule.debug;
 							r.push(o);
 						}
 					}
@@ -322,8 +316,8 @@ if (0) {
 
 		return r;
 	},
-	
-	
+
+
 
 	// katakana -> hiragana conversion tables
 	ch:[0x3092,0x3041,0x3043,0x3045,0x3047,0x3049,0x3083,0x3085,0x3087,0x3063,0x30FC,0x3042,0x3044,0x3046,
@@ -334,28 +328,24 @@ if (0) {
 		0x3062,0x3065,0x3067,0x3069,0xFF85,0xFF86,0xFF87,0xFF88,0xFF89,0x3070,0x3073,0x3076,0x3079,0x307C],
 	cs:[0x3071,0x3074,0x3077,0x307A,0x307D],
 
-	// returns [the entries, maximum length matched]
-	lookup: function(word, doNames) {
-		var i;
-		var u;
-		var v;
-		var r;
-		var p;
+	wordSearch: function(word, doNames, max) {
+		var i, u, v, r, p;
 		var trueLen = [0];
+		var entry = { };
 
 		// half & full-width katakana to hiragana conversion
 		// note: katakana vu is never converted to hiragana
-		
+
 		p = 0;
-		r = "";
+		r = '';
 		for (i = 0; i < word.length; ++i) {
 			u = v = word.charCodeAt(i);
-			
+
 			if (u <= 0x3000) break;
-			
+
 			// full-width katakana to hiragana
 			if ((u >= 0x30A1) && (u <= 0x30F3)) {
-				u -= 0x60;	
+				u -= 0x60;
 			}
 			// half-width katakana to hiragana
 			else if ((u >= 0xFF66) && (u <= 0xFF9D)) {
@@ -380,7 +370,7 @@ if (0) {
 				p = 0;
 				continue;
 			}
-			
+
 			r += String.fromCharCode(u);
 			trueLen[r.length] = i + 1;	// need to keep real length because of the half-width semi/voiced conversion
 			p = v;
@@ -388,80 +378,74 @@ if (0) {
 		word = r;
 
 
-		// lookup
-		var dict
+		var dict;
 		var index;
 		var maxTrim;
-		if (doNames) {
-			this.loadNames();
-			dict = this.nameDict;
-			index = this.nameIndex;
-			maxTrim = 40;
-		}
-		else {
-			dict = this.wordDict;
-			index = this.wordIndex;
-			maxTrim = 10;
-		}
-		
 		var cache = [];
         var have = [];
         var count = 0;
         var maxLen = 0;
-		r = "";
+		var canTrim;
+
+		if (doNames) {
+			// check: split this
+
+			this.loadNames();
+			dict = this.nameDict;
+			index = this.nameIndex;
+			maxTrim = this.config.namax;
+			entry.names = 1;
+			canTrim = 1;
+		}
+		else {
+			dict = this.wordDict;
+			index = this.wordIndex;
+			maxTrim = this.config.wmax;
+			canTrim = 0;
+		}
+		
+		if (max != null) maxTrim = max;
+
+		entry.data = [];
+
         while (word.length > 0) {
 			var showInf = (count != 0);
 			var trys;
-			if (doNames) {
-				trys = [{'word':word, 'type':0xFF, 'reason':''}];
-			}
-            else {
-				trys = this.deinflect(word);
-			}
+
+			if (doNames) trys = [{'word': word, 'type': 0xFF, 'reason': null}];
+				else trys = this.deinflect(word);
+
             for (i = 0; i < trys.length; i++) {
                 u = trys[i];
 
-				//@debug
-				//r += "[try " + u.word + "/" + u.reason + "/" + u.type + "]<br/>";
-				
-				if (cache[u.word] == undefined) {
-					var ix = this.binSearchF(index, u.word + ",");
+				var ix = cache[u.word];
+				if (!ix) {
+					ix = this.find(index, u.word + ',');
 					if (!ix) {
 						cache[u.word] = [];
 						continue;
 					}
-					ix = ix.split(",");
+					ix = ix.split(',');
 					cache[u.word] = ix;
 				}
-				else {
-					ix = cache[u.word];
-					
-					//@debug
-					//r += '<span style="color:#A77">[cached] ' + ix[0] + '</span><br/>';
-				}
 
-                var canTrim = (count != 0);
                 for (var j = 1; j < ix.length; ++j) {
                     var ofs = ix[j];
-					if (have[ofs]) {
-						//@debug
-						//r += '<span style="color:#A77">[had] ' + dict.substr(ofs, 30) + ' ...</span><br/>';
-						
-						continue;
-					}
-                    var dentry = dict.substring(ofs, dict.indexOf("\n", ofs));
-                                
+					if (have[ofs]) continue;
+
+					var dentry = dict.substring(ofs, dict.indexOf('\n', ofs));
+
 					var ok = true;
 					if (i > 0) {
 						// > 0 a de-inflected word
-						
+
 						// ex:
 						// /(io) (v5r) to finish/to close/
 						// /(v5r) to finish/to close/(P)/
 						// /(aux-v,v1) to begin to/(P)/
 						// /(adj-na,exp,int) thank you/many thanks/
 						// /(adj) shrill/
-						
+
 						var w;
 						var x = dentry.split(/[,()]/);
 						var y = u.type;
@@ -476,203 +460,407 @@ if (0) {
 							if ((y & 8) && (w == 'vk')) break;
 						}
 						ok = (z != -1);
-						
-						//@debug
-						/*if (!ok) {
-							r += '<span style="color:#D44">';
-							r += trys[i].reason + '/';
-							r += y + ': ';
-							r += dentry.substr(0, 30);
-							r += ' ...</span><br/>';
-						}*/
-						
 					}
                     if (ok) {
                         if ((canTrim) && (count >= maxTrim)) {
-							r += ". . .";
+							entry.more = 1;
 							break;
 						}
 
 						have[ofs] = 1;
                         ++count;
                         if (maxLen == 0) maxLen = trueLen[word.length];
-						
-						dentry = dentry.match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
-                        if (dentry[2]) {
-                            r += '<span class="w-kanji">' + dentry[1] + '</span><span class="w-kana">&#32;' + dentry[2] + '</span> ';
-                        }
-                        else {
-                            r += '<span class="w-kana">' + dentry[1] + '</span> ';
-                        }
-						if (trys[i].reason) 
-							r += ' <span class="w-conj">(' 
-								+ (showInf ? (word + ' ') : '') 
-								+ trys[i].reason + ')</span>';
-                        r += "<br/><span class=\"w-def\">\u226B " + dentry[3].replace(/\//g, "; ") + "</span><br/>\n";
+
+						if (trys[i].reason) {
+							if (showInf) r = word + ' ' + trys[i].reason;
+								else r = trys[i].reason;
+						}
+						else {
+							r = null;
+						}
+
+						entry.data.push([dentry, r]);
                     }
                 }	// for j < ix.length
 				if (count >= maxTrim) break;
             }	// for i < trys.length
             if (count >= maxTrim) break;
+			if (count > 0) canTrim = 1;
             word = word.substr(0, word.length - 1);
         }	// while word.length > 0
 
-		if ((doNames) && (count > 10)) {
-			if (count > 20) {
-				v = r.length / 3;
-				if (((i = r.indexOf("\n", v - 1)) > 0) && ((j = r.indexOf("\n", i + v)) > 0)) {
-					r = "<table><tr><td valign='top' style='padding-right:20px'>" +
-						r.substr(0, i + 1) + "</td><td valign='top' style='padding-right:20px'>" +
-						r.substr(i + 1, j - i) + "</td><td valign='top'>" +
-						r.substr(j + 1) +
-						"</td></tr></table>";
+		if (entry.data.length == 0) return null;
+
+		entry.matchLen = maxLen;
+        return entry;
+    },
+
+	translate: function(text) {
+		var e, o;
+		var skip;
+
+		o = {};
+		o.data = [];
+		o.textLen = text.length;
+
+		while (text.length > 0) {
+			e = this.wordSearch(text, false, 1);
+			if (e != null) {
+				if (o.data.length >= this.config.wmax) {
+					o.more = 1;
+					break;
 				}
+//				o.data = o.data.concat(e.data);
+				o.data.push(e.data[0]);
+				skip = e.matchLen;
 			}
 			else {
-				if ((i = r.indexOf("\n", r.length / 2)) > 0) {
-					r = "<table><tr><td valign='top' style='padding-right:20px'>" + r.substr(0, i + 1) + "</td><td width=20>&#32;</td><td valign='top'>" + r.substr(i + 1) + "</td></tr></table>";
+				skip = 1;
+			}
+			text = text.substr(skip, text.length - skip);
+		}
+		
+		if (o.data.length == 0) {
+			return null;
+		}
+		
+		o.textLen -= text.length;
+		return o;
+	},
+
+	bruteSearch: function(text, doNames) {
+		var r, e, d, i, j;
+		var wb, we;
+		var max;
+
+		r = 1;
+		if (text.charAt(0) == ':') {
+			text = text.substr(1, text.length - 1);
+			if (text.charAt(0) == ':') r = 1;
+		}
+		if (r) {
+//			wb = we = '\\W';
+//			wb = we = '\\b';
+
+			if (text.search(/[\u3000-\uFFFF]/) != -1) wb = we = '[\\s\\[\\]]';
+				else wb = we = '[\\W]';
+
+			if (text.charAt(0) == '*') {
+				text = text.substr(1, text.length - 1);
+				wb = '';
+			}
+			if (text.charAt(text.length - 1) == '*') {
+				text = text.substr(0, text.length - 1);
+				we = '';
+			}
+			text = wb + text.replace(/[\[\\\^\$\.\|\?\*\+\(\)]/g, function(c) { return '\\' + c; }) + we;
+		}
+
+		e = { data: [], reason: [], kanji: 0, more: 0 };
+
+		if (doNames) {
+			e.names = 1;
+			max = this.config.namax;
+			this.loadNames();
+			d = this.nameDict;
+		}
+		else {
+			e.names = 0;
+			max = this.config.wmax;
+			d = this.wordDict;
+		}
+
+		r = new RegExp(text, 'igm');
+		while (r.test(d)) {
+			if (e.data.length >= max) {
+				e.more = 1;
+				break;
+			}
+			j = d.indexOf('\n', r.lastIndex);
+			e.data.push([d.substring(d.lastIndexOf('\n', r.lastIndex - 1) + 1, j), null]);
+			r.lastIndex = j + 1;
+		}
+
+		return e.data.length ? e : null;
+	},
+
+	kanjiSearch: function(kanji) {
+		const hex = '0123456789ABCDEF';
+		var kde;
+		var entry;
+		var a, b;
+		var i;
+
+		i = kanji.charCodeAt(0);
+		if (i < 0x3000) return null;
+
+		kde = this.find(this.kanjiData, kanji);
+		if (!kde) return null;
+
+		a = kde.split('|');
+		if (a.length != 6) return null;
+
+		entry = { };
+		entry.kanji = a[0];
+
+		entry.misc = {};
+		entry.misc['U'] = hex[(i >>> 12) & 15] + hex[(i >>> 8) & 15] + hex[(i >>> 4) & 15] + hex[i & 15];
+
+		b = a[1].split(' ');
+		for (i = 0; i < b.length; ++i) {
+			if (b[i].match(/^([A-Z]+)(.*)/)) {
+				if (!entry.misc[RegExp.$1]) entry.misc[RegExp.$1] = RegExp.$2;
+					else entry.misc[RegExp.$1] += ' ' + RegExp.$2;
+			}
+		}
+
+		entry.onkun = a[2].replace(/\s+/g, '\u3001 ');
+		entry.nanori = a[3].replace(/\s+/g, '\u3001 ');
+		entry.bushumei = a[4].replace(/\s+/g, '\u3001 ');
+		entry.eigo = a[5];
+
+		return entry;
+	},
+
+	numList: [
+/*
+		'C', 	'Classical Radical',
+		'DR',	'Father Joseph De Roo Index',
+		'DO',	'P.G. O\'Neill Index',
+		'O', 	'P.G. O\'Neill Japanese Names Index',
+		'Q', 	'Four Corner Code',
+		'MN',	'Morohashi Daikanwajiten Index',
+		'MP',	'Morohashi Daikanwajiten Volume/Page',
+		'E', 	'Henshall Index',
+		'K',	'Gakken Kanji Dictionary Index',
+		'W',	'Korean Reading',
+*/
+		'H',	'Halpern',
+		'L',	'Heisig Index',
+		'DK',	'Kanji Learners Dictionary',
+		'N',	'Nelson',
+		'V',	'New Nelson',
+		'Y',	'PinYin',
+		'P',	'Skip Pattern',
+		'IN',	'Tuttle Kanji &amp; Kana',
+		'I',	'Tuttle Kanji Dictionary',
+		'U',	'Unicode'
+	],
+
+
+	makeHtml: function(entry) {
+		var e;
+		var b;
+		var c, s, t;
+		var i, j, n;
+
+		if (entry == null) return '';
+
+		b = [];
+
+		if (entry.kanji) {
+			var yomi;
+			var box;
+			var bn;
+			var k;
+			var nums;
+
+			yomi = entry.onkun.replace(/\.([^\u3001]+)/g, '<span class="k-yomi-hi">$1</span>');
+			if (entry.nanori.length) {
+				yomi += '<br/><span class="k-yomi-ti">\u540D\u4E57\u308A</span> ' + entry.nanori;
+			}
+			if (entry.bushumei.length) {
+				yomi += '<br/><span class="k-yomi-ti">\u90E8\u9996\u540D</span> ' + entry.bushumei;
+			}
+
+			bn = entry.misc['B'] - 1;
+			k = entry.misc['G'];
+			switch (k) {
+			case 8:
+				k = 'general<br/>use';
+				break;
+			case 9:
+				k = 'name<br/>use';
+				break;
+			default:
+				k = isNaN(k) ? '-' : ('grade<br/>' + k);
+				break;
+			}
+			box = '<table class="k-abox-tb"><tr>' +
+				'<td class="k-abox-r">radical<br/>' + this.radData[bn].charAt(0) + ' ' + (bn + 1) + '</td>' +
+				'<td class="k-abox-g">' + k + '</td>' +
+				'</tr><tr>' +
+				'<td class="k-abox-f">freq<br/>' + (entry.misc['F'] ? entry.misc['F'] : '-') + '</td>' +
+				'<td class="k-abox-s">strokes<br/>' + entry.misc['S'] + '</td>' +
+				'</tr></table>';
+			if (this.config.kdisp['COMP'] == 1) {
+				k = this.radData[bn].split('\t');
+				box += '<table class="k-bbox-tb">' +
+						'<tr><td class="k-bbox-1a">' + k[0] + '</td>' +
+						'<td class="k-bbox-1b">' + k[2] + '</td>' +
+						'<td class="k-bbox-1b">' + k[3] + '</td></tr>';
+				j = 1;
+				for (i = 0; i < this.radData.length; ++i) {
+					s = this.radData[i];
+					if ((bn != i) && (s.indexOf(entry.kanji) != -1)) {
+						k = s.split('\t');
+						c = ' class="k-bbox-' + (j ^= 1);
+						box += '<tr><td' + c + 'a">' + k[0] + '</td>' +
+								'<td' + c + 'b">' + k[2] + '</td>' +
+								'<td' + c + 'b">' + k[3] + '</td></tr>';
+					}
+				}
+				box += '</table>';
+			}
+
+			nums = '';
+			j = 0;
+
+			for (i = 0; i < this.numList.length; i += 2) {
+				c = this.numList[i];
+				if (this.config.kdisp[c] == 1) {
+					s = entry.misc[c];
+					c = ' class="k-mix-td' + (j ^= 1) + '"';
+					nums += '<tr><td' + c + '>' + this.numList[i + 1] + '</td><td' + c + '>' + (s ? s : '-') + '</td></tr>';
+				}
+			}
+			if (nums.length) nums = '<table class="k-mix-tb">' + nums + '</table>';
+
+			b.push('<table class="k-main-tb"><tr><td valign="top">');
+			b.push(box);
+			b.push('<span class="k-kanji">' + entry.kanji + '</span><br/>');
+			b.push('<div class="k-eigo">' + entry.eigo + '</div>');
+			b.push('<div class="k-yomi">' + yomi + '</div>');
+			b.push('</td></tr><tr><td>' + nums + '</td></tr></table>');
+			return b.join('');
+		}
+
+		s = t = '';
+
+		if (entry.names) {
+			c = [];
+
+			b.push('<div class="w-title">Names Dictionary</div><table class="w-na-tb"><tr><td>');
+			for (i = 0; i < entry.data.length; ++i) {
+				e = entry.data[i][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
+				if (!e) continue;
+
+				if (s != e[3]) {
+					c.push(t);
+					t = '';
+				}
+
+				if (e[2]) c.push('<span class="w-kanji">' + e[1] + '</span>&#32;<span class="w-kana">' + e[2] + '</span><br/> ');
+					else c.push('<span class="w-kana">' + e[1] + '</span><br/> ');
+
+				s = e[3];
+				t = '<span class="w-def">' + s.replace(/\//g, '; ') + '</span><br/>';
+			}
+			c.push(t);
+			if (c.length > 4) {
+				n = (c.length >> 1) + 1;
+				b.push(c.slice(0, n + 1).join(''));
+
+				t = c[n];
+				c = c.slice(n, c.length);
+				for (i = 0; i < c.length; ++i) {
+					if (c[i].indexOf('w-def') != -1) {
+						if (t != c[i]) b.push(c[i]);
+						if (i == 0) c.shift();
+						break;
+					}
+				}
+
+				b.push('</td><td>');
+				b.push(c.join(''));
+			}
+			else {
+				b.push(c.join(''));
+			}
+			if (entry.more) b.push('...<br/>');
+			b.push('</td></tr></table>');
+		}
+		else {
+			if (entry.title) {
+				b.push('<div class="w-title">' + entry.title + '</div>');
+			}
+		
+			for (i = 0; i < entry.data.length; ++i) {
+				e = entry.data[i][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
+				if (!e) continue;
+
+				if (s != e[3]) b.push(t);
+
+				if (e[2]) b.push('<span class="w-kanji">' + e[1] + '</span> &#32; <span class="w-kana">' + e[2] + '</span> ');
+					else b.push('<span class="w-kana">' + e[1] + '</span> ');
+				if (entry.data[i][1]) b.push(' <span class="w-conj">(' + entry.data[i][1] + ')</span>');
+				b.push('<br/>');
+
+				s = e[3];
+				t = s.replace(/\//g, '; ');
+				if (!this.config.wpos) t = t.replace(/^\([^)]+\)\s*/, '');
+				if (!this.config.wpop) t = t.replace('; (P)', '');
+				t = '<span class="w-def">' + t + '</span><br/>';
+			}
+			b.push(t);
+			if (entry.more) b.push('...<br/>');
+		}
+
+		return b.join('');
+	},
+
+	makeText: function(entry, mode) {
+		var e;
+		var b;
+		var i, j;
+		var t;
+
+		if (entry == null) return '';
+
+		b = [];
+
+		if (entry.kanji) {
+			b.push(entry.kanji + '\n');
+			b.push((entry.eigo.length ? entry.eigo : '-') + '\n');
+
+			if (mode != 1) {
+				b.push(entry.onkun.replace(/\.([^\u3001]+)/g, '\uFF08$1\uFF09') + '\n');
+				if (entry.nanori.length) {
+					b.push('\u540D\u4E57\u308A\t' + entry.nanori + '\n');
+				}
+				if (entry.bushumei.length) {
+					b.push('\u90E8\u9996\u540D\t' + entry.bushumei + '\n');
+				}
+
+				for (i = 0; i < this.numList.length; i += 2) {
+					e = this.numList[i];
+					if (this.config.kdisp[e] == 1) {
+						j = entry.misc[e];
+						b.push(this.numList[i + 1].replace('&amp;', '&') + '\t' + (j ? j : '-') + '\n');
+					}
 				}
 			}
 		}
-		
-        return [r, maxLen];
-    },
-	
-	
-	//
+		else {
+			for (i = 0; i < entry.data.length; ++i) {
+				e = entry.data[i][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
+				if (!e) continue;
 
-	kanjiDisplay: [],
-	
-	setKanjiDisplay: function(k) {
-		this.kanjiDisplay = k;
-	},
-	
-	kanjiInfo: function(kanji) {
-		var kdEntry = this.binSearchF(this.kanjiData, kanji);
-		if (!kdEntry) return "";
-		
-		var moreinfo = [];
-		var beg;
-		var end;
-		var s;
-		var t;
-		var cls;
-		var n;
-		var j;
+				if (e[2]) {
+					b.push(e[1] + '\t' + e[2]);
+				}
+				else {
+					b.push(e[1]);
+				}
 
-		// =parse=
-		
-		// kana
-		for (beg = 15; (beg < kdEntry.length) && (kdEntry.charCodeAt(beg) < 256); beg++) { ; }
-		for (end = beg + 1; (end < kdEntry.length) && (kdEntry.charAt(end) != "{"); end++) { ; }
+				t = e[3].replace(/\//g, '; ');
+				if (!this.config.wpos) t = t.replace(/^\([^)]+\)\s*/, '');
+				if (!this.config.wpop) t = t.replace('; (P)', '');
+				b.push('\t' + t + '\n');
 
-		// misc info
-		t = kdEntry.substring(2, beg - 1).split(' ');
-		for (i = 0; i < t.length; i++) {
-			if (t[i].match(/^([A-Z]+)(.*)/)) {
-				if (!moreinfo[RegExp.$1]) moreinfo[RegExp.$1] = RegExp.$2;
-					else moreinfo[RegExp.$1] += " " + RegExp.$2;
+				if (mode == 1) break;
 			}
 		}
-		
-		i = kanji.charCodeAt(0);
-		const hex = "0123456789ABCDEF";
-		moreinfo["U"] = hex[(i >>> 12) & 15] + hex[(i >>> 8) & 15] + hex[(i >>> 4) & 15] + hex[i & 15];
-
-		// =format=
-
-		// English meanings
-		var eigo = '<div class="k-eigo">';
-		if (kdEntry.match(/{(.+)}/)) eigo += RegExp.$1;
-		eigo += '</div>';
-
-		// Japanese readings
-		var readings = 
-			'<div class="k-yomi">' +
-			kdEntry.substring(beg, end)
-				.replace(/^\s*|\s*$/g, "")
-				.replace(/\s+/g, "\u3001 ")
-				.replace(/\.([^\u3001]+)/g, '<span class="k-yomi-hi">$1</span>')
-				.replace(/(\u3001 )?T1\u3001 /, "<br/><span class=\"k-yomi-ti\">\u540D\u4E57\u308A</span> ")
-				.replace(/(\u3001 )?T2\u3001 /, "<br/><span class=\"k-yomi-ti\">\u90E8\u9996\u540D</span> ") +
-				'</div>';
-	
-		// radical, grade, freq, strokes box
-		j = moreinfo['B'] - 1;
-		t = moreinfo['G'];
-		if (!t) t = '-';
-			else if (t == 8) t = "general<br/>use";
-			else if (t == 9) t = "name<br/>use";
-			else t = "grade<br/>" + t;
-		var xbox = '<table class="k-abox-tb"><tr>' +
-			'<td class="k-abox-r">radical<br/>' + this.radData[j].charAt(0) + ' ' + (j + 1) + '</td>' +
-			'<td class="k-abox-g">' + t + '</td>' +
-			'</tr><tr>' +
-			'<td class="k-abox-f">freq<br/>' + (moreinfo['F'] ? moreinfo['F'] : '-') + '</td>' +
-			'<td class="k-abox-s">strokes<br/>' + parseInt(moreinfo['S']) + '</td>' +
-			'</tr></table>';
-
-		// components of a kanji
-		if (this.kanjiDisplay["COMP"] == 1) {
-			// ^^ j = moreinfo['B'] - 1;
-			t = this.radData[j].split("\t");
-			xbox += '<table class="k-bbox-tb">' +
-					'<tr><td class="k-bbox-1a">' + t[0] + '</td>' +
-					'<td class="k-bbox-1b">' + t[2] + '</td>' +
-					'<td class="k-bbox-1b">' + t[3] + '</td></tr>';
-			n = 1;
-			for (i = 0; i < this.radData.length; ++i) {
-				s = this.radData[i];
-				if ((j != i) && (s.indexOf(kanji) != -1)) {
-					t = s.split("\t");
-					cls = ' class="k-bbox-' + (n ^= 1);
-					xbox += '<tr><td' + cls + 'a">' + t[0] + '</td>' +
-							'<td' + cls + 'b">' + t[2] + '</td>' +
-							'<td' + cls + 'b">' + t[3] + '</td></tr>';
-				}			
-			}
-			xbox += '</table>';
-		}
-
-		// index & stuff
-		const dc = [
-//			"C", 	"Classical Radical",
-//			"DR",	"Father Joseph De Roo Index",
-//			"DO",	"P.G. O'Neill Index", 
-//			"O", 	"P.G. O'Neill Japanese Names Index",
-//			"Q", 	"Four Corner Code", 
-//			"MN",	"Morohashi Daikanwajiten Index", 
-//			"MP",	"Morohashi Daikanwajiten Volume/Page", 
-//			"E", 	"Henshall Index",
-//			"K",	"Gakken Kanji Dictionary Index", 
-//			"W",	"Korean Reading",
-			"H",	"Halpern Index",
-			"L",	"Heisig Index",
-			"DK",	"Kanji Learners Dictionary Index",
-			"N",	"Nelson Index",
-			"V",	"New Nelson Index",
-			"Y",	"PinYin",
-			"P",	"Skip Pattern",
-			"IN",	"Tuttle Kanji &amp; Kana",
-			"I",	"Tuttle Kanji Dictionary", 
-			"U",	"Unicode"
-			];
-		var mix = '';
-		n = 0;
-		for (i = 0; i < dc.length; i += 2) {
-			if (this.kanjiDisplay[dc[i]] == 1) {
-				s = moreinfo[dc[i]];
-				cls = ' class="k-mix-td' + (n ^= 1) + '"';
-				mix += '<tr><td' + cls + '>' + dc[i + 1] + '</td><td' + cls + '>' + (s ? s : '-') + '</td></tr>';
-			}
-		}
-		if (mix != '') mix = '<table class="k-mix-tb">' + mix + '</table>';
-
-		return '<table class="k-main-tb">' +
-			'<tr><td valign="top">' + xbox + '<span class="k-kanji">' + kanji + '</span><br/>' +
-			eigo + readings + '</td></tr>' +
-			'<tr><td>' + mix + '</td></tr>' +
-			'</table>';
+		return b.join('');
 	}
-	
 };

@@ -1,45 +1,39 @@
-#rikaichan-lookup-close {
-	border: 1px solid transparent;
-	padding: 3px 2px 4px 2px !important;
-	list-style-image: url("chrome://rikaichan/skin/widgets.png"); 
-	-moz-image-region: rect(40px, 47px, 55px, 32px);
+
+#rikaichan-lbar-close {
+	list-style-image: url("chrome://rikaichan/skin/smile.png");
 }
 
-#rikaichan-lookup-sticky {
-	border: 1px solid transparent;
-	padding: 3px 2px 4px 2px !important;
-	list-style-image: url("chrome://rikaichan/skin/widgets.png"); 
-	-moz-image-region: rect(40px, 15px, 55px, 0px);
+#rikaichan-lbar-close:hover {
+	list-style-image: url("chrome://rikaichan/skin/smile_close.png");
 }
 
-#rikaichan-lookup-sticky[checked="true"] {
-	-moz-image-region: rect(40px, 31px, 55px, 16px);
+#rikaichan-lbar-close.waiting {
+	list-style-image: url("chrome://rikaichan/skin/smile_wait.png");
 }
 
-#rikaichan-lookup-clip {
-	border: 1px solid transparent;
-	padding: 3px 2px 4px 2px !important;
-	list-style-image: url("chrome://rikaichan/skin/widgets.png"); 
-	-moz-image-region: rect(24px, 47px, 39px, 32px);
+#rikaichan-lbar-search {
+	list-style-image: url("chrome://rikaichan/skin/search.png");
 }
 
-
-#rikaichan-inline-button {
-	list-style-image: url("chrome://rikaichan/skin/widgets.png"); 
-	-moz-image-region: rect(0px, 23px, 23px, 0px);
+#rikaichan-lbar-copy {
+	list-style-image: url("chrome://rikaichan/skin/copy.png");
 }
 
-toolbar[iconsize="small"] #rikaichan-inline-button {
-	-moz-image-region: rect(24px, 15px, 39px, 0px);
+#rikaichan-lbar-save {
+	list-style-image: url("chrome://rikaichan/skin/save.png");
 }
 
-#rikaichan-lookup-button {
-	list-style-image: url("chrome://rikaichan/skin/widgets.png"); 
-	-moz-image-region: rect(0px, 47px, 23px, 24px);
+#rikaichan-lbar-config {
+	list-style-image: url("chrome://rikaichan/skin/config.png");
 }
 
-toolbar[iconsize="small"] #rikaichan-lookup-button {
-	-moz-image-region: rect(24px, 31px, 39px, 16px);
+#rikaichan-toggle-button {
+	list-style-image: url("chrome://rikaichan/skin/smile.png");
+}
+#rikaichan-toggle-button[rc_enabled=true] {
+	list-style-image: url("chrome://rikaichan/skin/smile_star.png");
 }
 
-
+#rikaichan-lbar-button {
+	list-style-image: url("chrome://rikaichan/skin/smile_lbar.png");
+}

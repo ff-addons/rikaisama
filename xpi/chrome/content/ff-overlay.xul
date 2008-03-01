@@ -1,60 +1,94 @@
 <?xml version="1.0"?>
+<!--
 
+	RikaiChan
+	Copyright (C) 2005-2007 Jonathan Zarate
+	http://www.polarcloud.com/
+
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+
+	Please do not change or remove any of the copyrights or links to web pages
+	when modifying any of the files. - Jon
+
+-->
 <?xml-stylesheet href="chrome://rikaichan/skin/rikaichan.css" type="text/css"?>
 <!DOCTYPE overlay SYSTEM "chrome://rikaichan/locale/rikaichan.dtd">
 
 <overlay id="rikaichan" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-	<script type="application/x-javascript" src="chrome://rikaichan/content/rikaichan.js" />
-	<script type="application/x-javascript" src="chrome://rikaichan/content/data.js" />
+<script type="application/x-javascript" src="cfglist.js" />
+<script type="application/x-javascript" src="rikaichan.js" />
+<script type="application/x-javascript" src="data.js" />
 
-	<commandset id="mainCommandSet">
-		<command id="rikaichan-toggle-cmd" oncommand="rcxMain.inlineToggle();" />
-		<command id="rikaichan-lookup-cmd" oncommand="rcxMain.lbToggle();" />
-		<command id="rikaichan-clip-cmd" oncommand="rcxMain.copyToClip();" />
-	</commandset>
+<commandset id="mainCommandSet">
+	<command id="rikaichan-toggle-cmd" oncommand="rcxMain.inlineToggle();" />
+	<command id="rikaichan-lbar-cmd" oncommand="rcxMain.lbToggle();" />
+	<command id="rikaichan-copy-cmd" oncommand="rcxMain.copyToClip();" />
+</commandset>
 
-	<popup id="contentAreaContextMenu">
-		<menuseparator id="rikaichan-separator-cm" hidden="true" />
-		<menuitem id="rikaichan-toggle-cm" label="&rikaichan.inline.cm;" accesskey="&rikaichan.inline.cm.key;"  key="rikaichan-toggle-key" command="rikaichan-toggle-cmd" hidden="true" />
-		<menuitem id="rikaichan-lookup-cm" label="&rikaichan.lookup.cm;" accesskey="&rikaichan.lookup.cm.key;"  key="rikaichan-lookup-key" command="rikaichan-lookup-cmd" hidden="true" />
-		<menuitem id="rikaichan-clip-cm" label="&rikaichan.clip.cm;" accesskey="&rikaichan.clip.cm.key;"  key="rikaichan-clip-key" command="rikaichan-clip-cmd" hidden="true" />
-	</popup>
-	
-	<menupopup id="menu_ToolsPopup">
-		<menuseparator id="rikaichan-separator-tm" hidden="true" insertbefore="devToolsSeparator" />
-		<menuitem id="rikaichan-toggle-tm" label="&rikaichan.inline.tm;" accesskey="&rikaichan.inline.tm.key;" key="rikaichan-toggle-key" command="rikaichan-toggle-cmd"  hidden="true" insertbefore="devToolsSeparator" />
-		<menuitem id="rikaichan-lookup-tm" label="&rikaichan.lookup.tm;" accesskey="&rikaichan.lookup.tm.key;" key="rikaichan-lookup-key" command="rikaichan-lookup-cmd"  hidden="true" insertbefore="devToolsSeparator" />
-		<menuitem id="rikaichan-clip-tm" label="&rikaichan.clip.tm;" accesskey="&rikaichan.clip.tm.key;"  key="rikaichan-clip-key" command="rikaichan-clip-cmd" hidden="true" insertbefore="devToolsSeparator" />
-	</menupopup>
-	
-	<window id="main-window">
-		<toolbar id="rikaichan-lookup" hidden="true" align="center"
-			fullscreentoolbar="true" insertbefore="browser">
-			
-			<toolbarbutton id="rikaichan-lookup-close" tooltiptext="&rikaichan.lookupbar.close.tip;"
-				oncommand="rcxMain.lbHide(true);" />
-			<toolbarbutton id="rikaichan-lookup-sticky" tooltiptext="&rikaichan.lookupbar.sticky.tip;"
-				oncommand="rcxMain.lbToggleSticky();" />
-			<textbox id="rikaichan-lookup-text"
-				type="timed" timeout="750"
-				oncommand="rcxMain.lbSearch();"
-				onkeypress="rcxMain.lbKey(event)"
-				onfocus="rcxMain.lbFocus();"
-				onblur="rcxMain.lbBlur();" />
-			<toolbarbutton id="rikaichan-lookup-clip" tooltiptext="&rikaichan.lookupbar.clip.tip;"
-				oncommand="rcxMain.copyToClip();" />
-		</toolbar>
-	</window>
+<popup id="contentAreaContextMenu">
+	<menuseparator id="rikaichan-separator-cm" hidden="true" />
+	<menuitem id="rikaichan-toggle-cm" label="&rikaichan.toggle.cm;"
+		accesskey="&rikaichan.toggle.cm.key;" key="rikaichan-toggle-key" command="rikaichan-toggle-cmd" hidden="true" />
+	<menuitem id="rikaichan-lbar-cm" label="&rikaichan.lbar.cm;"
+		accesskey="&rikaichan.lbar.cm.key;" key="rikaichan-lbar-key" command="rikaichan-lbar-cmd" hidden="true" />
+	<menuitem id="rikaichan-copy-cm" label="&rikaichan.copy.cm;"
+		accesskey="&rikaichan.copy.cm.key;" key="rikaichan-copy-key" command="rikaichan-copy-cmd" hidden="true" />
+</popup>
 
+<menupopup id="menu_ToolsPopup">
+	<menuseparator id="rikaichan-separator-tm" hidden="true"
+		insertbefore="devToolsSeparator" />
+	<menuitem id="rikaichan-toggle-tm" label="&rikaichan.toggle.tm;" accesskey="&rikaichan.toggle.tm.key;" key="rikaichan-toggle-key" command="rikaichan-toggle-cmd"  hidden="true"
+		insertbefore="devToolsSeparator" />
+	<menuitem id="rikaichan-lbar-tm" label="&rikaichan.lbar.tm;" accesskey="&rikaichan.lbar.tm.key;" key="rikaichan-lbar-key" command="rikaichan-lbar-cmd"  hidden="true"
+		insertbefore="devToolsSeparator" />
+	<menuitem id="rikaichan-copy-tm" label="&rikaichan.copy.tm;" accesskey="&rikaichan.copy.tm.key;"  key="rikaichan-copy-key" command="rikaichan-copy-cmd" hidden="true"
+		insertbefore="devToolsSeparator" />
+</menupopup>
 
-	<toolbarpalette id="BrowserToolbarPalette">
-		<toolbarbutton id="rikaichan-inline-button" class="toolbarbutton-1"
-			label="&rikaichan.toolbar.inline;" tooltiptext="&rikaichan.toolbar.inline.tip;"
-		command="rikaichan-toggle-cmd"/>
-		<toolbarbutton id="rikaichan-lookup-button" class="toolbarbutton-1"
-			label="&rikaichan.toolbar.lookup;" tooltiptext="&rikaichan.toolbar.lookup.tip;"
-			command="rikaichan-lookup-cmd"/>
-	</toolbarpalette>
+<window id="main-window">
+	<toolbar id="rikaichan-lbar" hidden="true" align="center" fullscreentoolbar="true" insertbefore="browser-stack,browser">
+		<toolbarbutton id="rikaichan-lbar-close" tooltiptext="&rikaichan.lbar.close.tip;"
+			oncommand="rcxMain.lbHide();" />
+		<textbox id="rikaichan-lbar-text"
+			onkeypress="rcxMain.lbKeyPress(event);" />
+		<toolbarbutton id="rikaichan-lbar-search" tooltiptext="&rikaichan.lbar.search.tip;"
+			oncommand="rcxMain.lbSearchButton();" />
+		<toolbarbutton id="rikaichan-lbar-copy" tooltiptext="&rikaichan.lbar.copy.tip;"
+			oncommand="rcxMain.copyToClip();" />
+		<toolbarbutton id="rikaichan-lbar-save" tooltiptext="&rikaichan.lbar.save.tip;"
+			oncommand="rcxMain.saveToFile();" />
+		<toolbarbutton id="rikaichan-lbar-config" tooltiptext="&rikaichan.lbar.config.tip;"
+			oncommand="rcxMain.configPage();" />
+	</toolbar>
+</window>
+
+<toolbarpalette id="BrowserToolbarPalette">
+	<toolbarbutton id="rikaichan-toggle-button" class="toolbarbutton-1"
+		label="&rikaichan.toolbar.toggle;" tooltiptext="&rikaichan.toolbar.toggle.tip;"
+		command="rikaichan-toggle-cmd" />
+	<toolbarbutton id="rikaichan-lbar-button" class="toolbarbutton-1"
+		label="&rikaichan.toolbar.lbar;" tooltiptext="&rikaichan.toolbar.lbar.tip;"
+		command="rikaichan-lbar-cmd" />
+</toolbarpalette>
+
+<statusbar id='status-bar' class='chromeclass-status'>
+	<statusbarpanel id='rikaichan-status' insertbefore='statusbar-updates' hidden='true' label='' context='' onclick='this.hidden=true;' />
+</statusbar>
 
 </overlay>

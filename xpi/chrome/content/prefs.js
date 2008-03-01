@@ -1,156 +1,191 @@
 /*
 
-rikaichan
-Copyright (C) 2005-2006 Jonathan Zarate
-http://www.polarcloud.com/
+	Rikaichan
+	Copyright (C) 2005-2008 Jonathan Zarate
+	http://www.polarcloud.com/
 
----
+	---
 
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+	---
+
+	Please do not change or remove any of the copyrights or links to web pages
+	when modifying any of the files. - Jon
 
 */
 
 var rcxPrefs = {
-	funcNames: ["toggle", "lookup", "clip"],
-	keyModNames: ["accel", "alt", "shift"],
-	indexCodes: ["COMP", "H","L","DK","N","V","Y","P","IN","I","U"],
+	funcs: ['toggle', 'lbar'],
+	modifiers: ['accel', 'alt', 'shift'],
+	keys: ['(disabled)',
+		'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K',
+		'L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','Back','Escape','Page Up',
+		'Page Down','End','Home','Left','Up','Right','Down','Insert','Delete','F1','F2','F3',
+		'F4','F5','F6','F7','F8','F9','F10','F11','F12'],
+	kindex: ['COMP', 'H','L','DK','N','V','Y','P','IN','I','U'],
+	
+	E: function(e) {
+		return document.getElementById(e);
+	},
+	
+	checkRange: function(e, name, min, max) {
+		var v;
+		
+		e = this.E(e);
+		v = e.value;
+		if ((isNaN(v)) || (v < min) || (v > max)) {
+			e.focus();
+			alert('Invalid ' + name + ' (' + v + '). Valid range: ' + min + '-' + max);
+			return false;
+		}
+		return true;
+	},
 	
 	onLoad: function() {
-		const keyCodes = [
-			"(disabled)",
-			"0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F","G","H","I","J","K",
-			"L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","BACK","ESCAPE","PAGE_UP",
-			"PAGE_DOWN","END","HOME","LEFT","UP","RIGHT","DOWN","INSERT","DELETE","F1","F2","F3",
-			"F4","F5","F6","F7","F8","F9","F10","F11","F12","F13","F14","F15","F16","F17","F18",
-			"F19","F20","F21","F22","F23","F24"];
+		var pb;
+		var i, j;
+		var e, v;
+		var a, b;
 
-		var br = Components.classes["@mozilla.org/preferences-service;1"]
+		try {
+			pb = Components
+					.classes['@mozilla.org/preferences-service;1']
 					.getService(Components.interfaces.nsIPrefService)
-					.getBranch("rikaichan.");
-		var na;
-		var i;
-		var j;
-		var v;
-		var e;
-		var x;
-		
-		for (i = 0; i < this.funcNames.length; ++i) {
-			na = this.funcNames[i];
-			
-			v = br.getCharPref(na + ".key");
-			if (v == "") v = "(disabled)";
-				else v = v.toUpperCase();
-			document.getElementById("key-" + na).value = v;
-			
-			if (v != "(disabled)") 
-				v = br.getCharPref(na + ".keymod").toLowerCase();
-			for (j = 0; j < this.keyModNames.length; ++j)
-				document.getElementById(this.keyModNames[j] + "-" + na).checked = 
-					(v.indexOf(this.keyModNames[j]) != -1);
-			
-			e = document.getElementById("key-" + na + "-mp");
-			for (j = 0; j < keyCodes.length; ++j) {
-				x = document.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", 
-												"menuitem");
-				x.setAttribute("label", keyCodes[j]);
-				e.appendChild(x);
+					.getBranch('rikaichan.');
+
+			for (i = 0; i < this.funcs.length; ++i) {
+				a = this.funcs[i];
+
+				v = pb.getCharPref(a + '.mod');
+				for (j = 0; j < this.modifiers.length; ++j) {
+					b = this.modifiers[j];
+					this.E('rcp-' + a + '-' + b).checked = (v.indexOf(b) != -1);
+				}				
+
+				e = this.E('rcp-' + a + '-list');
+				for (j = 0; j < this.keys.length; ++j) {
+					v = document.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'menuitem');
+					v.setAttribute('label', this.keys[j]);
+					e.appendChild(v);
+				}
+				
+				v = pb.getCharPref(a + '.key');
+				if (v.length == 0) v = this.keys[0];
+				this.E('rcp-' + a + '-key').value = v;
 			}
 			
-			this.onKeyChanged(document.getElementById("key-" + na));
+			v = pb.getCharPref('kindex').split(',');
+			for (i = 0; i < v.length; ++i) {
+				if ((e = this.E('rcp-kindex-' + v[i])) != null) {
+					e.checked = true;
+				}
+			}
 			
-			document.getElementById("showcm-" + na).checked = br.getBoolPref(na + ".showincm");
-			document.getElementById("showtm-" + na).checked = br.getBoolPref(na + ".showintm");
+			for (i = 0; i < rcxCfgList.length; ++i) {
+				b = rcxCfgList[i];
+				e = this.E('rcp-' + b[1]);
+
+				switch (b[0]) {
+				case 0:
+					e.value = pb.getIntPref(b[1]);
+					break;
+				case 1:
+					e.value = pb.getCharPref(b[1]);
+					break;
+				case 2:
+					e.checked = pb.getBoolPref(b[1]);
+					break;
+				}
+			}
 		}
-		document.getElementById("rc-popdelay").value = br.getIntPref("popdelay");
-		document.getElementById("rc-colors").value = br.getCharPref("css");
-		document.getElementById("rc-highlight").checked = br.getBoolPref("hion");
-		
-		document.getElementById("rc-delaynames").checked = br.getBoolPref("delaynames");
-		document.getElementById("rc-dictorder").value = br.getIntPref("dictorder");
-		
-		v = br.getCharPref("kindex").split(",");
-		for (i = 0; i < v.length; ++i) {
-			if ((e = document.getElementById("rc-index-" + v[i])) != null) {
-				e.checked = true;
-			}
+		catch (ex) {
+			alert('Exception: ' + ex);
 		}
 	},
 
 	onOK: function() {
-		var br = Components.classes["@mozilla.org/preferences-service;1"]
-					.getService(Components.interfaces.nsIPrefService)
-					.getBranch("rikaichan.");
-		var na;
-		var s;
-		var i;
-		var j;
-		var v;
-		var popDelay;
+		var pb;
+		var i, j;
+		var a, b, e, v;
 		
-		popDelay = parseInt(document.getElementById("rc-popdelay").value);
-		if ((popDelay < 1) || (popDelay > 5000)) {
-			alert("Invalid popup delay value");
-			return false;
-		}
+		try {
+		
+			if (!this.checkRange('rcp-popdelay', 'Popup Delay', 1, 2000)) return false;
+			if (!this.checkRange('rcp-wmax', 'Maximum Entries To Display', 3, 100)) return false;
+			if (!this.checkRange('rcp-namax', 'Maximum Entries To Display', 3, 200)) return false;
+			
+			pb = Components
+					.classes['@mozilla.org/preferences-service;1']
+					.getService(Components.interfaces.nsIPrefService)
+					.getBranch('rikaichan.');
 
-		for (i = 0; i < this.funcNames.length; ++i) {
-			na = this.funcNames[i];
+			for (i = 0; i < this.funcs.length; ++i) {
+				a = this.funcs[i];
+				
+				v = [];
+				for (j = 0; j < this.modifiers.length; ++j) {
+					b = this.modifiers[j];
+					if (this.E('rcp-' + a + '-' + b).checked) v.push(b);
+				}
+				pb.setCharPref(a + '.mod', v.join(' '));
+				
+				pb.setCharPref(a + '.key', this.E('rcp-' + a + '-key').value);
+				
+			}
+			
+			v = [];
+			for (i = 0; i < this.kindex.length; ++i) {
+				if (this.E('rcp-kindex-' + this.kindex[i]).checked)
+					v.push(this.kindex[i]);
+			}
+			pb.setCharPref('kindex', v.join(','));
+	
+			for (i = 0; i < rcxCfgList.length; ++i) {
+				b = rcxCfgList[i];
+				e = this.E('rcp-' + b[1]);
 
-			v = document.getElementById("key-" + na).value.replace(/\s+/g, '');
-			if (v == "(disabled)") v = "";
-			br.setCharPref(na + ".key", v);
-
-			v = "";
-			for (j = 0; j < this.keyModNames.length; ++j) {
-				if (document.getElementById(this.keyModNames[j] + "-" + na).checked) {
-					if (v != "") v += " ";
-					v += this.keyModNames[j];
+				switch (b[0]) {
+				case 0:
+					pb.setIntPref(b[1], e.value);
+					break;
+				case 1:
+					pb.setCharPref(b[1], e.value);
+					break;
+				case 2:
+					pb.setBoolPref(b[1], e.checked);
+					break;
 				}
 			}
-			br.setCharPref(na + ".keymod", v);
-			br.setBoolPref(na + ".showincm", document.getElementById("showcm-" + na).checked);
-			br.setBoolPref(na + ".showintm", document.getElementById("showtm-" + na).checked);
+
+			return true;
 		}
-		
-		br.setIntPref("popdelay", popDelay);
-		br.setCharPref("css", document.getElementById("rc-colors").value);
-		br.setBoolPref("hion", document.getElementById("rc-highlight").checked);
-		
-		br.setIntPref("dictorder", document.getElementById("rc-dictorder").value);
-		br.setBoolPref("delaynames", document.getElementById("rc-delaynames").checked);
-		
-		v = [];
-		for (i = 0; i < this.indexCodes.length; ++i) {
-			if (document.getElementById("rc-index-" + this.indexCodes[i]).checked) {
-				v.push(this.indexCodes[i]);
-			}
+		catch (ex) {
+			alert('Exception: ' + ex);
 		}
-		br.setCharPref("kindex", v.join(","));
-		return true;
+	
+		return false;
 	},
 
 	onKeyChanged: function(e) {
-		var na;
 		var v;
 		
-		na = e.id.replace("key-", "");
-		v = e.value.replace(/\s+/g, '');
-		v = ((v == "") || (v == "(disabled)"));
-		for (j = 0; j < this.keyModNames.length; ++j) {
-			document.getElementById(this.keyModNames[j] + "-" + na).disabled = v;
+		e.value = v = e.value.replace(/^\s+|\s+$/g, '').replace(/\s+/g, ' ');
+		v = ((v.length == 0) || (v == '(disabled)'));
+		for (j = 0; j < this.modifiers.length; ++j) {
+			document.getElementById(e.id.replace('key', this.modifiers[j])).disabled = v;
 		}
-		
 	}
 };

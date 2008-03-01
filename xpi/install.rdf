@@ -1,20 +1,18 @@
 <?xml version="1.0"?>
-
-<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
 	<Description about="urn:mozilla:install-manifest">
 
 		<em:id>{0AA9101C-D3C1-4129-A9B7-D778C6A17F82}</em:id>
-		<em:name>rikaichan</em:name>
-		<em:version>0.5.13</em:version>
+		<em:name>Rikaichan</em:name>
+		<em:version>1.01</em:version>
 		<em:description>Popup Japanese dictionary. Licensed under GNU GPL.</em:description>
 		<em:creator>Jonathan Zarate</em:creator>
 		<em:contributor>Based on rikaiXUL by Todd Rudick</em:contributor>
-		<em:contributor>EDICT, JMDICT, ENAMDICT, KANJDIC2 by James William Breen and Electronic Dictionary Research &amp; Development Group</em:contributor>
+		<em:contributor>JMDICT, ENAMDICT, KANJDIC2 by James William Breen and Electronic Dictionary Research &amp; Development Group</em:contributor>
 		<em:contributor>RADKFILE by Michael Raine and James William Breen</em:contributor>
-		<em:contributor>Ported to Thunderbird by Josh Glover</em:contributor>
+		<em:contributor>Thunderbird port by Josh Glover</em:contributor>
 		<em:homepageURL>http://www.polarcloud.com/</em:homepageURL>
-		<em:iconURL>chrome://rikaichan/skin/about.png</em:iconURL>
+		<em:iconURL>chrome://rikaichan/skin/smile.png</em:iconURL>
 		<em:optionsURL>chrome://rikaichan/content/prefs.xul</em:optionsURL>
 
 		<em:file>
@@ -29,7 +27,7 @@ xmlns:em="http://www.mozilla.org/2004/em-rdf#">
 		<em:targetApplication>
 			<Description>
 				<em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-				<em:minVersion>1.0</em:minVersion>
+				<em:minVersion>2.0</em:minVersion>
 				<em:maxVersion>2.0.0.*</em:maxVersion>
 			</Description>
 		</em:targetApplication>
@@ -38,8 +36,8 @@ xmlns:em="http://www.mozilla.org/2004/em-rdf#">
 		<em:targetApplication>
 			<Description>
 				<em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id>
-				<em:minVersion>1.0</em:minVersion>
-				<em:maxVersion>3.0a1</em:maxVersion>
+				<em:minVersion>2.0</em:minVersion>
+				<em:maxVersion>2.0.0.*</em:maxVersion>
 			</Description>
 		</em:targetApplication>
 

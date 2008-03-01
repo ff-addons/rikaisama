@@ -1,28 +1,29 @@
+﻿
+<!ENTITY rikaichan.toggle.cm "Rikaichan">
+<!ENTITY rikaichan.toggle.cm.key "K">
 
-<!ENTITY rikaichan.inline.cm "Toggle Rikaichan">
-<!ENTITY rikaichan.inline.cm.key "K">
+<!ENTITY rikaichan.toggle.tm "Rikaichan">
+<!ENTITY rikaichan.toggle.tm.key "K">
 
-<!ENTITY rikaichan.inline.tm "Toggle Rikaichan">
-<!ENTITY rikaichan.inline.tm.key "K">
+<!ENTITY rikaichan.lbar.cm "Rikaichan Lookupbar">
+<!ENTITY rikaichan.lbar.cm.key "L">
 
-<!ENTITY rikaichan.lookup.cm "Lookup Using Rikaichan">
-<!ENTITY rikaichan.lookup.cm.key "L">
+<!ENTITY rikaichan.lbar.tm "Rikaichan Lookupbar">
+<!ENTITY rikaichan.lbar.tm.key "L">
 
-<!ENTITY rikaichan.lookup.tm "Lookup Using Rikaichan">
-<!ENTITY rikaichan.lookup.tm.key "L">
+<!ENTITY rikaichan.copy.cm "Rikaichan Copy">
+<!ENTITY rikaichan.copy.cm.key "C">
 
-<!ENTITY rikaichan.clip.cm "Copy Last Rikaichan Info">
-<!ENTITY rikaichan.clip.cm.key "C">
+<!ENTITY rikaichan.copy.tm "Rikaichan Copy">
+<!ENTITY rikaichan.copy.tm.key "C">
 
-<!ENTITY rikaichan.clip.tm "Copy Last Rikaichan Info">
-<!ENTITY rikaichan.clip.tm.key "C">
+<!ENTITY rikaichan.lbar.close.tip "Close Lookupbar">
+<!ENTITY rikaichan.lbar.search.tip "Search / Again">
+<!ENTITY rikaichan.lbar.copy.tip "Copy Result">
+<!ENTITY rikaichan.lbar.save.tip "Save Result">
+<!ENTITY rikaichan.lbar.config.tip "Configure">
 
-<!ENTITY rikaichan.lookupbar.close.tip "Close">
-<!ENTITY rikaichan.lookupbar.sticky.tip "Sticky">
-<!ENTITY rikaichan.lookupbar.clip.tip "Copy last information to clipboard">
-
-<!ENTITY rikaichan.toolbar.inline "Rikaichan">
-<!ENTITY rikaichan.toolbar.inline.tip "Toggle Rikaichan">
-<!ENTITY rikaichan.toolbar.lookup "Lookup">
-<!ENTITY rikaichan.toolbar.lookup.tip "Toggle Rikaichan Lookupbar">
-
+<!ENTITY rikaichan.toolbar.toggle "Rikaichan">
+<!ENTITY rikaichan.toolbar.toggle.tip "Rikaichan">
+<!ENTITY rikaichan.toolbar.lbar "Lookupbar">
+<!ENTITY rikaichan.toolbar.lbar.tip "Rikaichan Lookupbar">

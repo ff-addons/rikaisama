@@ -1,4 +1,30 @@
 <?xml version="1.0"?>
+<!--
+
+	RikaiChan
+	Copyright (C) 2005-2007 Jonathan Zarate
+	http://www.polarcloud.com/
+
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+
+	Please do not change or remove any of the copyrights or links to web pages
+	when modifying any of the files. - Jon
+
+-->
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <!DOCTYPE overlay SYSTEM "chrome://rikaichan/locale/prefs.dtd">
 
@@ -9,120 +35,370 @@
         ondialogcancel="return true;"
         onload="rcxPrefs.onLoad();">
 
-<script type="application/x-javascript" src="chrome://rikaichan/content/prefs.js"/>
-<script type="application/x-javascript" src="chrome://rikaichan/content/data.js"/>
+<script type="application/x-javascript" src="cfglist.js" />
+<script type="application/x-javascript" src="prefs.js" />
 
-<groupbox flex="0">
-	<caption label="&rikaichan.prefs.keyboard.shortcuts;" />
+<tabbox>
+<tabs>
+	<tab label="General" />
+	<tab label="Menu" />
+	<tab label="Keyboard" />
+	<tab label="Word Dictionary" />
+	<tab label="Kanji Dictionary" />
+	<tab label="Names Dictionary" />
+	<tab label="Clipboard / Save" />
+</tabs>
+<tabpanels>
+	<tabpanel>
+		<vbox flex="1">
+			<hbox flex="0" align="center">
+				<label value="Popup Color" style="min-width:10em"/>
+				<menulist id="rcp-css">
+					<menupopup>
+						<menuitem label="Blue" value="blue" />
+						<menuitem label="Light Blue" value="light-blue" />
+						<menuitem label="Black" value="black" />
+						<menuitem label="Yellow" value="yellow" />
+					</menupopup>
+				</menulist>
+			</hbox>
+			<hbox flex="0" align="center">
+				<label value="Popup Delay" style="min-width:10em"/>
+				<textbox id="rcp-popdelay" maxlength="5" size="5" />
+				<label value="(ms)" />
+			</hbox>		
+<!--
+			<hbox flex="0" align="center">
+				<label value="Enable For" style="min-width:10em"/>
+				<menulist id="rcp-enmode">
+					<menupopup>
+						<menuitem label="Current Tab" value="0" />
+						<menuitem label="Current Window" value="1" />
+						<menuitem label="Current Browser" value="2" />
+					</menupopup>
+				</menulist>
+			</hbox>
+-->
+			<hbox flex="0" align="center">
+				<label value="Highlight Text" style="min-width:10em" />
+				<menulist id="rcp-highlight">
+					<menupopup>
+						<menuitem label="Yes" value="1" />
+						<menuitem label="No" value="0" />
+					</menupopup>
+				</menulist>
+			</hbox>
+			<hbox flex="0" align="center">
+				<label value="Adjust Document Size" style="min-width:10em" />
+				<menulist id="rcp-resizedoc">
+					<menupopup>
+						<menuitem label="Yes" value="1" />
+						<menuitem label="No" value="0" />
+					</menupopup>
+				</menulist>
+			</hbox>
+			<hbox flex="0" align="center">
+				<label value="Lookup Order" style="min-width:10em" />
+				<menulist id="rcp-dictorder" flex="0" >
+					<menupopup>
+						<menuitem label="Word &gt; Kanji" value="0" />
+						<menuitem label="Word &gt; Kanji &gt; Names" value="1" />
+						<menuitem label="Word &gt; Names &gt; Kanji" value="2" />
+					</menupopup>
+				</menulist>
+			</hbox>			
+			<hbox flex="0" align="center">
+				<label value="Translate ALT/TITLE" style="min-width:10em" />
+				<menulist id="rcp-title">
+					<menupopup>
+						<menuitem label="Yes" value="1" />
+						<menuitem label="No" value="0" />
+					</menupopup>
+				</menulist>
+			</hbox>
+		</vbox>
+	</tabpanel>
 	
-	<hbox>
-		<label value="&rikaichan.prefs.enabledisable;" style="width:9em" />
-		<checkbox id="accel-toggle"	label="Ctrl / Cmd" />
-		<checkbox id="alt-toggle"	label="Alt" />
-		<checkbox id="shift-toggle"	label="Shift" />
-		<menulist id="key-toggle" editable="true" oninput="rcxPrefs.onKeyChanged(this)" oncommand="rcxPrefs.onKeyChanged(this)">
-			<menupopup id="key-toggle-mp" />
-		</menulist>
-	</hbox>
-
-	<hbox>
-		<label value="&rikaichan.prefs.lookupaword;" style="width:9em" />
-		<checkbox id="accel-lookup"	label="Ctrl / Cmd" />
-		<checkbox id="alt-lookup"	label="Alt" />
-		<checkbox id="shift-lookup"	label="Shift" />
-		<menulist id="key-lookup" editable="true" oninput="rcxPrefs.onKeyChanged(this)" oncommand="rcxPrefs.onKeyChanged(this)">
-			<menupopup id="key-lookup-mp" />
-		</menulist>
-	</hbox>
-
-	<hbox>
-		<label value="&rikaichan.prefs.copytoclip;" style="width:9em" />
-		<checkbox id="accel-clip"	label="Ctrl / Cmd" />
-		<checkbox id="alt-clip"	label="Alt" />
-		<checkbox id="shift-clip"	label="Shift" />
-		<menulist id="key-clip" editable="true" oninput="rcxPrefs.onKeyChanged(this)" oncommand="rcxPrefs.onKeyChanged(this)">
-			<menupopup id="key-clip-mp" />
-		</menulist>
-	</hbox>
+	<tabpanel>
+		<vbox flex="1">
+			<vbox>
+				<hbox flex="1">
+					<vbox flex="0">
+						<label value="Context Menu" />
+						<checkbox id="rcp-cmtoggle" label="&rikaichan.prefs.xm.toggle;" />
+						<checkbox id="rcp-cmlbar" label="&rikaichan.prefs.xm.lbar;" />
+					</vbox>
+				</hbox>					
+				<spacer style="height:1em" />
+				<hbox flex="1">
+					<vbox flex="0">
+						<label value="Tools Menu" />
+						<checkbox id="rcp-tmtoggle" label="&rikaichan.prefs.xm.toggle;" />
+						<checkbox id="rcp-tmlbar" label="&rikaichan.prefs.xm.lbar;" />
+					</vbox>
+				</hbox>
+			</vbox>			
+			<spacer flex="1" />
+		</vbox>
+	</tabpanel>
 	
-	<description value="&rikaichan.prefs.restart;" />
-</groupbox>
+	<tabpanel>
+		<vbox flex="1">
+			<hbox>
+				<label value="Toggle" style="min-width:9em" />
+				<checkbox label="Ctrl" id="rcp-toggle-accel" />
+				<checkbox label="Alt" id="rcp-toggle-alt" />
+				<checkbox label="Shift" id="rcp-toggle-shift" />
+				<menulist id="rcp-toggle-key" editable="true" oninput="rcxPrefs.onKeyChanged(this)" oncommand="rcxPrefs.onKeyChanged(this)">
+					<menupopup id="rcp-toggle-list" />
+				</menulist>
+			</hbox>
 
-<hbox>
-	<groupbox flex="1">
-		<caption label="&rikaichan.prefs.showincontext;" />
-		<checkbox id="showcm-toggle" label="&rikaichan.prefs.enabledisable;" />
-		<checkbox id="showcm-lookup" label="&rikaichan.prefs.lookupaword;" />
-		<checkbox id="showcm-clip" label="&rikaichan.prefs.copytoclip;" />
-	</groupbox>
+			<hbox>
+				<label value="LookupBar" style="min-width:9em" />
+				<checkbox label="Ctrl" id="rcp-lbar-accel" />
+				<checkbox label="Alt" id="rcp-lbar-alt" />
+				<checkbox label="Shift" id="rcp-lbar-shift" />
+				<menulist id="rcp-lbar-key" editable="true" oninput="rcxPrefs.onKeyChanged(this)" oncommand="rcxPrefs.onKeyChanged(this)">
+					<menupopup id="rcp-lbar-list" />
+				</menulist>
+			</hbox>
 
-	<groupbox flex="1">
-		<caption label="&rikaichan.prefs.showintools;" />
-		<checkbox id="showtm-toggle" label="&rikaichan.prefs.enabledisable;" />
-		<checkbox id="showtm-lookup" label="&rikaichan.prefs.lookupaword;" />
-		<checkbox id="showtm-clip" label="&rikaichan.prefs.copytoclip;" />
-	</groupbox>
-</hbox>
+			<spacer style="height:1em" />
+			<description value="Note: Restart the browser after making changes." />
+			<spacer style="height:2em" />
 
-<groupbox flex="0">
-	<vbox flex="1">
-		<label value="&rikaichan.prefs.popupdelay;" />
-		<hbox flex="1" >
-			<textbox id="rc-popdelay" maxlength="5" size="5" flex="1" />
-		</hbox>
-	</vbox>
-
-	<vbox flex="1">
-		<label value="&rikaichan.prefs.colorscheme;" />
-		<menulist id="rc-colors" flex="1">
-			<menupopup>
-				<menuitem label="&rikaichan.prefs.blue;" value="blue" />
-				<menuitem label="&rikaichan.prefs.black;" value="black" />
-				<menuitem label="&rikaichan.prefs.yellow;" value="yellow" />
-			</menupopup>
-		</menulist>
-	</vbox>
-
-	<checkbox id="rc-highlight" label="&rikaichan.prefs.enablehi;" />
-</groupbox>	
-
-<groupbox flex="0">
-	<vbox flex="1">
-		<label value="&rikaichan.prefs.do;" />
-		<menulist id="rc-dictorder" flex="1" >
-			<menupopup>
-				<menuitem label="&rikaichan.prefs.dosko;" value="0" />
-				<menuitem label="&rikaichan.prefs.doskn;" value="1" />
-				<menuitem label="&rikaichan.prefs.dosnk;" value="2" />
-			</menupopup>
-		</menulist>
-	</vbox>
-	<checkbox id="rc-delaynames" label="&rikaichan.prefs.delaynames;" />
-</groupbox>
-
-<groupbox flex="0">
-	<caption label="Kanji information to display" />
-	<hbox>
-		<vbox>
-			<checkbox id="rc-index-COMP" label="Kanji Components" />
-			<checkbox id="rc-index-H" label="Halpern" />
-			<checkbox id="rc-index-L" label="Heisig" />
-			<checkbox id="rc-index-DK" label="Kanji Learners Dictionary" />
+			<groupbox>
+				<description value="Keys When Popup Is Visible:" />
+				<spacer style="height:1em" />
+				<hbox>
+					<label value="Alternate View" style="min-width:9em" />
+					<label value="[A]" />
+				</hbox>
+				<hbox>
+					<label value="Copy To Clipboard" style="min-width:9em" />
+					<label value="[C]" />
+				</hbox>
+				<hbox>
+					<label value="Save To File" style="min-width:9em" />
+					<label value="[S]" />
+				</hbox>
+				<hbox>
+					<label value="Switch Dictionary" style="min-width:9em" />
+					<label value="[Shift] or [Enter]" />
+				</hbox>
+			</groupbox>
 		</vbox>
-		<vbox>
-			<checkbox id="rc-index-N" label="Nelson" />
-			<checkbox id="rc-index-V" label="New Nelson" />
-			<checkbox id="rc-index-Y" label="PinYin" />
-			<checkbox id="rc-index-P" label="Skip Pattern" />
-		</vbox>
-		<vbox>
-			<checkbox id="rc-index-IN" label="Tuttle Kanji &amp; Kana" />
-			<checkbox id="rc-index-I" label="Tuttle Kanji Dictionary" />
-			<checkbox id="rc-index-U" label="Unicode" />
-		</vbox>
-	</hbox>
-</groupbox>
+	</tabpanel>
 
-<vbox flex="10" />
+	<tabpanel>
+		<vbox flex="1">
+			<hbox flex="0" align="center">
+				<label value="Maximum To Display" style="min-width:10em;"/>
+				<menulist id='rcp-wmax' editable="true" style="min-width:5em">
+					<menupopup>
+						<menuitem label="10" />
+						<menuitem label="11" />
+						<menuitem label="12" />
+						<menuitem label="13" />
+						<menuitem label="14" />
+						<menuitem label="15" />
+						<menuitem label="16" />
+						<menuitem label="17" />
+						<menuitem label="18" />
+						<menuitem label="19" />
+						<menuitem label="20" />
+						<menuitem label="21" />
+						<menuitem label="22" />
+						<menuitem label="23" />
+						<menuitem label="24" />
+						<menuitem label="25" />
+						<menuitem label="26" />
+						<menuitem label="27" />
+						<menuitem label="28" />
+						<menuitem label="29" />
+						<menuitem label="30" />
+					</menupopup>
+				</menulist>
+			</hbox>
+			<hbox flex="0" align="center">
+				<label value="Misc &quot;(n,v1)&quot; Text" style="min-width:10em;"/>
+				<menulist id="rcp-wpos">
+					<menupopup>
+						<menuitem label="Show" value="1" />
+						<menuitem label="Hide" value="0" />
+					</menupopup>
+				</menulist>
+			</hbox>
+			<hbox flex="0" align="center">
+				<label value="Priority &quot;(P)&quot; Text" style="min-width:10em;"/>
+				<menulist id="rcp-wpop">
+					<menupopup>
+						<menuitem label="Show" value="1" />
+						<menuitem label="Hide" value="0" />
+					</menupopup>
+				</menulist>
+			</hbox>
+		</vbox>
+		<spacer />
+	</tabpanel>
+
+	<tabpanel>
+		<vbox flex="1">
+			<label value="Displayed Information" />
+			<hbox>
+				<vbox>
+					<checkbox id="rcp-kindex-COMP" label="Kanji Components" />
+					<checkbox id="rcp-kindex-H" label="Halpern" />
+					<checkbox id="rcp-kindex-L" label="Heisig Index" />
+					<checkbox id="rcp-kindex-DK" label="Kanji Learners Dictionary" />
+					<checkbox id="rcp-kindex-N" label="Nelson" />
+					<checkbox id="rcp-kindex-V" label="New Nelson" />
+				</vbox>
+				<vbox>
+					<checkbox id="rcp-kindex-Y" label="PinYin" />
+					<checkbox id="rcp-kindex-P" label="Skip Pattern" />
+					<checkbox id="rcp-kindex-IN" label="Tuttle Kanji &amp; Kana" />
+					<checkbox id="rcp-kindex-I" label="Tuttle Kanji Dictionary" />
+					<checkbox id="rcp-kindex-U" label="Unicode" />
+				</vbox>
+			</hbox>
+		</vbox>
+	</tabpanel>
+	
+	<tabpanel>
+		<vbox flex="1">
+			<hbox flex="0" align="center">
+				<label value="Maximum To Display" style="min-width:10em" />
+				<menulist editable="true" id='rcp-namax'>
+					<menupopup>
+						<menuitem label="10" />
+						<menuitem label="15" />
+						<menuitem label="20" />
+						<menuitem label="25" />
+						<menuitem label="30" />
+						<menuitem label="35" />
+						<menuitem label="40" />
+						<menuitem label="45" />
+						<menuitem label="50" />
+					</menupopup>
+				</menulist>
+			</hbox>
+			<hbox flex="0" align="center">
+				<label value="Delay File Loading" style="min-width:10em" />
+				<menulist id="rcp-nadelay">
+					<menupopup>
+						<menuitem label="Yes" value="1" />
+						<menuitem label="No" value="0" />
+					</menupopup>
+				</menulist>
+			</hbox>
+		</vbox>
+		<spacer />
+	</tabpanel>
+	
+	<tabpanel>
+		<vbox flex="1">
+			<hbox flex="0" align="center">
+				<label value="Save File" style="min-width:10em" />
+				<textbox id='rcp-sfile' size="50" maxlength="200" />
+			</hbox>
+			<hbox flex="0" align="center">
+				<label value="File Character Set" style="min-width:10em" />
+				<menulist id='rcp-sfcs'>
+					<menupopup>
+						<menuitem label="UTF-8" value="utf-8" />
+						<menuitem label="UTF-16" value="utf-16" />
+						<menuitem label="Shift-JIS" value="shift-jis" />
+						<menuitem label="EUC-JP" value="euc-jp" />
+					</menupopup>
+				</menulist>
+			</hbox>
+			<hbox flex="0" align="center">
+				<label value="Maximum To Save" style="min-width:10em" />
+				<menulist editable="true" id='rcp-smaxfe'>
+					<menupopup>
+						<menuitem label="1" />
+						<menuitem label="2" />
+						<menuitem label="3" />
+						<menuitem label="4" />
+						<menuitem label="5" />
+						<menuitem label="6" />
+						<menuitem label="7" />
+						<menuitem label="8" />
+						<menuitem label="9" />
+						<menuitem label="10" />
+						<menuitem label="99" />
+					</menupopup>
+				</menulist>
+				<description>Entries + </description>
+				<menulist editable="true" id='rcp-smaxfk'>
+					<menupopup>
+						<menuitem label="0" />
+						<menuitem label="1" />
+						<menuitem label="2" />
+						<menuitem label="3" />
+						<menuitem label="4" />
+						<menuitem label="5" />
+					</menupopup>
+				</menulist>
+				<description>Kanji (LookupBar)</description>
+			</hbox>
+			<hbox flex="0" align="center">
+				<label value="Maximum To Copy" style="min-width:10em" />
+				<menulist editable="true" id='rcp-smaxce'>
+					<menupopup>
+						<menuitem label="1" />
+						<menuitem label="2" />
+						<menuitem label="3" />
+						<menuitem label="4" />
+						<menuitem label="5" />
+						<menuitem label="6" />
+						<menuitem label="7" />
+						<menuitem label="8" />
+						<menuitem label="9" />
+						<menuitem label="10" />
+						<menuitem label="99" />
+					</menupopup>
+				</menulist>
+				<description>Entries + </description>
+				<menulist editable="true" id='rcp-smaxck'>
+					<menupopup>
+						<menuitem label="0" />
+						<menuitem label="1" />
+						<menuitem label="2" />
+						<menuitem label="3" />
+						<menuitem label="4" />
+						<menuitem label="5" />
+					</menupopup>
+				</menulist>
+				<description>Kanji (LookupBar)</description>
+			</hbox>
+			<hbox flex="0" align="center">
+				<label value="New Line Format" style="min-width:10em" />
+				<menulist id="rcp-snlf">
+					<menupopup>
+						<menuitem label="Unix" value="0" />
+						<menuitem label="DOS/Windows" value="1" />
+						<menuitem label="Mac" value="2" />
+					</menupopup>
+				</menulist>
+			</hbox>
+			<hbox flex="0" align="center">
+				<label value="Field Separator" style="min-width:10em" />
+				<menulist editable="true" id='rcp-ssep'>
+					<menupopup>
+						<menuitem label="Tab" />
+						<menuitem label="Comma" />
+						<menuitem label="Space" />
+					</menupopup>
+				</menulist>
+			</hbox>
+		</vbox>
+		<spacer />
+	</tabpanel>
+
+</tabpanels>
+</tabbox>
 
 </dialog>
