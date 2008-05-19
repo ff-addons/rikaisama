@@ -532,18 +532,22 @@ var rcxMain = {
 
 		text = '';
 		for (i = 0; i < f.length; ++i) {
-			if (f[i].kanji) {
-				if (mk-- <= 0) break;
+			e = f[i];
+			if (e.kanji) {
+				if (mk-- <= 0) continue
+				text += this.dict.makeText(e, 1);
 			}
 			else {
-				if (me-- <= 0) continue;
+				if (me <= 0) continue;
+				text += this.dict.makeText(e, me);
+				me -= e.data.length;
 			}
-			text += this.dict.makeText(f[i]) + '\n';
 		}
 
 		if (this.cfg.snlf == 1) text = text.replace(/\n/g, '\r\n');
 			else if (this.cfg.snlf == 2) text = text.replace(/\n/g, '\r');
 		if (this.cfg.ssep != '\t') return text.replace(/\t/g, this.cfg.ssep);
+		
 		return text;
 	},
 
@@ -1041,12 +1045,14 @@ var rcxMain = {
 			if ((s.search(/[:*\uFF0A]/) != -1) || (s.search(/^([^\u3000-\uFFFF]+)$/) != -1)) {
 				t = s.replace(/;$/, '/')		// ; -> /
 					.replace(/\uFF0A/, '*');	// J* -> *
-				if ((e = this.dict.bruteSearch(t, names)) == null)
+				if ((e = this.dict.bruteSearch(t, names)) == null) {
 					e = this.dict.bruteSearch(t, !names);
+				}
 			}
 			else {
-				if ((e = this.dict.wordSearch(s, names)) == null)
+				if ((e = this.dict.wordSearch(s, names)) == null) {
 					e = this.dict.wordSearch(s, !names);
+				}
 			}
 
 			if (e) {

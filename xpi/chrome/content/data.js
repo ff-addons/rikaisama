@@ -332,7 +332,7 @@ if (0) {
 		var i, u, v, r, p;
 		var trueLen = [0];
 		var entry = { };
-
+		
 		// half & full-width katakana to hiragana conversion
 		// note: katakana vu is never converted to hiragana
 
@@ -536,7 +536,7 @@ if (0) {
 		r = 1;
 		if (text.charAt(0) == ':') {
 			text = text.substr(1, text.length - 1);
-			if (text.charAt(0) == ':') r = 1;
+			if (text.charAt(0) != ':') r = 0;
 		}
 		if (r) {
 //			wb = we = '\\W';
@@ -809,7 +809,7 @@ if (0) {
 		return b.join('');
 	},
 
-	makeText: function(entry, mode) {
+	makeText: function(entry, max) {
 		var e;
 		var b;
 		var i, j;
@@ -823,26 +823,25 @@ if (0) {
 			b.push(entry.kanji + '\n');
 			b.push((entry.eigo.length ? entry.eigo : '-') + '\n');
 
-			if (mode != 1) {
-				b.push(entry.onkun.replace(/\.([^\u3001]+)/g, '\uFF08$1\uFF09') + '\n');
-				if (entry.nanori.length) {
-					b.push('\u540D\u4E57\u308A\t' + entry.nanori + '\n');
-				}
-				if (entry.bushumei.length) {
-					b.push('\u90E8\u9996\u540D\t' + entry.bushumei + '\n');
-				}
+			b.push(entry.onkun.replace(/\.([^\u3001]+)/g, '\uFF08$1\uFF09') + '\n');
+			if (entry.nanori.length) {
+				b.push('\u540D\u4E57\u308A\t' + entry.nanori + '\n');
+			}
+			if (entry.bushumei.length) {
+				b.push('\u90E8\u9996\u540D\t' + entry.bushumei + '\n');
+			}
 
-				for (i = 0; i < this.numList.length; i += 2) {
-					e = this.numList[i];
-					if (this.config.kdisp[e] == 1) {
-						j = entry.misc[e];
-						b.push(this.numList[i + 1].replace('&amp;', '&') + '\t' + (j ? j : '-') + '\n');
-					}
+			for (i = 0; i < this.numList.length; i += 2) {
+				e = this.numList[i];
+				if (this.config.kdisp[e] == 1) {
+					j = entry.misc[e];
+					b.push(this.numList[i + 1].replace('&amp;', '&') + '\t' + (j ? j : '-') + '\n');
 				}
 			}
 		}
 		else {
-			for (i = 0; i < entry.data.length; ++i) {
+			if (max > entry.data.length) max = entry.data.length;
+			for (i = 0; i < max; ++i) {
 				e = entry.data[i][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
 				if (!e) continue;
 
@@ -857,8 +856,6 @@ if (0) {
 				if (!this.config.wpos) t = t.replace(/^\([^)]+\)\s*/, '');
 				if (!this.config.wpop) t = t.replace('; (P)', '');
 				b.push('\t' + t + '\n');
-
-				if (mode == 1) break;
 			}
 		}
 		return b.join('');
