@@ -177,8 +177,8 @@ var rcxMain = {
 					var key = document.createElementNS(
 							'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'key');
 					key.setAttribute('id', 'rikaichan-key-' + na);
-					key.setAttribute('key', (v.length > 1) ? '' : v);
-					key.setAttribute('keycode', (v.length > 1) ? ('VK_' + v.replace(' ', '_').toUpperCase()) : '');	// "Page Up" -> "VK_PAGE_UP"
+					if (v.length > 1) key.setAttribute('keycode', 'VK_' + v.replace(' ', '_').toUpperCase());	// "Page Up" -> "VK_PAGE_UP"
+						else key.setAttribute('key', v);
 					key.setAttribute('modifiers', pb.getCharPref(na + '.mod'));
 					key.setAttribute('command', 'rikaichan-' + na + '-cmd');
 					mks.appendChild(key);
@@ -315,7 +315,20 @@ var rcxMain = {
 	loadDictionary: function() {
 		if (!this.dict) {
 			if (typeof(rcxWordDict) == 'undefined') {
-				alert('Please install a dictionary for Rikaichan.');
+				const url = 'http://www.polarcloud.com/rikaichan#rcxdict';
+				var w = null;
+				if (this.isTB) {
+					Components.classes["@mozilla.org/messenger;1"].createInstance()
+						.QueryInterface(Components.interfaces.nsIMessenger)
+						.launchExternalURL(url);
+				}
+				else {
+					w = window.open(url, 'rcxdict');
+					if (w) w.focus();
+				}
+				Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+					.getService(Components.interfaces.nsIPromptService)
+					.alert(w, 'Rikaichan',  'Please go to http://www.polarcloud.com/rikaichan/ or http://rikaichan.mozdev.org/ and install a dictionary for Rikaichan.');
 				return false;
 			}
 			try {
@@ -337,7 +350,6 @@ var rcxMain = {
 	_onTabSelect: function() {
 		var b = document.getElementById('rikaichan-toggle-button');
 		if (b) b.setAttribute('rc_enabled', (this.getCurrentBrowser().rikaichan != null));
-		this.shiftKeys = 0;
 	},
 
 	showPopup: function(text, elem, x, y, looseWidth, lbPop) {
@@ -547,7 +559,7 @@ var rcxMain = {
 		if (this.cfg.snlf == 1) text = text.replace(/\n/g, '\r\n');
 			else if (this.cfg.snlf == 2) text = text.replace(/\n/g, '\r');
 		if (this.cfg.ssep != '\t') return text.replace(/\t/g, this.cfg.ssep);
-		
+
 		return text;
 	},
 
@@ -613,7 +625,7 @@ var rcxMain = {
 
 	onKeyDown: function(ev) { rcxMain._onKeyDown(ev) },
 	_onKeyDown: function(ev) {
-//		rcd_status("keyCode=" + ev.keyCode + ' charCode=' + ev.charCode + ' detail=' + ev.detail);
+//		this.status("keyCode=" + ev.keyCode + ' charCode=' + ev.charCode + ' detail=' + ev.detail);
 
 		if ((ev.altKey) || (ev.metaKey) || (ev.ctrlKey)) return;
 
@@ -660,6 +672,8 @@ var rcxMain = {
 		default:
 			return;
 		}
+
+		// -- enter or shift --
 
 		this.showMode = (this.showMode + 1) % this.dictCount;
 		this.show(ev.currentTarget.rikaichan);
@@ -803,7 +817,7 @@ var rcxMain = {
 			this.hidePopup();
 			return;
 		}
-		
+
 		e.title = tdata.title.substr(0, e.textLen).replace(/[\x00-\xff]/g, function (c) { return '&#' + c.charCodeAt(0) + ';' } );
 		if (tdata.title.length > e.textLen) e.title += '...';
 
@@ -840,7 +854,8 @@ var rcxMain = {
 		if ((this.mouseButtons != 0) || (this.lbPop)) return;
 
 		if ((rp) && (rp.data) && (ro < rp.data.length)) {
-			this.showMode = this.shiftDown ? 1 : 0;
+//			this.showMode = this.shiftDown ? 1 : 0;
+			this.showMode = ev.shiftKey ? 1 : 0;
 			tdata.popX = ev.screenX;
 			tdata.popY = ev.screenY;
 			tdata.timer = setTimeout(
@@ -858,7 +873,7 @@ var rcxMain = {
 				tdata.title = ev.target.alt;
 			}
 		}
-		
+
 		if (tdata.title) {
 			tdata.popX = ev.screenX;
 			tdata.popY = ev.screenY;
@@ -878,7 +893,7 @@ var rcxMain = {
 			}
 			return;
 		}
-		
+
 	},
 
 	inlineEnable: function(bro) {
