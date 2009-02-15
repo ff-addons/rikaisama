@@ -51,14 +51,10 @@
 </popup>
 
 <menupopup id="taskPopup">
-	<menuseparator id="rikaichan-separator-tm" hidden="true"
-		/>
-	<menuitem id="rikaichan-toggle-tm" label="&rikaichan.toggle.tm;" accesskey="&rikaichan.toggle.tm.key;" key="rikaichan-toggle-key" command="rikaichan-toggle-cmd"  hidden="true"
-		/>
-	<menuitem id="rikaichan-lbar-tm" label="&rikaichan.lbar.tm;" accesskey="&rikaichan.lbar.tm.key;" key="rikaichan-lbar-key" command="rikaichan-lbar-cmd"  hidden="true"
-		/>
-	<menuitem id="rikaichan-copy-tm" label="&rikaichan.copy.tm;" accesskey="&rikaichan.copy.tm.key;"  key="rikaichan-copy-key" command="rikaichan-copy-cmd" hidden="true"
-		/>
+	<menuseparator id="rikaichan-separator-tm" hidden="true" />
+	<menuitem id="rikaichan-toggle-tm" label="&rikaichan.toggle.tm;" accesskey="&rikaichan.toggle.tm.key;" key="rikaichan-toggle-key" command="rikaichan-toggle-cmd"  hidden="true" />
+	<menuitem id="rikaichan-lbar-tm" label="&rikaichan.lbar.tm;" accesskey="&rikaichan.lbar.tm.key;" key="rikaichan-lbar-key" command="rikaichan-lbar-cmd"  hidden="true" />
+	<menuitem id="rikaichan-copy-tm" label="&rikaichan.copy.tm;" accesskey="&rikaichan.copy.tm.key;"  key="rikaichan-copy-key" command="rikaichan-copy-cmd" hidden="true" />
 </menupopup>
 
 <window id="messengerWindow">

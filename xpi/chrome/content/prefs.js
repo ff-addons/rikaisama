@@ -1,7 +1,7 @@
 /*
 
 	Rikaichan
-	Copyright (C) 2005-2008 Jonathan Zarate
+	Copyright (C) 2005-2009 Jonathan Zarate
 	http://www.polarcloud.com/
 
 	---
@@ -35,15 +35,15 @@ var rcxPrefs = {
 		'L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','Back','Escape','Page Up',
 		'Page Down','End','Home','Left','Up','Right','Down','Insert','Delete','F1','F2','F3',
 		'F4','F5','F6','F7','F8','F9','F10','F11','F12'],
-	kindex: ['COMP', 'H','L','DK','N','V','Y','P','IN','I','U'],
-	
+	kindex: ['COMP', 'H','L','E','DK','N','V','Y','P','IN','I','U'],
+
 	E: function(e) {
 		return document.getElementById(e);
 	},
-	
+
 	checkRange: function(e, name, min, max) {
 		var v;
-		
+
 		e = this.E(e);
 		v = e.value;
 		if ((isNaN(v)) || (v < min) || (v > max)) {
@@ -53,7 +53,7 @@ var rcxPrefs = {
 		}
 		return true;
 	},
-	
+
 	onLoad: function() {
 		var pb;
 		var i, j;
@@ -61,6 +61,10 @@ var rcxPrefs = {
 		var a, b;
 
 		try {
+			if (navigator.userAgent.search(/thunderbird|shredder/i) != -1) {
+				this.E('rcp-enmode-hbox').hidden = true;
+			}
+
 			pb = Components
 					.classes['@mozilla.org/preferences-service;1']
 					.getService(Components.interfaces.nsIPrefService)
@@ -73,7 +77,7 @@ var rcxPrefs = {
 				for (j = 0; j < this.modifiers.length; ++j) {
 					b = this.modifiers[j];
 					this.E('rcp-' + a + '-' + b).checked = (v.indexOf(b) != -1);
-				}				
+				}
 
 				e = this.E('rcp-' + a + '-list');
 				for (j = 0; j < this.keys.length; ++j) {
@@ -81,19 +85,19 @@ var rcxPrefs = {
 					v.setAttribute('label', this.keys[j]);
 					e.appendChild(v);
 				}
-				
+
 				v = pb.getCharPref(a + '.key');
 				if (v.length == 0) v = this.keys[0];
 				this.E('rcp-' + a + '-key').value = v;
 			}
-			
+
 			v = pb.getCharPref('kindex').split(',');
 			for (i = 0; i < v.length; ++i) {
 				if ((e = this.E('rcp-kindex-' + v[i])) != null) {
 					e.checked = true;
 				}
 			}
-			
+
 			for (i = 0; i < rcxCfgList.length; ++i) {
 				b = rcxCfgList[i];
 				e = this.E('rcp-' + b[1]);
@@ -120,13 +124,13 @@ var rcxPrefs = {
 		var pb;
 		var i, j;
 		var a, b, e, v;
-		
+
 		try {
-		
+
 			if (!this.checkRange('rcp-popdelay', 'Popup Delay', 1, 2000)) return false;
 			if (!this.checkRange('rcp-wmax', 'Maximum Entries To Display', 3, 100)) return false;
 			if (!this.checkRange('rcp-namax', 'Maximum Entries To Display', 3, 200)) return false;
-			
+
 			pb = Components
 					.classes['@mozilla.org/preferences-service;1']
 					.getService(Components.interfaces.nsIPrefService)
@@ -134,25 +138,25 @@ var rcxPrefs = {
 
 			for (i = 0; i < this.funcs.length; ++i) {
 				a = this.funcs[i];
-				
+
 				v = [];
 				for (j = 0; j < this.modifiers.length; ++j) {
 					b = this.modifiers[j];
 					if (this.E('rcp-' + a + '-' + b).checked) v.push(b);
 				}
 				pb.setCharPref(a + '.mod', v.join(' '));
-				
+
 				pb.setCharPref(a + '.key', this.E('rcp-' + a + '-key').value);
-				
+
 			}
-			
+
 			v = [];
 			for (i = 0; i < this.kindex.length; ++i) {
 				if (this.E('rcp-kindex-' + this.kindex[i]).checked)
 					v.push(this.kindex[i]);
 			}
 			pb.setCharPref('kindex', v.join(','));
-	
+
 			for (i = 0; i < rcxCfgList.length; ++i) {
 				b = rcxCfgList[i];
 				e = this.E('rcp-' + b[1]);
@@ -175,13 +179,13 @@ var rcxPrefs = {
 		catch (ex) {
 			alert('Exception: ' + ex);
 		}
-	
+
 		return false;
 	},
 
 	onKeyChanged: function(e) {
 		var v;
-		
+
 		e.value = v = e.value.replace(/^\s+|\s+$/g, '').replace(/\s+/g, ' ');
 		v = ((v.length == 0) || (v == '(disabled)'));
 		for (j = 0; j < this.modifiers.length; ++j) {

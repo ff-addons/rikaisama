@@ -52,7 +52,7 @@
 	<tabpanel>
 		<vbox flex="1">
 			<hbox flex="0" align="center">
-				<label value="Popup Color" style="min-width:10em"/>
+				<label value="Popup color" style="min-width:15em"/>
 				<menulist id="rcp-css">
 					<menupopup>
 						<menuitem label="Blue" value="blue" />
@@ -63,24 +63,22 @@
 				</menulist>
 			</hbox>
 			<hbox flex="0" align="center">
-				<label value="Popup Delay" style="min-width:10em"/>
+				<label value="Popup delay" style="min-width:15em"/>
 				<textbox id="rcp-popdelay" maxlength="5" size="5" />
 				<label value="(ms)" />
 			</hbox>		
-<!--
-			<hbox flex="0" align="center">
-				<label value="Enable For" style="min-width:10em"/>
+			<hbox flex="0" align="center" id="rcp-enmode-hbox">
+				<label value="Enable/disable in..." style="min-width:15em"/>
 				<menulist id="rcp-enmode">
 					<menupopup>
-						<menuitem label="Current Tab" value="0" />
-						<menuitem label="Current Window" value="1" />
-						<menuitem label="Current Browser" value="2" />
+						<menuitem label="Current tab only" value="0" />
+						<menuitem label="Current browser only" value="1" />
+						<menuitem label="All browsers" value="2" />
 					</menupopup>
 				</menulist>
 			</hbox>
--->
 			<hbox flex="0" align="center">
-				<label value="Highlight Text" style="min-width:10em" />
+				<label value="Highlight text" style="min-width:15em" />
 				<menulist id="rcp-highlight">
 					<menupopup>
 						<menuitem label="Yes" value="1" />
@@ -89,7 +87,7 @@
 				</menulist>
 			</hbox>
 			<hbox flex="0" align="center">
-				<label value="Adjust Document Size" style="min-width:10em" />
+				<label value="Adjust document size" style="min-width:15em" />
 				<menulist id="rcp-resizedoc">
 					<menupopup>
 						<menuitem label="Yes" value="1" />
@@ -98,7 +96,7 @@
 				</menulist>
 			</hbox>
 			<hbox flex="0" align="center">
-				<label value="Lookup Order" style="min-width:10em" />
+				<label value="Lookup order" style="min-width:15em" />
 				<menulist id="rcp-dictorder" flex="0" >
 					<menupopup>
 						<menuitem label="Word &gt; Kanji" value="0" />
@@ -108,8 +106,17 @@
 				</menulist>
 			</hbox>			
 			<hbox flex="0" align="center">
-				<label value="Translate ALT/TITLE" style="min-width:10em" />
+				<label value="Translate alt/title tags" style="min-width:15em" />
 				<menulist id="rcp-title">
+					<menupopup>
+						<menuitem label="Yes" value="1" />
+						<menuitem label="No" value="0" />
+					</menupopup>
+				</menulist>
+			</hbox>
+			<hbox flex="0" align="center">
+				<label value="Simplified display on ruby tags" style="min-width:15em" />
+				<menulist id="rcp-ruby">
 					<menupopup>
 						<menuitem label="Yes" value="1" />
 						<menuitem label="No" value="0" />
@@ -169,23 +176,39 @@
 			<spacer style="height:2em" />
 
 			<groupbox>
-				<description value="Keys When Popup Is Visible:" />
+				<description value="Keys when popup is visible:" />
 				<spacer style="height:1em" />
 				<hbox>
-					<label value="Alternate View" style="min-width:9em" />
-					<label value="[A]" />
+					<label value="Alternate view" style="min-width:17em" />
+					<label value="A" />
 				</hbox>
 				<hbox>
-					<label value="Copy To Clipboard" style="min-width:9em" />
-					<label value="[C]" />
+					<label value="Move popup down temporarily" style="min-width:17em" />
+					<label value="Y" />
 				</hbox>
 				<hbox>
-					<label value="Save To File" style="min-width:9em" />
-					<label value="[S]" />
+					<label value="Copy to clipboard" style="min-width:17em" />
+					<label value="C" />
 				</hbox>
 				<hbox>
-					<label value="Switch Dictionary" style="min-width:9em" />
-					<label value="[Shift] or [Enter]" />
+					<label value="Save to file" style="min-width:17em" />
+					<label value="S" />
+				</hbox>
+				<hbox>
+					<label value="Switch dictionary" style="min-width:17em" />
+					<label value="SHIFT or ENTER" />
+				</hbox>
+				<hbox>
+					<label value="Previous character (within element)" style="min-width:17em" />
+					<label value="B" />
+				</hbox>
+				<hbox>
+					<label value="Next character (within element)" style="min-width:17em" />
+					<label value="M" />
+				</hbox>
+				<hbox>
+					<label value="Next word (within element)" style="min-width:17em" />
+					<label value="N" />
 				</hbox>
 			</groupbox>
 		</vbox>
@@ -194,9 +217,16 @@
 	<tabpanel>
 		<vbox flex="1">
 			<hbox flex="0" align="center">
-				<label value="Maximum To Display" style="min-width:10em;"/>
+				<label value="Maximum to display" style="min-width:10em;"/>
 				<menulist id='rcp-wmax' editable="true" style="min-width:5em">
 					<menupopup>
+						<menuitem label="3" />
+						<menuitem label="4" />
+						<menuitem label="5" />
+						<menuitem label="6" />
+						<menuitem label="7" />
+						<menuitem label="8" />
+						<menuitem label="9" />
 						<menuitem label="10" />
 						<menuitem label="11" />
 						<menuitem label="12" />
@@ -222,7 +252,7 @@
 				</menulist>
 			</hbox>
 			<hbox flex="0" align="center">
-				<label value="Misc &quot;(n,v1)&quot; Text" style="min-width:10em;"/>
+				<label value="&quot;(n,v1)&quot; markers" style="min-width:10em;"/>
 				<menulist id="rcp-wpos">
 					<menupopup>
 						<menuitem label="Show" value="1" />
@@ -231,7 +261,7 @@
 				</menulist>
 			</hbox>
 			<hbox flex="0" align="center">
-				<label value="Priority &quot;(P)&quot; Text" style="min-width:10em;"/>
+				<label value="Priority &quot;(P)&quot; markers" style="min-width:10em;"/>
 				<menulist id="rcp-wpop">
 					<menupopup>
 						<menuitem label="Show" value="1" />
@@ -250,12 +280,13 @@
 				<vbox>
 					<checkbox id="rcp-kindex-COMP" label="Kanji Components" />
 					<checkbox id="rcp-kindex-H" label="Halpern" />
-					<checkbox id="rcp-kindex-L" label="Heisig Index" />
+					<checkbox id="rcp-kindex-L" label="Heisig" />
+					<checkbox id="rcp-kindex-E" label="Henshall" />
 					<checkbox id="rcp-kindex-DK" label="Kanji Learners Dictionary" />
 					<checkbox id="rcp-kindex-N" label="Nelson" />
-					<checkbox id="rcp-kindex-V" label="New Nelson" />
 				</vbox>
 				<vbox>
+					<checkbox id="rcp-kindex-V" label="New Nelson" />
 					<checkbox id="rcp-kindex-Y" label="PinYin" />
 					<checkbox id="rcp-kindex-P" label="Skip Pattern" />
 					<checkbox id="rcp-kindex-IN" label="Tuttle Kanji &amp; Kana" />
@@ -269,9 +300,10 @@
 	<tabpanel>
 		<vbox flex="1">
 			<hbox flex="0" align="center">
-				<label value="Maximum To Display" style="min-width:10em" />
+				<label value="Maximum to display" style="min-width:10em" />
 				<menulist editable="true" id='rcp-namax'>
 					<menupopup>
+						<menuitem label="5" />
 						<menuitem label="10" />
 						<menuitem label="15" />
 						<menuitem label="20" />
@@ -285,7 +317,7 @@
 				</menulist>
 			</hbox>
 			<hbox flex="0" align="center">
-				<label value="Delay File Loading" style="min-width:10em" />
+				<label value="Delay file loading" style="min-width:10em" />
 				<menulist id="rcp-nadelay">
 					<menupopup>
 						<menuitem label="Yes" value="1" />
@@ -300,11 +332,11 @@
 	<tabpanel>
 		<vbox flex="1">
 			<hbox flex="0" align="center">
-				<label value="Save File" style="min-width:10em" />
+				<label value="Save file" style="min-width:10em" />
 				<textbox id='rcp-sfile' size="50" maxlength="200" />
 			</hbox>
 			<hbox flex="0" align="center">
-				<label value="File Character Set" style="min-width:10em" />
+				<label value="Encoding" style="min-width:10em" />
 				<menulist id='rcp-sfcs'>
 					<menupopup>
 						<menuitem label="UTF-8" value="utf-8" />
@@ -315,7 +347,17 @@
 				</menulist>
 			</hbox>
 			<hbox flex="0" align="center">
-				<label value="Maximum To Save" style="min-width:10em" />
+				<label value="Line Format" style="min-width:10em" />
+				<menulist id="rcp-snlf">
+					<menupopup>
+						<menuitem label="Unix" value="0" />
+						<menuitem label="DOS/Windows" value="1" />
+						<menuitem label="Mac" value="2" />
+					</menupopup>
+				</menulist>
+			</hbox>
+			<hbox flex="0" align="center">
+				<label value="Maximum to save" style="min-width:10em" />
 				<menulist editable="true" id='rcp-smaxfe'>
 					<menupopup>
 						<menuitem label="1" />
@@ -331,7 +373,7 @@
 						<menuitem label="99" />
 					</menupopup>
 				</menulist>
-				<description>Entries + </description>
+				<description>entries + </description>
 				<menulist editable="true" id='rcp-smaxfk'>
 					<menupopup>
 						<menuitem label="0" />
@@ -345,7 +387,7 @@
 				<description>Kanji (LookupBar)</description>
 			</hbox>
 			<hbox flex="0" align="center">
-				<label value="Maximum To Copy" style="min-width:10em" />
+				<label value="Maximum to copy" style="min-width:10em" />
 				<menulist editable="true" id='rcp-smaxce'>
 					<menupopup>
 						<menuitem label="1" />
@@ -361,7 +403,7 @@
 						<menuitem label="99" />
 					</menupopup>
 				</menulist>
-				<description>Entries + </description>
+				<description>entries + </description>
 				<menulist editable="true" id='rcp-smaxck'>
 					<menupopup>
 						<menuitem label="0" />
@@ -375,17 +417,7 @@
 				<description>Kanji (LookupBar)</description>
 			</hbox>
 			<hbox flex="0" align="center">
-				<label value="New Line Format" style="min-width:10em" />
-				<menulist id="rcp-snlf">
-					<menupopup>
-						<menuitem label="Unix" value="0" />
-						<menuitem label="DOS/Windows" value="1" />
-						<menuitem label="Mac" value="2" />
-					</menupopup>
-				</menulist>
-			</hbox>
-			<hbox flex="0" align="center">
-				<label value="Field Separator" style="min-width:10em" />
+				<label value="Field separator" style="min-width:10em" />
 				<menulist editable="true" id='rcp-ssep'>
 					<menupopup>
 						<menuitem label="Tab" />

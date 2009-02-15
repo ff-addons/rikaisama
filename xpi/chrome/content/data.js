@@ -1,7 +1,7 @@
 /*
 
 	Rikaichan
-	Copyright (C) 2005-2008 Jonathan Zarate
+	Copyright (C) 2005-2009 Jonathan Zarate
 	http://www.polarcloud.com/
 
 	---
@@ -258,7 +258,6 @@ if (0) {
 				g.push(o);
 			}
 		}
-
 	},
 
 	deinflect: function(word) {
@@ -301,7 +300,7 @@ if (0) {
 								continue;
 							}
 							have[newWord] = r.length;
-							if (r[i].reason.length) o.reason = r[i].reason + ' ' + this.difReasons[rule.reason];
+							if (r[i].reason.length) o.reason = this.difReasons[rule.reason] + ' &laquo; ' + r[i].reason;
 								else o.reason = this.difReasons[rule.reason];
 							o.type = rule.type >> 8;
 							o.word = newWord;
@@ -332,7 +331,7 @@ if (0) {
 		var i, u, v, r, p;
 		var trueLen = [0];
 		var entry = { };
-		
+
 		// half & full-width katakana to hiragana conversion
 		// note: katakana vu is never converted to hiragana
 
@@ -385,7 +384,6 @@ if (0) {
         var have = [];
         var count = 0;
         var maxLen = 0;
-		var canTrim;
 
 		if (doNames) {
 			// check: split this
@@ -395,15 +393,13 @@ if (0) {
 			index = this.nameIndex;
 			maxTrim = this.config.namax;
 			entry.names = 1;
-			canTrim = 1;
 		}
 		else {
 			dict = this.wordDict;
 			index = this.wordIndex;
 			maxTrim = this.config.wmax;
-			canTrim = 0;
 		}
-		
+
 		if (max != null) maxTrim = max;
 
 		entry.data = [];
@@ -444,7 +440,7 @@ if (0) {
 						// /(v5r) to finish/to close/(P)/
 						// /(aux-v,v1) to begin to/(P)/
 						// /(adj-na,exp,int) thank you/many thanks/
-						// /(adj) shrill/
+						// /(adj-i) shrill/
 
 						var w;
 						var x = dentry.split(/[,()]/);
@@ -454,7 +450,7 @@ if (0) {
 						for (; z >= 0; --z) {
 							w = x[z];
 							if ((y & 1) && (w == 'v1')) break;
-							if ((y & 4) && (w == 'adj')) break;
+							if ((y & 4) && (w == 'adj-i')) break;
 							if ((y & 2) && (w.substr(0, 2) == 'v5')) break;
 							if ((y & 16) && (w.substr(0, 3) == 'vs-')) break;
 							if ((y & 8) && (w == 'vk')) break;
@@ -462,7 +458,7 @@ if (0) {
 						ok = (z != -1);
 					}
                     if (ok) {
-                        if ((canTrim) && (count >= maxTrim)) {
+                        if (count >= maxTrim) {
 							entry.more = 1;
 							break;
 						}
@@ -472,8 +468,8 @@ if (0) {
                         if (maxLen == 0) maxLen = trueLen[word.length];
 
 						if (trys[i].reason) {
-							if (showInf) r = word + ' ' + trys[i].reason;
-								else r = trys[i].reason;
+							if (showInf) r = '&laquo; ' + trys[i].reason + ' &laquo; ' + word;
+								else r = '&laquo; ' + trys[i].reason;
 						}
 						else {
 							r = null;
@@ -485,7 +481,6 @@ if (0) {
 				if (count >= maxTrim) break;
             }	// for i < trys.length
             if (count >= maxTrim) break;
-			if (count > 0) canTrim = 1;
             word = word.substr(0, word.length - 1);
         }	// while word.length > 0
 
@@ -519,11 +514,11 @@ if (0) {
 			}
 			text = text.substr(skip, text.length - skip);
 		}
-		
+
 		if (o.data.length == 0) {
 			return null;
 		}
-		
+
 		o.textLen -= text.length;
 		return o;
 	},
@@ -539,12 +534,13 @@ if (0) {
 			if (text.charAt(0) != ':') r = 0;
 		}
 		if (r) {
-//			wb = we = '\\W';
-//			wb = we = '\\b';
-
-			if (text.search(/[\u3000-\uFFFF]/) != -1) wb = we = '[\\s\\[\\]]';
-				else wb = we = '[\\W]';
-
+			if (text.search(/[\u3000-\uFFFF]/) != -1) {
+				wb = we = '[\\s\\[\\]]';
+			}
+			else {
+				wb = '[\\)/]\\s*';
+				we = '\\s*[/\\(]';
+			}
 			if (text.charAt(0) == '*') {
 				text = text.substr(1, text.length - 1);
 				wb = '';
@@ -631,12 +627,12 @@ if (0) {
 		'Q', 	'Four Corner Code',
 		'MN',	'Morohashi Daikanwajiten Index',
 		'MP',	'Morohashi Daikanwajiten Volume/Page',
-		'E', 	'Henshall Index',
 		'K',	'Gakken Kanji Dictionary Index',
 		'W',	'Korean Reading',
 */
 		'H',	'Halpern',
-		'L',	'Heisig Index',
+		'L',	'Heisig',
+		'E',	'Henshall',
 		'DK',	'Kanji Learners Dictionary',
 		'N',	'Nelson',
 		'V',	'New Nelson',
@@ -784,27 +780,82 @@ if (0) {
 			if (entry.title) {
 				b.push('<div class="w-title">' + entry.title + '</div>');
 			}
-		
+
+			var pK = '';
+			var k;
+
 			for (i = 0; i < entry.data.length; ++i) {
 				e = entry.data[i][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
 				if (!e) continue;
 
-				if (s != e[3]) b.push(t);
+				/*
+					e[1] = kanji/kana
+					e[2] = kana
+					e[3] = definition
+				*/
 
-				if (e[2]) b.push('<span class="w-kanji">' + e[1] + '</span> &#32; <span class="w-kana">' + e[2] + '</span> ');
-					else b.push('<span class="w-kana">' + e[1] + '</span> ');
+				if (s != e[3]) {
+					b.push(t);
+					pK = k = '';
+				}
+				else {
+					k = t.length ? '<br/>' : '';
+				}
+
+				if (e[2]) {
+					if (pK == e[1]) k = '\u3001 <span class="w-kana">' + e[2] + '</span>';
+						else k += '<span class="w-kanji">' + e[1] + '</span> &#32; <span class="w-kana">' + e[2] + '</span>';
+					pK = e[1];
+				}
+				else {
+					k += '<span class="w-kana">' + e[1] + '</span>';
+					pK = '';
+				}
+				b.push(k);
+
 				if (entry.data[i][1]) b.push(' <span class="w-conj">(' + entry.data[i][1] + ')</span>');
-				b.push('<br/>');
 
 				s = e[3];
 				t = s.replace(/\//g, '; ');
 				if (!this.config.wpos) t = t.replace(/^\([^)]+\)\s*/, '');
 				if (!this.config.wpop) t = t.replace('; (P)', '');
-				t = '<span class="w-def">' + t + '</span><br/>';
+				t = '<br/><span class="w-def">' + t + '</span><br/>';
 			}
 			b.push(t);
 			if (entry.more) b.push('...<br/>');
 		}
+
+		return b.join('');
+	},
+
+
+	makeHtmlForRuby: function(entry) {
+		var e;
+		var b;
+		var c, s, t;
+		var i, j, n;
+
+		if (entry == null) return '';
+
+		b = [];
+
+		s = t = '';
+
+		if (entry.title) {
+			b.push('<div class="w-title">' + entry.title + '</div>');
+		}
+
+		for (i = 0; i < entry.data.length; ++i) {
+			e = entry.data[i][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
+			if (!e) continue;
+
+			s = e[3];
+			t = s.replace(/\//g, '; ');
+			if (!this.config.wpos) t = t.replace(/^\([^)]+\)\s*/, '');
+			if (!this.config.wpop) t = t.replace('; (P)', '');
+			t = '<span class="w-def">' + t + '</span><br/>\n';
+		}
+		b.push(t);
 
 		return b.join('');
 	},
