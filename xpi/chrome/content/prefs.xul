@@ -66,7 +66,7 @@
 				<label value="Popup delay" style="min-width:15em"/>
 				<textbox id="rcp-popdelay" maxlength="5" size="5" />
 				<label value="(ms)" />
-			</hbox>		
+			</hbox>
 			<hbox flex="0" align="center" id="rcp-enmode-hbox">
 				<label value="Enable/disable in..." style="min-width:15em"/>
 				<menulist id="rcp-enmode">
@@ -104,7 +104,7 @@
 						<menuitem label="Word &gt; Names &gt; Kanji" value="2" />
 					</menupopup>
 				</menulist>
-			</hbox>			
+			</hbox>
 			<hbox flex="0" align="center">
 				<label value="Translate alt/title tags" style="min-width:15em" />
 				<menulist id="rcp-title">
@@ -125,7 +125,7 @@
 			</hbox>
 		</vbox>
 	</tabpanel>
-	
+
 	<tabpanel>
 		<vbox flex="1">
 			<vbox>
@@ -135,7 +135,7 @@
 						<checkbox id="rcp-cmtoggle" label="&rikaichan.prefs.xm.toggle;" />
 						<checkbox id="rcp-cmlbar" label="&rikaichan.prefs.xm.lbar;" />
 					</vbox>
-				</hbox>					
+				</hbox>
 				<spacer style="height:1em" />
 				<hbox flex="1">
 					<vbox flex="0">
@@ -144,11 +144,11 @@
 						<checkbox id="rcp-tmlbar" label="&rikaichan.prefs.xm.lbar;" />
 					</vbox>
 				</hbox>
-			</vbox>			
+			</vbox>
 			<spacer flex="1" />
 		</vbox>
 	</tabpanel>
-	
+
 	<tabpanel>
 		<vbox flex="1">
 			<hbox>
@@ -177,7 +177,9 @@
 
 			<groupbox>
 				<description value="Keys when popup is visible:" />
+
 				<spacer style="height:1em" />
+
 				<hbox>
 					<label value="Alternate view" style="min-width:17em" />
 					<label value="A" />
@@ -210,6 +212,10 @@
 					<label value="Next word (within element)" style="min-width:17em" />
 					<label value="N" />
 				</hbox>
+
+				<spacer style="height:1em" />
+
+				<checkbox label="Do not use these keys" id="rcp-nopopkeys" />
 			</groupbox>
 		</vbox>
 	</tabpanel>
@@ -296,7 +302,7 @@
 			</hbox>
 		</vbox>
 	</tabpanel>
-	
+
 	<tabpanel>
 		<vbox flex="1">
 			<hbox flex="0" align="center">
@@ -328,7 +334,7 @@
 		</vbox>
 		<spacer />
 	</tabpanel>
-	
+
 	<tabpanel>
 		<vbox flex="1">
 			<hbox flex="0" align="center">

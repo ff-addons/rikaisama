@@ -44,6 +44,9 @@ var rcxCfgList = [
 	[2, 'tmlbar'],
 	[2, 'cmtoggle'],
 	[2, 'cmlbar'],
+	
+	// keyboard
+	[2, 'nopopkeys'],
 
 	// words
 	[0, 'wmax'],

@@ -300,7 +300,7 @@ if (0) {
 								continue;
 							}
 							have[newWord] = r.length;
-							if (r[i].reason.length) o.reason = this.difReasons[rule.reason] + ' &laquo; ' + r[i].reason;
+							if (r[i].reason.length) o.reason = this.difReasons[rule.reason] + ' &lt; ' + r[i].reason;
 								else o.reason = this.difReasons[rule.reason];
 							o.type = rule.type >> 8;
 							o.word = newWord;
@@ -468,8 +468,8 @@ if (0) {
                         if (maxLen == 0) maxLen = trueLen[word.length];
 
 						if (trys[i].reason) {
-							if (showInf) r = '&laquo; ' + trys[i].reason + ' &laquo; ' + word;
-								else r = '&laquo; ' + trys[i].reason;
+							if (showInf) r = '&lt; ' + trys[i].reason + ' &lt; ' + word;
+								else r = '&lt; ' + trys[i].reason;
 						}
 						else {
 							r = null;

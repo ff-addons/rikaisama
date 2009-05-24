@@ -34,25 +34,13 @@
 <script type="application/x-javascript" src="rikaichan.js" />
 <script type="application/x-javascript" src="data.js" />
 
-<!--
-
-mailCommands			2.0, 3.0b1, 3.0b2
-messagePaneContext		2.0, 3.0b1
-mailContext				3.0b2
-messengerWindow			2.0, 3.0b1, 3.0b2
-status-bar				2.0, 3.0b1, 3.0b2
-taskPopup
-MailToolbarPalette
-
--->
-
-<commandset id="mailCommands">
+<commandset id="commands">
 	<command id="rikaichan-toggle-cmd" oncommand="rcxMain.inlineToggle();" />
 	<command id="rikaichan-lbar-cmd" oncommand="rcxMain.lbToggle();" />
 	<command id="rikaichan-copy-cmd" oncommand="rcxMain.copyToClip();" />
 </commandset>
 
-<popup id="messagePaneContext">
+<popup id="contentAreaContextMenu">
 	<menuseparator id="rikaichan-separator-cm" hidden="true" />
 	<menuitem id="rikaichan-toggle-cm" label="&rikaichan.toggle.cm;"
 		accesskey="&rikaichan.toggle.cm.key;" key="rikaichan-toggle-key" command="rikaichan-toggle-cmd" hidden="true" />
@@ -61,26 +49,19 @@ MailToolbarPalette
 	<menuitem id="rikaichan-copy-cm" label="&rikaichan.copy.cm;"
 		accesskey="&rikaichan.copy.cm.key;" key="rikaichan-copy-key" command="rikaichan-copy-cmd" hidden="true" />
 </popup>
-
-<popup id="mailContext">
-	<menuseparator id="rikaichan-separator-cm" hidden="true" />
-	<menuitem id="rikaichan-toggle-cm" label="&rikaichan.toggle.cm;"
-		accesskey="&rikaichan.toggle.cm.key;" key="rikaichan-toggle-key" command="rikaichan-toggle-cmd" hidden="true" />
-	<menuitem id="rikaichan-lbar-cm" label="&rikaichan.lbar.cm;"
-		accesskey="&rikaichan.lbar.cm.key;" key="rikaichan-lbar-key" command="rikaichan-lbar-cmd" hidden="true" />
-	<menuitem id="rikaichan-copy-cm" label="&rikaichan.copy.cm;"
-		accesskey="&rikaichan.copy.cm.key;" key="rikaichan-copy-key" command="rikaichan-copy-cmd" hidden="true" />
-</popup>
-
 
 <menupopup id="taskPopup">
-	<menuseparator id="rikaichan-separator-tm" hidden="true" />
-	<menuitem id="rikaichan-toggle-tm" label="&rikaichan.toggle.tm;" accesskey="&rikaichan.toggle.tm.key;" key="rikaichan-toggle-key" command="rikaichan-toggle-cmd"  hidden="true" />
-	<menuitem id="rikaichan-lbar-tm" label="&rikaichan.lbar.tm;" accesskey="&rikaichan.lbar.tm.key;" key="rikaichan-lbar-key" command="rikaichan-lbar-cmd"  hidden="true" />
-	<menuitem id="rikaichan-copy-tm" label="&rikaichan.copy.tm;" accesskey="&rikaichan.copy.tm.key;"  key="rikaichan-copy-key" command="rikaichan-copy-cmd" hidden="true" />
+	<menuseparator id="rikaichan-separator-tm" hidden="true"
+		/>
+	<menuitem id="rikaichan-toggle-tm" label="&rikaichan.toggle.tm;" accesskey="&rikaichan.toggle.tm.key;" key="rikaichan-toggle-key" command="rikaichan-toggle-cmd"  hidden="true"
+		/>
+	<menuitem id="rikaichan-lbar-tm" label="&rikaichan.lbar.tm;" accesskey="&rikaichan.lbar.tm.key;" key="rikaichan-lbar-key" command="rikaichan-lbar-cmd"  hidden="true"
+		/>
+	<menuitem id="rikaichan-copy-tm" label="&rikaichan.copy.tm;" accesskey="&rikaichan.copy.tm.key;"  key="rikaichan-copy-key" command="rikaichan-copy-cmd" hidden="true"
+		/>
 </menupopup>
 
-<window id="messengerWindow">
+<toolbox id="navigator-toolbox">
 	<toolbar id="rikaichan-lbar" hidden="true" align="center" fullscreentoolbar="true" insertbefore="browser-stack">
 		<toolbarbutton id="rikaichan-lbar-close" tooltiptext="&rikaichan.lbar.close.tip;"
 			oncommand="rcxMain.lbHide();" />
@@ -95,9 +76,9 @@ MailToolbarPalette
 		<toolbarbutton id="rikaichan-lbar-config" tooltiptext="&rikaichan.lbar.config.tip;"
 			oncommand="rcxMain.configPage();" />
 	</toolbar>
-</window>
+</toolbox>
 
-<toolbarpalette id="MailToolbarPalette">
+<toolbarpalette id="BrowserToolbarPalette">
 	<toolbarbutton id="rikaichan-toggle-button" class="toolbarbutton-1"
 		label="&rikaichan.toolbar.toggle;" tooltiptext="&rikaichan.toolbar.toggle.tip;"
 		command="rikaichan-toggle-cmd" />

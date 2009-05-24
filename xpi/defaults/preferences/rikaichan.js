@@ -12,6 +12,8 @@ pref('rikaichan.cmlbar', false);
 pref('rikaichan.tmtoggle', true);
 pref('rikaichan.tmlbar', true);
 
+pref('rikaichan.nopopkeys', false);
+
 pref('rikaichan.toggle.key', 'INSERT');
 pref('rikaichan.toggle.mod', 'alt');
 
@@ -35,3 +37,5 @@ pref('rikaichan.smaxce', 7);
 pref('rikaichan.smaxck', 1);
 pref('rikaichan.snlf', 0);
 pref('rikaichan.ssep', 'Tab');
+
+pref('rikaichan.version', '');

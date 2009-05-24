@@ -193,16 +193,16 @@ var rcxMain = {
 
 			this.haveNames = this.canDoNames = (typeof(rcxNamesDict) != 'undefined');
 
-			this.isTB = (navigator.userAgent.search(/thunderbird|shredder/i) != -1);
+			var docID = document.documentElement.id;
+			this.isTB |= ((docID == "messengerWindow") || (docID == "msgcomposeWindow"));
+
 			if (this.isTB) {
-				mks = document.getElementById('mailKeys');
-				if (!mks) mks = document.getElementById('editorKeys');
+				mks = document.getElementById('mailKeys') || document.getElementById('editorKeys');
 			}
 			else {
-				mks = document.getElementById('mainKeyset');
+				mks = document.getElementById('mainKeyset') || document.getElementById('navKeys');
 				gBrowser.mTabContainer.addEventListener('select', this.onTabSelect, false);
 			}
-
 
 			var pb = this.getPrefBranch();
 			var names = ['toggle', 'lbar'];
@@ -237,6 +237,8 @@ var rcxMain = {
 					}
 				}
 			}
+
+			setTimeout(function() { rcxMain.checkVersion(); }, 2000);
 		}
 		catch (ex) {
 			alert('Exception: ' + ex);
@@ -325,11 +327,16 @@ var rcxMain = {
 
 			for (i = 1; i >= 0; --i) {
 				c = xm[i];
-				a = !this.cfg[c + 'toggle'];
-				b = !this.cfg[c + 'lbar'];
-				document.getElementById('rikaichan-toggle-' + c).hidden = a;
-				document.getElementById('rikaichan-lbar-' + c).hidden = b;
-				document.getElementById('rikaichan-separator-' + xm[i]).hidden = a || b;
+				try {
+					a = !this.cfg[c + 'toggle'];
+					b = !this.cfg[c + 'lbar'];
+					document.getElementById('rikaichan-toggle-' + c).hidden = a;
+					document.getElementById('rikaichan-lbar-' + c).hidden = b;
+					document.getElementById('rikaichan-separator-' + xm[i]).hidden = a || b;
+				}
+				catch (ex) {
+					//	alert('unable to set menu: c=' + c + ' ex=' + ex)
+				}
 			}
 
 			switch (this.cfg.ssep) {
@@ -375,20 +382,7 @@ var rcxMain = {
 	loadDictionary: function() {
 		if (!this.dict) {
 			if (typeof(rcxWordDict) == 'undefined') {
-				const url = 'http://www.polarcloud.com/rikaichan#rcxdict';
-				var w = null;
-				if (this.isTB) {
-					Components.classes["@mozilla.org/messenger;1"].createInstance()
-						.QueryInterface(Components.interfaces.nsIMessenger)
-						.launchExternalURL(url);
-				}
-				else {
-					w = window.open(url, 'rcxdict');
-					if (w) w.focus();
-				}
-				Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-					.getService(Components.interfaces.nsIPromptService)
-					.alert(w, 'rikaichan',  'Please install a dictionary from http://www.polarcloud.com/rikaichan/ or http://rikaichan.mozdev.org/.');
+				this.showDownload();
 				return false;
 			}
 			try {
@@ -405,6 +399,47 @@ var rcxMain = {
 		return true;
 	},
 
+	showDownload: function() {
+		const url = 'http://www.polarcloud.com/rikaichan#rcxdict';
+		var w = null;
+		if (this.isTB) {
+			Components.classes['@mozilla.org/messenger;1'].createInstance()
+				.QueryInterface(Components.interfaces.nsIMessenger)
+				.launchExternalURL(url);
+		}
+		else {
+			w = window.open(url, 'rcxdict');
+			if (w) w.focus();
+		}
+		Components.classes['@mozilla.org/embedcomp/prompt-service;1']
+			.getService(Components.interfaces.nsIPromptService)
+			.alert(w, 'rikaichan',  'Please download and install the latest dictionary from http://www.polarcloud.com/rikaichan/ or http://rikaichan.mozdev.org/.');
+	},
+
+	checkVersion: function() {
+		try {
+			var v, p;
+
+			try {
+				// not in SeaMonkey?
+				v = Components.classes['@mozilla.org/extensions/manager;1']
+					.getService(Components.interfaces.nsIExtensionManager)
+					.getItemForID('{0AA9101C-D3C1-4129-A9B7-D778C6A17F82}').version;
+			}
+			catch (ex) {
+				v = '?';
+			}
+
+			p = this.getPrefBranch();
+			if ((!p.prefHasUserValue('version')) || (p.getCharPref('version') != v)) {
+				p.setCharPref('version', v);
+				this.showDownload();
+			}
+		}
+		catch (ex) {
+			//	alert('checkVersion: ' + ex);
+		}
+	},
 
 	onTabSelect: function() { rcxMain._onTabSelect(); },
 	_onTabSelect: function() {
@@ -701,7 +736,7 @@ var rcxMain = {
 	},
 
 	//
-	
+
 	keysDown: [],
 
 	onKeyDown: function(ev) { rcxMain._onKeyDown(ev) },
@@ -712,7 +747,8 @@ var rcxMain = {
 		if ((ev.shiftKey) && (ev.keyCode != 16)) return;
 		if (this.keysDown[ev.keyCode]) return;
 		if (!this.isVisible()) return;
-		
+		if ((this.cfg.nopopkeys) && (ev.keyCode != 16)) return;
+
 		var i;
 
 		switch (ev.keyCode) {
@@ -763,9 +799,13 @@ var rcxMain = {
 		default:
 			return;
 		}
-		
+
 		this.keysDown[ev.keyCode] = 1;
-		ev.preventDefault();
+		
+		// don't eat shift if in this mode
+		if (!this.cfg.nopopkeys) {
+			ev.preventDefault();
+		}
 	},
 
 	onKeyUp: function(ev) {
@@ -806,7 +846,7 @@ var rcxMain = {
 		var u;
 
 		tdata.uofsNext = 1;
-		
+
 		if (!rp) {
 			this.clearHi();
 			this.hidePopup();
@@ -923,7 +963,7 @@ var rcxMain = {
 
 		tdata.uofsNext = (e.matchLen ? e.matchLen : 1);
 		tdata.uofs = (ro - tdata.prevRangeOfs);
-		
+
 		// don't try to highlight form elements
 		if ((this.cfg.highlight) && (!('form' in tdata.prevTarget))) {
 			var doc = rp.ownerDocument;
