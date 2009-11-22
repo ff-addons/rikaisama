@@ -2,7 +2,7 @@
 <!--
 
 	RikaiChan
-	Copyright (C) 2005-2007 Jonathan Zarate
+	Copyright (C) 2005-2009 Jonathan Zarate
 	http://www.polarcloud.com/
 
 
@@ -35,30 +35,31 @@
 <script type="application/x-javascript" src="data.js" />
 
 <commandset id="mainCommandSet">
-	<command id="rikaichan-toggle-cmd" oncommand="rcxMain.inlineToggle();" />
-	<command id="rikaichan-lbar-cmd" oncommand="rcxMain.lbToggle();" />
-	<command id="rikaichan-copy-cmd" oncommand="rcxMain.copyToClip();" />
+	<command id="rikaichan-toggle-cmd" oncommand="rcxMain.inlineToggle()"/>
+	<command id="rikaichan-lbar-cmd" oncommand="rcxMain.lbToggle()"/>
+	<command id="rikaichan-copy-cmd" oncommand="rcxMain.copyToClip()"/>
+	<command id="rikaichan-options-cmd" oncommand="rcxMain.configPage()"/>
 </commandset>
 
 <popup id="contentAreaContextMenu">
-	<menuseparator id="rikaichan-separator-cm" hidden="true" />
+	<menuseparator id="rikaichan-separator-cm" hidden="true"/>
 	<menuitem id="rikaichan-toggle-cm" label="&rikaichan.toggle.cm;"
-		accesskey="&rikaichan.toggle.cm.key;" key="rikaichan-toggle-key" command="rikaichan-toggle-cmd" hidden="true" />
+		accesskey="&rikaichan.toggle.cm.key;" key="rikaichan-toggle-key" command="rikaichan-toggle-cmd" type="checkbox" hidden="true"/>
 	<menuitem id="rikaichan-lbar-cm" label="&rikaichan.lbar.cm;"
-		accesskey="&rikaichan.lbar.cm.key;" key="rikaichan-lbar-key" command="rikaichan-lbar-cmd" hidden="true" />
+		accesskey="&rikaichan.lbar.cm.key;" key="rikaichan-lbar-key" command="rikaichan-lbar-cmd" hidden="true"/>
 	<menuitem id="rikaichan-copy-cm" label="&rikaichan.copy.cm;"
-		accesskey="&rikaichan.copy.cm.key;" key="rikaichan-copy-key" command="rikaichan-copy-cmd" hidden="true" />
+		accesskey="&rikaichan.copy.cm.key;" key="rikaichan-copy-key" command="rikaichan-copy-cmd" hidden="true"/>
 </popup>
 
 <menupopup id="menu_ToolsPopup">
 	<menuseparator id="rikaichan-separator-tm" hidden="true"
-		insertbefore="devToolsSeparator" />
-	<menuitem id="rikaichan-toggle-tm" label="&rikaichan.toggle.tm;" accesskey="&rikaichan.toggle.tm.key;" key="rikaichan-toggle-key" command="rikaichan-toggle-cmd"  hidden="true"
-		insertbefore="devToolsSeparator" />
-	<menuitem id="rikaichan-lbar-tm" label="&rikaichan.lbar.tm;" accesskey="&rikaichan.lbar.tm.key;" key="rikaichan-lbar-key" command="rikaichan-lbar-cmd"  hidden="true"
-		insertbefore="devToolsSeparator" />
-	<menuitem id="rikaichan-copy-tm" label="&rikaichan.copy.tm;" accesskey="&rikaichan.copy.tm.key;"  key="rikaichan-copy-key" command="rikaichan-copy-cmd" hidden="true"
-		insertbefore="devToolsSeparator" />
+		insertbefore="devToolsSeparator"/>
+	<menuitem id="rikaichan-toggle-tm" label="&rikaichan.toggle.tm;" accesskey="&rikaichan.toggle.tm.key;"
+		key="rikaichan-toggle-key" command="rikaichan-toggle-cmd" type="checkbox" hidden="true" insertbefore="devToolsSeparator"/>
+	<menuitem id="rikaichan-lbar-tm" label="&rikaichan.lbar.tm;" accesskey="&rikaichan.lbar.tm.key;"
+		key="rikaichan-lbar-key" command="rikaichan-lbar-cmd" hidden="true" insertbefore="devToolsSeparator"/>
+	<menuitem id="rikaichan-copy-tm" label="&rikaichan.copy.tm;" accesskey="&rikaichan.copy.tm.key;"
+		key="rikaichan-copy-key" command="rikaichan-copy-cmd" hidden="true" insertbefore="devToolsSeparator"/>
 </menupopup>
 
 <window id="main-window">
@@ -87,8 +88,17 @@
 		command="rikaichan-lbar-cmd" />
 </toolbarpalette>
 
-<statusbar id='status-bar' class='chromeclass-status'>
-	<statusbarpanel id='rikaichan-status' insertbefore='statusbar-updates' hidden='true' label='' context='' onclick='this.hidden=true;' />
+<statusbar id="status-bar" class="chromeclass-status">
+	<statusbarpanel id="rikaichan-status-text" hidden="true" label="" context="" onclick="this.hidden=true;"/>
+	<statusbarpanel id="rikaichan-status" class="statusbarpanel-iconic" tooltiptext="&rikaichan.toolbar.toggle.tip;"
+		contextmenu="rikaichan-status-menu" onclick="rcxMain.statusClick(event)"/>
+	<popupset>
+		<menupopup id="rikaichan-status-menu">
+			<menuitem label="&rikaichan.toolbar.toggle;" command="rikaichan-toggle-cmd" type="checkbox" default="true"/>
+			<menuitem label="&rikaichan.toolbar.lbar;" command="rikaichan-lbar-cmd"/>
+			<menuitem label="&rikaichan.toolbar.options;" command="rikaichan-options-cmd"/>
+		</menupopup>
+	</popupset>
 </statusbar>
 
 </overlay>

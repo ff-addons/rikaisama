@@ -746,7 +746,7 @@ if (0) {
 					t = '';
 				}
 
-				if (e[2]) c.push('<span class="w-kanji">' + e[1] + '</span>&#32;<span class="w-kana">' + e[2] + '</span><br/> ');
+				if (e[2]) c.push('<span class="w-kanji">' + e[1] + '</span> &#32; <span class="w-kana">' + e[2] + '</span><br/> ');
 					else c.push('<span class="w-kana">' + e[1] + '</span><br/> ');
 
 				s = e[3];

@@ -36,15 +36,16 @@ var rcxCfgList = [
 	[0, 'resizedoc'],
 	[0, 'dictorder'],
 	[0, 'title'],
-	[0, 'ruby'],
 	[0, 'enmode'],
+	[0, 'sticon'],
+	[2, 'checkversion'],
 
 	// menus
 	[2, 'tmtoggle'],
 	[2, 'tmlbar'],
 	[2, 'cmtoggle'],
 	[2, 'cmlbar'],
-	
+
 	// keyboard
 	[2, 'nopopkeys'],
 

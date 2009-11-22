@@ -37,15 +37,9 @@ var rcxPrefs = {
 		'F4','F5','F6','F7','F8','F9','F10','F11','F12'],
 	kindex: ['COMP', 'H','L','E','DK','N','V','Y','P','IN','I','U'],
 
-	E: function(e) {
-		return document.getElementById(e);
-	},
-
 	checkRange: function(e, name, min, max) {
-		var v;
-
-		e = this.E(e);
-		v = e.value;
+		e = document.getElementById(e);
+		var v = e.value;
 		if ((isNaN(v)) || (v < min) || (v > max)) {
 			e.focus();
 			alert('Invalid ' + name + ' (' + v + '). Valid range: ' + min + '-' + max);
@@ -55,62 +49,62 @@ var rcxPrefs = {
 	},
 
 	onLoad: function() {
-		var pb;
-		var i, j;
-		var e, v;
-		var a, b;
-
 		try {
 			if (navigator.userAgent.search(/thunderbird|shredder/i) != -1) {
-				this.E('rcp-enmode-hbox').hidden = true;
+				document.getElementById('rcp-enmode-hbox').hidden = true;
 			}
 
-			pb = Components
+			var pb = Components
 					.classes['@mozilla.org/preferences-service;1']
 					.getService(Components.interfaces.nsIPrefService)
 					.getBranch('rikaichan.');
 
-			for (i = 0; i < this.funcs.length; ++i) {
-				a = this.funcs[i];
+			var i, e, v;
 
-				v = pb.getCharPref(a + '.mod');
-				for (j = 0; j < this.modifiers.length; ++j) {
-					b = this.modifiers[j];
-					this.E('rcp-' + a + '-' + b).checked = (v.indexOf(b) != -1);
+			for (i = 0; i < this.funcs.length; ++i) {
+				var fu = this.funcs[i];
+
+				v = pb.getCharPref(fu + '.mod');
+				for (var j = 0; j < this.modifiers.length; ++j) {
+					var mo = this.modifiers[j];
+					document.getElementById('rcp-' + fu + '-' + mo).checked = (v.indexOf(mo) != -1);
 				}
 
-				e = this.E('rcp-' + a + '-list');
-				for (j = 0; j < this.keys.length; ++j) {
+				e = document.getElementById('rcp-' + fu + '-list');
+				for (var j = 0; j < this.keys.length; ++j) {
 					v = document.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'menuitem');
 					v.setAttribute('label', this.keys[j]);
 					e.appendChild(v);
 				}
 
-				v = pb.getCharPref(a + '.key');
+				v = pb.getCharPref(fu + '.key');
 				if (v.length == 0) v = this.keys[0];
-				this.E('rcp-' + a + '-key').value = v;
+				e = document.getElementById('rcp-' + fu + '-key');
+				e.value = v;
+				this.onKeyChanged(e);
 			}
 
 			v = pb.getCharPref('kindex').split(',');
 			for (i = 0; i < v.length; ++i) {
-				if ((e = this.E('rcp-kindex-' + v[i])) != null) {
+				if ((e = document.getElementById('rcp-kindex-' + v[i])) != null) {
 					e.checked = true;
 				}
 			}
 
 			for (i = 0; i < rcxCfgList.length; ++i) {
-				b = rcxCfgList[i];
-				e = this.E('rcp-' + b[1]);
+				var cfg = rcxCfgList[i];
+				e = document.getElementById('rcp-' + cfg[1]);
+				if (!e) continue;
 
-				switch (b[0]) {
+				switch (cfg[0]) {
 				case 0:
-					e.value = pb.getIntPref(b[1]);
+					e.value = pb.getIntPref(cfg[1]);
 					break;
 				case 1:
-					e.value = pb.getCharPref(b[1]);
+					e.value = pb.getCharPref(cfg[1]);
 					break;
 				case 2:
-					e.checked = pb.getBoolPref(b[1]);
+					e.checked = pb.getBoolPref(cfg[1]);
 					break;
 				}
 			}
@@ -121,55 +115,53 @@ var rcxPrefs = {
 	},
 
 	onOK: function() {
-		var pb;
-		var i, j;
-		var a, b, e, v;
-
 		try {
-
 			if (!this.checkRange('rcp-popdelay', 'Popup Delay', 1, 2000)) return false;
 			if (!this.checkRange('rcp-wmax', 'Maximum Entries To Display', 3, 100)) return false;
 			if (!this.checkRange('rcp-namax', 'Maximum Entries To Display', 3, 200)) return false;
 
-			pb = Components
+			var pb = Components
 					.classes['@mozilla.org/preferences-service;1']
 					.getService(Components.interfaces.nsIPrefService)
 					.getBranch('rikaichan.');
 
+			var i;
+
 			for (i = 0; i < this.funcs.length; ++i) {
-				a = this.funcs[i];
+				var fu = this.funcs[i];
 
-				v = [];
-				for (j = 0; j < this.modifiers.length; ++j) {
-					b = this.modifiers[j];
-					if (this.E('rcp-' + a + '-' + b).checked) v.push(b);
+				var m = [];
+				for (var j = 0; j < this.modifiers.length; ++j) {
+					var mo = this.modifiers[j];
+					if (document.getElementById('rcp-' + fu + '-' + mo).checked) m.push(mo);
 				}
-				pb.setCharPref(a + '.mod', v.join(' '));
+				pb.setCharPref(fu + '.mod', m.join(' '));
 
-				pb.setCharPref(a + '.key', this.E('rcp-' + a + '-key').value);
-
+				var key = document.getElementById('rcp-' + fu + '-key').value;
+				pb.setCharPref(fu + '.key', (key == '(disabled)') ? '' : key);
 			}
 
-			v = [];
+			var v = [];
 			for (i = 0; i < this.kindex.length; ++i) {
-				if (this.E('rcp-kindex-' + this.kindex[i]).checked)
+				if (document.getElementById('rcp-kindex-' + this.kindex[i]).checked)
 					v.push(this.kindex[i]);
 			}
 			pb.setCharPref('kindex', v.join(','));
 
 			for (i = 0; i < rcxCfgList.length; ++i) {
-				b = rcxCfgList[i];
-				e = this.E('rcp-' + b[1]);
+				var cfg = rcxCfgList[i];
+				var e = document.getElementById('rcp-' + cfg[1]);
+				if (!e) continue;
 
-				switch (b[0]) {
+				switch (cfg[0]) {
 				case 0:
-					pb.setIntPref(b[1], e.value);
+					pb.setIntPref(cfg[1], e.value);
 					break;
 				case 1:
-					pb.setCharPref(b[1], e.value);
+					pb.setCharPref(cfg[1], e.value);
 					break;
 				case 2:
-					pb.setBoolPref(b[1], e.checked);
+					pb.setBoolPref(cfg[1], e.checked);
 					break;
 				}
 			}
@@ -184,12 +176,24 @@ var rcxPrefs = {
 	},
 
 	onKeyChanged: function(e) {
-		var v;
-
-		e.value = v = e.value.replace(/^\s+|\s+$/g, '').replace(/\s+/g, ' ');
+		var v = e.value.replace(/^\s+|\s+$/g, '').replace(/\s+/g, ' ');
+		e.value = v;
 		v = ((v.length == 0) || (v == '(disabled)'));
-		for (j = 0; j < this.modifiers.length; ++j) {
+		for (var j = 0; j < this.modifiers.length; ++j) {
 			document.getElementById(e.id.replace('key', this.modifiers[j])).disabled = v;
 		}
+	},
+
+	browseFile: function(id) {
+		const nsIFilePicker = Components.interfaces.nsIFilePicker;
+		var fp = Components.classes['@mozilla.org/filepicker;1'].createInstance(nsIFilePicker);
+
+		fp.init(window, 'Browse', nsIFilePicker.modeSave);
+		fp.appendFilters(nsIFilePicker.filterAll | nsIFilePicker.filterText);
+		fp.defaultString = document.getElementById(id).value;
+
+		var r = fp.show();
+		if ((r == nsIFilePicker.returnOK) || (r == nsIFilePicker.returnReplace))
+		  document.getElementById(id).value = fp.file.path;
 	}
 };

@@ -37,6 +37,7 @@
 #rikaichan-window .w-kanji {
 	font-size: 18px;
 	color: #7070E0;
+	margin-right: 0.7em;
 }
 
 #rikaichan-window .w-kana {
@@ -210,6 +211,7 @@
 	border-right: 1px dotted #B0B0B0 !important;
 	padding: 0px 2px;
 	vertical-align: top;
+	min-width: 300px;
 }
 
 #rikaichan-window .q-k {

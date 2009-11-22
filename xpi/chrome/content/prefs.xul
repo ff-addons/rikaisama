@@ -2,7 +2,7 @@
 <!--
 
 	RikaiChan
-	Copyright (C) 2005-2007 Jonathan Zarate
+	Copyright (C) 2005-2009 Jonathan Zarate
 	http://www.polarcloud.com/
 
 
@@ -68,7 +68,7 @@
 				<label value="(ms)" />
 			</hbox>
 			<hbox flex="0" align="center" id="rcp-enmode-hbox">
-				<label value="Enable/disable in..." style="min-width:15em"/>
+				<label value="Enable in..." style="min-width:15em"/>
 				<menulist id="rcp-enmode">
 					<menupopup>
 						<menuitem label="Current tab only" value="0" />
@@ -115,14 +115,21 @@
 				</menulist>
 			</hbox>
 			<hbox flex="0" align="center">
-				<label value="Simplified display on ruby tags" style="min-width:15em" />
-				<menulist id="rcp-ruby">
+				<label value="Show icon in the status bar" style="min-width:15em" />
+				<menulist id="rcp-sticon">
 					<menupopup>
 						<menuitem label="Yes" value="1" />
 						<menuitem label="No" value="0" />
 					</menupopup>
 				</menulist>
 			</hbox>
+			
+			<vbox flex="1"></vbox>
+
+			<hbox flex="0" align="center">
+				<checkbox label="First run check at start (debug)" id="rcp-checkversion" />
+			</hbox>
+
 		</vbox>
 	</tabpanel>
 
@@ -339,7 +346,8 @@
 		<vbox flex="1">
 			<hbox flex="0" align="center">
 				<label value="Save file" style="min-width:10em" />
-				<textbox id='rcp-sfile' size="50" maxlength="200" />
+				<textbox id='rcp-sfile' maxlength="200" flex="1" />
+				<button label="..." oncommand="rcxPrefs.browseFile('rcp-sfile')" />
 			</hbox>
 			<hbox flex="0" align="center">
 				<label value="Encoding" style="min-width:10em" />
@@ -353,7 +361,7 @@
 				</menulist>
 			</hbox>
 			<hbox flex="0" align="center">
-				<label value="Line Format" style="min-width:10em" />
+				<label value="Line format" style="min-width:10em" />
 				<menulist id="rcp-snlf">
 					<menupopup>
 						<menuitem label="Unix" value="0" />

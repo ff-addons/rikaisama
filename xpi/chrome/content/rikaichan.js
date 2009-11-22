@@ -33,61 +33,6 @@
 
 */
 
-
-// used for debugging
-/*
-rcd_con('**RIKAICHAN** --- HEY, COMMENT THESE DEBUGGING THINGS OUT ---');
-
-function rcd_con(msg)
-{
-	Components.classes['@mozilla.org/consoleservice;1']
-		.getService(Components.interfaces.nsIConsoleService)
-		.logStringMessage(msg);
-//	toJavaScriptConsole();
-}
-
-function rcd_status(s)
-{
-	var e;
-
-	if (typeof(rcd_status_timeout) != 'undefined') {
-		clearTimeout(rcd_status_timeout);
-		rcd_status_timeout = undefined;
-	}
-
-	e = document.getElementById('rikaichan-status');
-	if ((s) && (s.length)) {
-		e.setAttribute('label', s.substr(0, 80));
-		e.setAttribute('hidden', 'false');
-		rcd_status_timeout = setTimeout(rcd_status, 5000);
-	}
-	else {
-		e.setAttribute('hidden', 'true');
-	}
-}
-
-function rcd_dumo(o)
-{
-	var k;
-	var s = '[' + o + ']\r\n';
-	for (k in o) {
-		try {
-			s += k + '=' + String(o[k]).replace(/[\r\n\t]/g, ' ') + '\r\n';
-		}
-		catch (err) {
-			s += err + '\r\n';
-		}
-	}
-	rcd_con(s);
-}
-
-function rcd_clip(s) {
-	Components.classes['@mozilla.org/widget/clipboardhelper;1']
-		.getService(Components.interfaces.nsIClipboardHelper)
-		.copyString(s);
-}
-/**/
-
 var rcxMain = {
 	haveNames: false,
 	canDoNames: false,
@@ -116,28 +61,10 @@ var rcxMain = {
 			.hiddenDOMWindow;
 	},
 
-	E: function(e) {
-		return document.getElementById(e);
-	},
-
-	statusTimer: null,
-
-	status: function(text) {
-		var e;
-
-		if (this.statusTimer) clearTimeout(this.statusTimer);
-
-		e = document.getElementById('rikaichan-status');
-		e.setAttribute('label', text.substr(0, 80));
-		e.setAttribute('hidden', 'false');
-		this.statusTimer = setTimeout(function(e) { e.setAttribute('hidden', 'true') }, 3000, e);
-	},
-
 	tbObs: {
 		observe: function(subject, topic, data) {
 			if (topic == 'mail:composeOnSend') {
-				var e;
-				e = window.content.document.getElementById('rikaichan-css');
+				var e = window.content.document.getElementById('rikaichan-css');
 				if (e) e.parentNode.removeChild(e);
 				e = window.content.document.getElementById('rikaichan-window');
 				if (e) e.parentNode.removeChild(e);
@@ -187,15 +114,14 @@ var rcxMain = {
     onLoad: function() { rcxMain._onLoad(); },
 	_onLoad: function() {
 		try {
-			var mks;
-
 			window.addEventListener('unload', this.onUnload, false);
 
 			this.haveNames = this.canDoNames = (typeof(rcxNamesDict) != 'undefined');
 
 			var docID = document.documentElement.id;
-			this.isTB |= ((docID == "messengerWindow") || (docID == "msgcomposeWindow"));
+			this.isTB = ((docID == "messengerWindow") || (docID == "msgcomposeWindow"));
 
+			var mks;
 			if (this.isTB) {
 				mks = document.getElementById('mailKeys') || document.getElementById('editorKeys');
 			}
@@ -210,7 +136,7 @@ var rcxMain = {
 			for (var i = 1; i >= 0; --i) {
 				var na = names[i];
 				var v = pb.getCharPref(na + '.key');
-				if (v.length > 0) {
+				if ((v.length > 0) && (v != '(disabled)')) {
 					var key = document.createElementNS(
 							'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'key');
 					key.setAttribute('id', 'rikaichan-key-' + na);
@@ -223,11 +149,11 @@ var rcxMain = {
 			}
 
 			this.loadPrefs();
+			this.prefObs.register();
 			if (this.isTB) {
 				this.tbObs.register();
 			}
 			else {
-				this.prefObs.register();
 				this.rcxObs.register();
 
 				if (rcxMain.cfg.enmode == 2) {
@@ -238,21 +164,22 @@ var rcxMain = {
 				}
 			}
 
-			setTimeout(function() { rcxMain.checkVersion(); }, 2000);
+			if (rcxMain.cfg.checkversion)
+				setTimeout(function() { rcxMain.checkVersion(); }, 2000);
 		}
 		catch (ex) {
-			alert('Exception: ' + ex);
+			alert('Exception in onLoad: ' + ex);
 		}
 	},
 
 	onUnload: function() { rcxMain._onUnload(); },
 	_onUnload: function() {
+		this.prefObs.unregister();
         if (this.isTB) {
 			this.tbObs.unregister();
 		}
 		else {
 			gBrowser.mTabContainer.removeEventListener('select', this.onTabSelect, false);
-			this.prefObs.unregister();
 			this.rcxObs.unregister();
 		}
 
@@ -373,9 +300,12 @@ var rcxMain = {
 			if (this.dict) this.dict.setConfig(c);
 
 			if (this.isTB) this.cfg.enmode = 0;
+
+			b = document.getElementById('rikaichan-status');
+			if (b) b.hidden = (this.cfg.sticon == 0);
 		}
 		catch (ex) {
-			alert('Exception: ' + ex);
+			alert('Exception in LoadPrefs: ' + ex);
 		}
 	},
 
@@ -400,38 +330,56 @@ var rcxMain = {
 	},
 
 	showDownload: function() {
-		const url = 'http://www.polarcloud.com/rikaichan#rcxdict';
-		var w = null;
-		if (this.isTB) {
-			Components.classes['@mozilla.org/messenger;1'].createInstance()
-				.QueryInterface(Components.interfaces.nsIMessenger)
-				.launchExternalURL(url);
+		const url = 'http://rikaichan.mozdev.org/welcome.html';
+
+		try {
+			var u = '';
+
+			if (this.version != null) {
+				u += 'rv=' + this.version + '&';
+			}
+			if ((typeof(rcxWordDict) != 'undefined') && (rcxWordDict.version != null)) {
+				u += 'wv=' + rcxWordDict.version + '&';
+			}
+			if ((typeof(rcxNamesDict) != 'undefined') && (rcxNamesDict.version != null)) {
+				u += 'nv=' + rcxNamesDict.version + '&';
+			}
+			if (u.length) u = url + '?' + u;
+				else u = url;
+
+			if (this.isTB) {
+				Components.classes['@mozilla.org/messenger;1'].createInstance()
+					.QueryInterface(Components.interfaces.nsIMessenger)
+					.launchExternalURL(u);
+			}
+			else {
+				var w = window.open(u, 'rcxdict');
+				if (w) w.focus();
+			}
 		}
-		else {
-			w = window.open(url, 'rcxdict');
-			if (w) w.focus();
+		catch (ex) {
+			if (typeof(rcxWordDict) == 'undefined') {
+				alert('[rikaichan] Please install a dictionary file from ' + url);
+			}
+			else {
+				alert('[rikaichan] There was an error while opening ' + url);
+			}
 		}
-		Components.classes['@mozilla.org/embedcomp/prompt-service;1']
-			.getService(Components.interfaces.nsIPromptService)
-			.alert(w, 'rikaichan',  'Please download and install the latest dictionary from http://www.polarcloud.com/rikaichan/ or http://rikaichan.mozdev.org/.');
 	},
 
 	checkVersion: function() {
 		try {
-			var v, p;
+			var p = this.getPrefBranch();
 
-			try {
-				// not in SeaMonkey?
-				v = Components.classes['@mozilla.org/extensions/manager;1']
-					.getService(Components.interfaces.nsIExtensionManager)
-					.getItemForID('{0AA9101C-D3C1-4129-A9B7-D778C6A17F82}').version;
-			}
-			catch (ex) {
-				v = '?';
-			}
+			// not in SeaMonkey 1?
+			var v = Components.classes['@mozilla.org/extensions/manager;1']
+				.getService(Components.interfaces.nsIExtensionManager)
+				.getItemForID('{0AA9101C-D3C1-4129-A9B7-D778C6A17F82}').version;
+			this.version = v;
+			v = 'v' + v;
 
-			p = this.getPrefBranch();
-			if ((!p.prefHasUserValue('version')) || (p.getCharPref('version') != v)) {
+			if (p.getCharPref('version') != v) {
+				p.setBoolPref('checkversion', false);	// !
 				p.setCharPref('version', v);
 				this.showDownload();
 			}
@@ -450,6 +398,22 @@ var rcxMain = {
 
 		var b = document.getElementById('rikaichan-toggle-button');
 		if (b) b.setAttribute('rc_enabled', (bro.rikaichan != null));
+
+		var en = (bro.rikaichan != null);
+		b = document.getElementById('rikaichan-toggle-cmd');
+		if (b) b.setAttribute('checked', en);		
+		// note: above doesn't work in TB 2.x
+		if (this.isTB) {
+			b = document.getElementById('rikaichan-toggle-cm');
+			if (b) b.setAttribute('checked', en);
+			b = document.getElementById('rikaichan-toggle-tm');
+			if (b) b.setAttribute('checked', en);
+			b = document.getElementById('rikaichan-toggle-sm');
+			if (b) b.setAttribute('checked', en);
+		}
+
+		b = document.getElementById('rikaichan-status');
+		if (b) b.setAttribute('rc_enabled', bro.rikaichan != null);
 	},
 
 	showPopup: function(text, elem, x, y, looseWidth, lbPop) {
@@ -633,9 +597,14 @@ var rcxMain = {
 			tdata.prevSelView = null;
 			return;
 		}
-		tdata.prevSelView.getSelection().removeAllRanges();
+
+		var sel = tdata.prevSelView.getSelection();
+		if ((sel.isCollapsed) || (tdata.selText == sel.toString())) {
+			sel.removeAllRanges();
+		}
 		tdata.prevSelView = null;
 		tdata.kanjiChar = null;
+		tdata.selText = null;
 	},
 
 	//
@@ -647,6 +616,7 @@ var rcxMain = {
 		var text;
 		var i;
 		var f;
+		var e;
 
 		f = this.lastFound;
 		if ((!f) || (f.length == 0)) return null;
@@ -801,7 +771,7 @@ var rcxMain = {
 		}
 
 		this.keysDown[ev.keyCode] = 1;
-		
+
 		// don't eat shift if in this mode
 		if (!this.cfg.nopopkeys) {
 			ev.preventDefault();
@@ -819,7 +789,7 @@ var rcxMain = {
 		rcxMain.mouseButtons |= (1 << ev.button);
 		if (rcxMain.lbPop) {
 			var e = ev.target;
-			for (i = 15; (i > 0) && (e != null); --i) {
+			for (var i = 15; (i > 0) && (e != null); --i) {
 				if (e.id == 'rikaichan-window') return;
 				e = e.parentNode;
 			}
@@ -840,6 +810,130 @@ var rcxMain = {
 	kanjiN: 1,
 	namesN: 2,
 
+	inlineNames: {
+		// text node
+		'#text': true,
+
+		// font style
+		'FONT': true,
+		'TT': true,
+		'I' : true,
+		'B' : true,
+		'BIG' : true,
+		'SMALL' : true,
+		//deprecated
+		'STRIKE': true,
+		'S': true,
+		'U': true,
+
+		// phrase
+		'EM': true,
+		'STRONG': true,
+		'DFN': true,
+		'CODE': true,
+		'SAMP': true,
+		'KBD': true,
+		'VAR': true,
+		'CITE': true,
+		'ABBR': true,
+		'ACRONYM': true,
+
+		// special, not included IMG, OBJECT, BR, SCRIPT, MAP, BDO
+		'A': true,
+		'Q': true,
+		'SUB': true,
+		'SUP': true,
+		'SPAN': true,
+		'WBR': true,
+
+		// ruby
+		'RUBY': true,
+		'RBC': true,
+		'RTC': true,
+		'RB': true,
+		'RT': true,
+		'RP': true
+	},
+
+	isInline: function(node) {
+		return this.inlineNames.hasOwnProperty(node.nodeName);
+	},
+
+	// XPath expression which evaluates to text nodes
+	// tells rikaichan which text to translate
+	// expression to get all text nodes that are not in (RP or RT) elements
+	textNodeExpr: 'descendant-or-self::text()[not(parent::rp) and not(ancestor::rt)]',
+
+	// XPath expression which evaluates to a boolean. If it evaluates to true
+	// then rikaichan will not start looking for text in this text node
+	// ignore text in RT elements
+	startElementExpr: 'boolean(parent::rp or ancestor::rt)',
+
+	// Gets text from a node
+	// returns a string
+	// node: a node
+	// selEnd: the selection end object will be changed as a side effect
+	// maxLength: the maximum length of returned string
+	// xpathExpr: an XPath expression, which evaluates to text nodes, will be evaluated
+	// relative to "node" argument
+	getInlineText: function (node, selEndList, maxLength, xpathExpr) {
+		var text = '';
+		var endIndex;
+
+		if (node.nodeName == '#text') {
+			endIndex = Math.min(maxLength, node.data.length);
+			selEndList.push({node: node, offset: endIndex});
+			return node.data.substring(0, endIndex);
+		}
+
+		var result = xpathExpr.evaluate(node, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+
+		while ((text.length < maxLength) && (node = result.iterateNext())) {
+			endIndex = Math.min(node.data.length, maxLength - text.length);
+			text += node.data.substring(0, endIndex);
+			selEndList.push( {node: node, offset: endIndex} );
+		}
+
+		return text;
+	},
+
+	// given a node which must not be null,
+	// returns either the next sibling or next sibling of the father or
+	// next sibling of the fathers father and so on or null
+	getNext: function(node) {
+		var nextNode;
+
+		if ((nextNode = node.nextSibling) != null)
+			return nextNode
+		if (((nextNode = node.parentNode) != null) && this.isInline(nextNode))
+			return this.getNext(nextNode);
+
+		return null;
+	},
+
+	getTextFromRange: function (rangeParent, offset, selEndList, maxLength) {
+		var text = '';
+		var endIndex;
+
+		var xpathExpr = rangeParent.ownerDocument.createExpression(this.textNodeExpr, null);
+
+		if (rangeParent.ownerDocument.evaluate(this.startElementExpr, rangeParent, null, XPathResult.BOOLEAN_TYPE, null).booleanValue)
+			return '';
+
+		if (rangeParent.nodeType != Node.TEXT_NODE)
+			return '';
+
+		endIndex = Math.min(rangeParent.data.length, offset + maxLength);
+		text += rangeParent.data.substring(offset, endIndex);
+		selEndList.push( {node: rangeParent, offset: endIndex} );
+
+		var nextNode = rangeParent;
+		while (((nextNode = this.getNext(nextNode)) != null) && (this.isInline(nextNode)) && (text.length < maxLength))
+			text += this.getInlineText(nextNode, selEndList, maxLength - text.length, xpathExpr);
+
+		return text;
+	},
+
 	show: function(tdata) {
 		var rp = tdata.prevRangeNode;
 		var ro = tdata.prevRangeOfs + tdata.uofs;
@@ -859,7 +953,6 @@ var rcxMain = {
 			return 0;
 		}
 
-		u = rp.data.charCodeAt(ro);
 		// if we have '   XYZ', where whitespace is compressed, X never seems to get selected
 		while (((u = rp.data.charCodeAt(ro)) == 32) || (u == 9) || (u == 10)) {
 			++ro;
@@ -882,59 +975,11 @@ var rcxMain = {
 			return -2;
 		}
 
-		if (this.cfg.ruby) {
-			if (rp.parentNode.nodeType == Node.ELEMENT_NODE && (rp.parentNode.tagName == "RB" || rp.parentNode.tagName == "RT")) {
-				var rubyElem = null;
+		//selection end data
+		var selEndList = [];
+		var text = this.getTextFromRange(rp, ro, selEndList, 13);
 
-				if (rp.parentNode.parentNode.tagName == "RUBY")
-					rubyElem = rp.parentNode.parentNode;
-				else if ((rp.parentNode.parentNode.tagName == "RBC" || rp.parentNode.parentNode.tagName == "RTC") &&
-					rp.parentNode.parentNode.parentNode.tagName == "RUBY")
-					rubyElem = rp.parentNode.parentNode.parentNode;
-
-				if (rubyElem) {
-					var rbText = "";
-					var rtText = "";
-
-					var rbElems = rubyElem.getElementsByTagName("RB");
-					var rtElems = rubyElem.getElementsByTagName("RT");
-
-					if (rbElems.length == rtElems.length) {	//Simple way to ignore rubies with multiple rt levels
-						for (var x = 0; x < rbElems.length; x++) {
-							var tempRbText = rbElems[x].innerHTML.replace(/<[^>]+>/g, "");
-							rbText += tempRbText;
-							var tempRtText = rtElems[x].innerHTML.replace(/<[^>]+>/g, "");
-							rtText += tempRtText ? tempRtText : tempRbText;	//if rt is empty, use rb's text, which is probably a hiragana. E.g. し in 申し込む.
-						}
-					}
-
-					if (rbText && rtText) {
-						var rme = this.dict.wordSearch(rbText, false /*, 1*/);
-						if (rme) {
-							var trimmedData = [ ];
-							for (var x = 0; x < rme.data.length; x++) {
-								if (rme.data[x][0].match("\\[" + rtText + "\\]"))
-									trimmedData.push(rme.data[x]); //inlude if reading is an exact match to rtText
-
-							}
-							rme.data = trimmedData;
-							if (rme.data.length != 0) {
-								this.lastFound = [rme];
-								this.showPopup(this.dict.makeHtmlForRuby(rme), tdata.prevTarget, tdata.popX, tdata.popY, false);
-
-								// ! hmm...
-								tdata.uofsNext = 1;
-								tdata.uofs = 0;
-								return 0;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		var text = rp.data.substr(ro, 12);
-		var rp = tdata.prevRangeNode;
+		rp = tdata.prevRangeNode;
 		var e = null;
 		var m = this.showMode;
 
@@ -961,7 +1006,8 @@ var rcxMain = {
 		}
 		this.lastFound = [e];
 
-		tdata.uofsNext = (e.matchLen ? e.matchLen : 1);
+		if (!e.matchLen) e.matchLen = 1;
+		tdata.uofsNext = e.matchLen;
 		tdata.uofs = (ro - tdata.prevRangeOfs);
 
 		// don't try to highlight form elements
@@ -972,18 +1018,36 @@ var rcxMain = {
 				this.hidePopup();
 				return 0;
 			}
-			var r = doc.createRange();
-			r.setStart(rp, ro);
-			r.setEnd(rp, ro + (e.matchLen ? e.matchLen : 1));
-
-			var sel = doc.defaultView.getSelection();
-			sel.removeAllRanges();
-			sel.addRange(r);
+			this.highlightMatch(doc, rp, ro, e.matchLen, selEndList, tdata);
 			tdata.prevSelView = doc.defaultView;
 		}
 
 		this.showPopup(this.dict.makeHtml(e), tdata.prevTarget, tdata.popX, tdata.popY, false);
 		return 1;
+	},
+
+	highlightMatch: function (doc, rp, ro, matchLen, selEndList, tdata) {
+		if (selEndList.length === 0) return;
+
+		var selEnd;
+		var offset = matchLen + ro;
+
+		for (var i = 0, len = selEndList.length; i < len; i++) {
+			selEnd = selEndList[i]
+			if (offset <= selEnd.offset) break;
+			offset -= selEnd.offset;
+		}
+
+		var range = doc.createRange();
+		range.setStart(rp, ro);
+		range.setEnd(selEnd.node, offset);
+
+		var sel = doc.defaultView.getSelection();
+		if ((!sel.isCollapsed) && (tdata.selText != sel.toString()))
+			return;
+		sel.removeAllRanges();
+		sel.addRange(range);
+		tdata.selText = sel.toString();
 	},
 
 	showTitle: function(tdata) {
@@ -999,12 +1063,32 @@ var rcxMain = {
 		this.lastFound = [e];
 		this.showPopup(this.dict.makeHtml(e), tdata.prevTarget, tdata.popX, tdata.popY, false);
 	},
+/*
+	inRange: function (event) {
+		var selection = event.view.getSelection();
+		if ((selection.rangeCount === 0) || (!event.rangeParent)) return false;
+		var newRange = event.view.document.createRange();
+		newRange.setStart(event.rangeParent, event.rangeOffset);
+		newRange.setEnd(event.rangeParent, event.rangeOffset);
 
+		var curRange = selection.getRangeAt(0);
+		if (newRange.compareBoundaryPoints(Range.START_TO_START, curRange) > -1 &&
+			newRange.compareBoundaryPoints(Range.END_TO_END, curRange) < 0)
+			return true;
+		else return false;
+	},
+	
+*/
 	onMouseMove: function(ev) { rcxMain._onMouseMove(ev); },
 	_onMouseMove: function(ev) {
 		var tdata = ev.currentTarget.rikaichan;	// per-tab data
 		var rp = ev.rangeParent;
 		var ro = ev.rangeOffset;
+
+/*
+		don't do anything if moving within the current selection
+		if (this.cfg.highlight && this.inRange(ev)) return;
+*/
 
 		if (ev.target == tdata.prevTarget) {
 			if (tdata.title) return;
@@ -1016,7 +1100,7 @@ var rcxMain = {
 			tdata.timer = null;
 		}
 
-		if ((ev.explicitOriginalTarget.nodeType != 3) && !('form' in ev.target)) {
+		if ((ev.explicitOriginalTarget.nodeType != Node.TEXT_NODE) && !('form' in ev.target)) {
 			rp = null;
 			ro = -1;
 		}
@@ -1035,9 +1119,9 @@ var rcxMain = {
 			tdata.popX = ev.screenX;
 			tdata.popY = ev.screenY;
 			tdata.timer = setTimeout(
-				function(tdata) {
+				function() {
 					rcxMain.show(tdata);
-				}, this.cfg.popdelay, tdata);
+				}, this.cfg.popdelay);
 			return;
 		}
 
@@ -1079,14 +1163,24 @@ var rcxMain = {
 
 	},
 
-	inlineEnable: function(bro, mode) {
-		var time;
+	miniHelp:
+		'<span style="font-weight:bold">Rikaichan enabled!</span><br><br>' +
+		'<table cellspacing=5>' +
+		'<tr><td>A</td><td>Alternate popup location</td></tr>' +
+		'<tr><td>Y</td><td>Move popup location down</td></tr>' +
+		'<tr><td>C</td><td>Copy to clipboard</td></tr>' +
+		'<tr><td>S</td><td>Save to file</td></tr>' +
+		'<tr><td>Shift/Enter&nbsp;&nbsp;</td><td>Switch dictionaries</td></tr>' +
+		'<tr><td>B</td><td>Previous character</td></tr>' +
+		'<tr><td>M</td><td>Next character</td></tr>' +
+		'<tr><td>N</td><td>Next word</td></tr>' +
+		'</table>',
 
+	inlineEnable: function(bro, mode) {
 		if (!this.dict) {
-			time = (new Date()).getTime();
+			//	var time = (new Date()).getTime();
 			if (!this.loadDictionary()) return;
-			time = String(((new Date()).getTime() - time) / 1000);
-			if (time.match(/^(\d+\.\d)/)) time = RegExp.$1;
+			//	time = (((new Date()).getTime() - time) / 1000).toFixed(2);
 		}
 
 		if (bro.rikaichan == null) {
@@ -1099,8 +1193,7 @@ var rcxMain = {
 			bro.addEventListener('keyup', this.onKeyUp, true);
 
 			if (mode == 1) {
-				if (time) this.showPopup('Rikaichan enabled. Dictionary loaded in ' + time + ' seconds.', null, 5, 5, true);
-					else this.showPopup('Rikaichan enabled.');
+				this.showPopup(this.miniHelp);
 
 				if (rcxMain.cfg.enmode > 0) {
 					this.enabled = 1;
@@ -1153,15 +1246,12 @@ var rcxMain = {
 
 	getSelected: function(win) {
 		var text;
-		var s;
-		var i;
-
-		s = win.getSelection()
+		var s = win.getSelection()
 		if (s) {
 			text = s.toString();
 			if (text.search(/[^\s]/) != -1) return text;
 		}
-		for (i = 0; i < win.frames.length; ++i) {
+		for (var i = 0; i < win.frames.length; ++i) {
 			text = this.getSelected(win.frames[i]);
 			if (text.length > 0) return text;
 		}
@@ -1169,18 +1259,15 @@ var rcxMain = {
 	},
 
 	clearSelected: function(win) {
-		var s;
-		var i;
-
-		s = win.getSelection()
+		var s = win.getSelection();
 		if (s) s.removeAllRanges();
-		for (i = 0; i < win.frames.length; ++i) {
+		for (var i = 0; i < win.frames.length; ++i) {
 			this.clearSelected(win.frames[i]);
 		}
 	},
 
 	lbHide: function() {
-		document.getElementById('rikaichan-lbar').hidden = 1;
+		document.getElementById('rikaichan-lbar').hidden = true;
 		this.hidePopup();
 	},
 
@@ -1190,9 +1277,9 @@ var rcxMain = {
 		var text;
 
 		text = this.getSelected(window.content).substr(0, 30);
-		this.lbText = this.E('rikaichan-lbar-text');
+		this.lbText = document.getElementById('rikaichan-lbar-text');
 
-		e = this.E('rikaichan-lbar');
+		e = document.getElementById('rikaichan-lbar');
 		if (e.hidden) {
 			e.hidden = false;
 		}
@@ -1238,7 +1325,6 @@ var rcxMain = {
 
 	lbSearch: function() {
 		var names;
-		var max;
 		var have;
 		var html;
 		var kanji;
@@ -1286,7 +1372,6 @@ var rcxMain = {
 			}
 			this.lastFound.fromLB = 1;
 
-			max = Math.max(Math.floor((content.innerWidth - 10) / 310) - 1, 1);
 			have = {};
 			t = s + html;
 			for (i = 0; i < t.length; ++i) {
@@ -1299,7 +1384,6 @@ var rcxMain = {
 							this.lastFound.push(e);
 							have[c] = 1;
 							kanji += '<td class="q-k">' + this.dict.makeHtml(e) + '</td>';
-							if (--max <= 0) break;
 						}
 					}
 				}
@@ -1307,12 +1391,83 @@ var rcxMain = {
 
 			this.showPopup('<table class="q-tb"><tr><td class="q-w">' + html + '</td>' + kanji + '</tr></table>', null, 1, 1, true, true);
 		}
-	}
+	},
+	
+	statusClick: function(ev) {
+		if (ev.button != 2) rcxMain.inlineToggle();
+	},
+
+	statusTimer: null,
+
+	status: function(text) {
+		if (this.statusTimer) {
+			clearTimeout(this.statusTimer);
+			this.statusTimer = null;
+		}
+		var e = document.getElementById('rikaichan-status-text');
+		if (e) {
+			e.setAttribute('label', text.substr(0, 80));
+			e.setAttribute('hidden', 'false');
+			this.statusTimer = setTimeout(function(e) { e.setAttribute('hidden', 'true') }, 2500, e);
+		}
+	},
 };
 
 ///
 
 rcxMain.init();
+
+
+/*
+rcd_con('**RIKAICHAN DEBUG**');
+
+function rcd_con(msg)
+{
+	Components.classes['@mozilla.org/consoleservice;1']
+		.getService(Components.interfaces.nsIConsoleService)
+		.logStringMessage(msg);
+//	toJavaScriptConsole();
+}
+
+function rcd_status(s)
+{
+	if (typeof(rcd_status_timeout) != 'undefined') {
+		clearTimeout(rcd_status_timeout);
+		rcd_status_timeout = undefined;
+	}
+
+	var e = document.getElementById('rikaichan-status-text');
+	if ((s) && (s.length)) {
+		e.setAttribute('label', s.substr(0, 80));
+		e.setAttribute('hidden', 'false');
+		rcd_status_timeout = setTimeout(rcd_status, 5000);
+	}
+	else {
+		e.setAttribute('hidden', 'true');
+	}
+}
+
+function rcd_dumo(o)
+{
+	var k;
+	var s = '[' + o + ']\r\n';
+	for (k in o) {
+		try {
+			s += k + '=' + String(o[k]).replace(/[\r\n\t]/g, ' ') + '\r\n';
+		}
+		catch (err) {
+			s += err + '\r\n';
+		}
+	}
+	rcd_con(s);
+}
+
+function rcd_clip(s) {
+	Components.classes['@mozilla.org/widget/clipboardhelper;1']
+		.getService(Components.interfaces.nsIClipboardHelper)
+		.copyString(s);
+}
+/**/
 
 
 /*

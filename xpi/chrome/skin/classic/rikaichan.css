@@ -37,3 +37,10 @@
 #rikaichan-lbar-button {
 	list-style-image: url("chrome://rikaichan/skin/smile_lbar.png");
 }
+
+#rikaichan-status {
+	list-style-image: url("chrome://rikaichan/skin/smile_grey.png");
+}
+#rikaichan-status[rc_enabled=true] {
+	list-style-image: url("chrome://rikaichan/skin/smile_star.png");
+}
