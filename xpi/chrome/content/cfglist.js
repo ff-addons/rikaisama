@@ -1,7 +1,7 @@
 /*
 
 	Rikaichan
-	Copyright (C) 2005-2009 Jonathan Zarate
+	Copyright (C) 2005-2010 Jonathan Zarate
 	http://www.polarcloud.com/
 
 	---
@@ -38,6 +38,9 @@ var rcxCfgList = [
 	[0, 'title'],
 	[0, 'enmode'],
 	[0, 'sticon'],
+	[0, 'minihelp'],
+
+	[2, 'altread'],
 	[2, 'checkversion'],
 
 	// menus

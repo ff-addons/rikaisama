@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <!--
 
-	RikaiChan
-	Copyright (C) 2005-2009 Jonathan Zarate
+	Rikaichan
+	Copyright (C) 2005-2010 Jonathan Zarate
 	http://www.polarcloud.com/
 
 
@@ -40,92 +40,104 @@
 
 <tabbox>
 <tabs>
-	<tab label="General" />
-	<tab label="Menu" />
-	<tab label="Keyboard" />
-	<tab label="Word Dictionary" />
-	<tab label="Kanji Dictionary" />
-	<tab label="Names Dictionary" />
-	<tab label="Clipboard / Save" />
+	<tab label="&tab-general;" />
+	<tab label="&tab-menu;" />
+	<tab label="&tab-keyboard;" />
+	<tab label="&tab-word-dictionary;" />
+	<tab label="&tab-kanji-dictionary;" />
+	<tab label="&tab-names-dictionary;" />
+	<tab label="&tab-clipboard-save;" />
 </tabs>
 <tabpanels>
 	<tabpanel>
 		<vbox flex="1">
 			<hbox flex="0" align="center">
-				<label value="Popup color" style="min-width:15em"/>
+				<label value="&popup-color;" style="min-width:15em"/>
 				<menulist id="rcp-css">
 					<menupopup>
-						<menuitem label="Blue" value="blue" />
-						<menuitem label="Light Blue" value="light-blue" />
-						<menuitem label="Black" value="black" />
-						<menuitem label="Yellow" value="yellow" />
+						<menuitem label="&blue;" value="blue" />
+						<menuitem label="&light-blue;" value="light-blue" />
+						<menuitem label="&black;" value="black" />
+						<menuitem label="&yellow;" value="yellow" />
 					</menupopup>
 				</menulist>
 			</hbox>
 			<hbox flex="0" align="center">
-				<label value="Popup delay" style="min-width:15em"/>
+				<label value="&popup-delay;" style="min-width:15em"/>
 				<textbox id="rcp-popdelay" maxlength="5" size="5" />
-				<label value="(ms)" />
+				<label value="&ms;" />
 			</hbox>
 			<hbox flex="0" align="center" id="rcp-enmode-hbox">
-				<label value="Enable in..." style="min-width:15em"/>
+				<label value="&enable-in;" style="min-width:15em"/>
 				<menulist id="rcp-enmode">
 					<menupopup>
-						<menuitem label="Current tab only" value="0" />
-						<menuitem label="Current browser only" value="1" />
-						<menuitem label="All browsers" value="2" />
+						<menuitem label="&current-tab-only;" value="0" />
+						<menuitem label="&current-browser-only;" value="1" />
+						<menuitem label="&all-browsers;" value="2" />
 					</menupopup>
 				</menulist>
 			</hbox>
 			<hbox flex="0" align="center">
-				<label value="Highlight text" style="min-width:15em" />
+				<label value="&highlight-text;" style="min-width:15em" />
 				<menulist id="rcp-highlight">
 					<menupopup>
-						<menuitem label="Yes" value="1" />
-						<menuitem label="No" value="0" />
+						<menuitem label="&yes;" value="1" />
+						<menuitem label="&no;" value="0" />
 					</menupopup>
 				</menulist>
 			</hbox>
 			<hbox flex="0" align="center">
-				<label value="Adjust document size" style="min-width:15em" />
+				<label value="&adjust-document-size;" style="min-width:15em" />
 				<menulist id="rcp-resizedoc">
 					<menupopup>
-						<menuitem label="Yes" value="1" />
-						<menuitem label="No" value="0" />
+						<menuitem label="&yes;" value="1" />
+						<menuitem label="&no;" value="0" />
 					</menupopup>
 				</menulist>
 			</hbox>
 			<hbox flex="0" align="center">
-				<label value="Lookup order" style="min-width:15em" />
+				<label value="&lookup-order;" style="min-width:15em" />
 				<menulist id="rcp-dictorder" flex="0" >
 					<menupopup>
-						<menuitem label="Word &gt; Kanji" value="0" />
-						<menuitem label="Word &gt; Kanji &gt; Names" value="1" />
-						<menuitem label="Word &gt; Names &gt; Kanji" value="2" />
+						<menuitem label="&order-word-kanji;" value="0" />
+						<menuitem label="&order-word-kanji-names;" value="1" />
+						<menuitem label="&order-word-names-kanji;" value="2" />
 					</menupopup>
 				</menulist>
 			</hbox>
 			<hbox flex="0" align="center">
-				<label value="Translate alt/title tags" style="min-width:15em" />
+				<label value="&translate-alt-title-tags;" style="min-width:15em" />
 				<menulist id="rcp-title">
 					<menupopup>
-						<menuitem label="Yes" value="1" />
-						<menuitem label="No" value="0" />
+						<menuitem label="&yes;" value="1" />
+						<menuitem label="&no;" value="0" />
 					</menupopup>
 				</menulist>
 			</hbox>
 			<hbox flex="0" align="center">
-				<label value="Show icon in the status bar" style="min-width:15em" />
+				<label value="&show-icon-statusbar;" style="min-width:15em" />
 				<menulist id="rcp-sticon">
 					<menupopup>
-						<menuitem label="Yes" value="1" />
-						<menuitem label="No" value="0" />
+						<menuitem label="&yes;" value="1" />
+						<menuitem label="&no;" value="0" />
+					</menupopup>
+				</menulist>
+			</hbox>
+			<hbox flex="0" align="center">
+				<label value="&show-mini-help;" style="min-width:15em" />
+				<menulist id="rcp-minihelp">
+					<menupopup>
+						<menuitem label="&yes;" value="1" />
+						<menuitem label="&no;" value="0" />
 					</menupopup>
 				</menulist>
 			</hbox>
 			
 			<vbox flex="1"></vbox>
 
+			<hbox flex="0" align="center">
+				<checkbox label="Alternate file read method (debug)" id="rcp-altread" />
+			</hbox>
 			<hbox flex="0" align="center">
 				<checkbox label="First run check at start (debug)" id="rcp-checkversion" />
 			</hbox>
@@ -138,7 +150,7 @@
 			<vbox>
 				<hbox flex="1">
 					<vbox flex="0">
-						<label value="Context Menu" />
+						<label value="&context-menu;" />
 						<checkbox id="rcp-cmtoggle" label="&rikaichan.prefs.xm.toggle;" />
 						<checkbox id="rcp-cmlbar" label="&rikaichan.prefs.xm.lbar;" />
 					</vbox>
@@ -146,7 +158,7 @@
 				<spacer style="height:1em" />
 				<hbox flex="1">
 					<vbox flex="0">
-						<label value="Tools Menu" />
+						<label value="&tools-menu;" />
 						<checkbox id="rcp-tmtoggle" label="&rikaichan.prefs.xm.toggle;" />
 						<checkbox id="rcp-tmlbar" label="&rikaichan.prefs.xm.lbar;" />
 					</vbox>
@@ -333,8 +345,8 @@
 				<label value="Delay file loading" style="min-width:10em" />
 				<menulist id="rcp-nadelay">
 					<menupopup>
-						<menuitem label="Yes" value="1" />
-						<menuitem label="No" value="0" />
+						<menuitem label="&yes;" value="1" />
+						<menuitem label="&no;" value="0" />
 					</menupopup>
 				</menulist>
 			</hbox>

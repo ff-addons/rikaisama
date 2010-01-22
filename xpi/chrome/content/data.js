@@ -1,7 +1,7 @@
 /*
 
 	Rikaichan
-	Copyright (C) 2005-2009 Jonathan Zarate
+	Copyright (C) 2005-2010 Jonathan Zarate
 	http://www.polarcloud.com/
 
 	---
@@ -75,155 +75,19 @@ rcxDict.prototype = {
 	},
 
 	//
-
-	fileRead: function(url, charset) {
-		var ss;
-		var inp;
-		var buffer;
-		var conv;
-
-		ss = Components.classes['@mozilla.org/scriptableinputstream;1']
-				.getService(Components.interfaces.nsIScriptableInputStream);
-		inp = Components.classes['@mozilla.org/network/io-service;1']
-				.getService(Components.interfaces.nsIIOService)
-				.newChannel(url, null, null)
-				.open();
-		ss.init(inp);
-		buffer = ss.read(inp.available());
-		ss.close();
-		inp.close();
-		if (!charset) return buffer;
-
-		conv = Components.classes['@mozilla.org/intl/scriptableunicodeconverter']
-					.createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-		conv.charset = charset;
-		return conv.ConvertToUnicode(buffer);
-	},
-
-	fileReadArray: function(name, charset) {
-		var a = this.fileRead(name, charset).split('\n');
-		while ((a.length > 0) && (a[a.length - 1].length == 0)) a.pop();
-		return a;
-	},
-
-	find: function(data, text) {
-		const tlen = text.length;
-		var beg = 0;
-		var end = data.length - 1;
-		var i;
-		var mi;
-		var mis;
-
-		while (beg < end) {
-			mi = (beg + end) >> 1;
-			i = data.lastIndexOf('\n', mi) + 1;
-
-			mis = data.substr(i, tlen);
-			if (text < mis) end = i - 1;
-				else if (text > mis) beg = data.indexOf('\n', mi + 1) + 1;
-					else return data.substring(i, data.indexOf('\n', mi + 1));
-		}
-		return null;
-	},
-
-	//
-
 	loadNames: function() {
 		if ((this.nameDict) && (this.nameIndex)) return;
-		this.nameDict = this.fileRead(rcxNamesDict.datURI, rcxNamesDict.datCharset);
-		this.nameIndex = this.fileRead(rcxNamesDict.idxURI, rcxNamesDict.idxCharset);
+		this.nameDict = rcxFile.read(rcxNamesDict.datURI, rcxNamesDict.datCharset);
+		this.nameIndex = rcxFile.read(rcxNamesDict.idxURI, rcxNamesDict.idxCharset);
 	},
 
 	//	Note: These are mostly flat text files; loaded as one continous string to reduce memory use
 	loadDictionary: function() {
-		this.wordDict = this.fileRead(rcxWordDict.datURI, rcxWordDict.datCharset);
-		this.wordIndex = this.fileRead(rcxWordDict.idxURI, rcxWordDict.idxCharset);
-		this.kanjiData = this.fileRead('chrome://rikaichan/content/kanji.dat', 'UTF-8');
-		this.radData = this.fileReadArray('chrome://rikaichan/content/radicals.dat', 'UTF-8');
-
-		//	this.test_kanji();
+		this.wordDict = rcxFile.read(rcxWordDict.datURI, rcxWordDict.datCharset);
+		this.wordIndex = rcxFile.read(rcxWordDict.idxURI, rcxWordDict.idxCharset);
+		this.kanjiData = rcxFile.read('chrome://rikaichan/content/kanji.dat', 'UTF-8');
+		this.radData = rcxFile.readArray('chrome://rikaichan/content/radicals.dat', 'UTF-8');
 	},
-/*
-	test_kanji: function() {
-		var a = this.kanjiData.split('\n');
-
-		alert('begin test. a.length=' + a.length);
-		var start = (new Date()).getTime();
-		for (var i = 0; i < a.length; ++i) {
-			if (!this.kanjiSearch(a[i].charAt(0))) {
-				alert('error @' + i + ': ' + a[i]);
-				return;
-			}
-		}
-		alert('time = ' + ((new Date()).getTime() - start));
-	},
-*/
-
-/*
-	test_index: function() {
-		var ixF = this.fileRead('chrome://rikaichan/content/dict.idx', 'EUC-JP');
-		var ixA = ixF.split('\n');
-
-		while ((ixA.length > 0) && (ixA[ixA.length - 1].length == 0)) ixA.pop();
-
-//		alert('length=' + ixA.length + ' / ' + ixF.length);
-if (0) {
-		var timeA = (new Date()).getTime();
-		for (var i = ixA.length - 1; i >= 0; --i) {
-			if ((i & 0xFF) == 0) window.status = 'A: ' + i;
-			var s = ixA[i];
-			var r = this.binSearchX(ixA, s.substr(0, s.indexOf(',') + 1));
-			if ((r == -1) || (ixA[r] != s)) {
-				alert('A failed: ' + s);
-				return;
-			}
-		}
-}
-		timeA = ((new Date()).getTime() - timeA) / 1000;
-
-
-		var timeF = (new Date()).getTime();
-		for (var i = ixA.length - 1; i >= 0; --i) {
-			if ((i & 0xFF) == 0) window.status = 'F: ' + i;
-			var s = ixA[i];
-			var r = this.find(ixF, s.substr(0, s.indexOf(',') + 1));
-			if (r != s) {
-				alert('F failed: ' + s);
-				return;
-			}
-		}
-		timeF = ((new Date()).getTime() - timeF) / 1000;
-
-		var timeX = (new Date()).getTime();
-if (0) {
-		for (var i = ixA.length - 1; i >= 0; --i) {
-			if ((i & 0xFF) == 0) window.status = 'X: ' + i;
-			var s = ixA[i];
-
-			var w = s.substr(0, s.indexOf(',') + 1);
-			var j = 0;
-			r = '';
-			if (ixF.substr(0, w.length) == w) {
-				r = ixF.substr(0, ixF.indexOf('\n'));
-			}
-			else {
-				w = '\n' + w;
-				j = ixF.indexOf(w);
-				if (j != -1) r = ixF.substring(j + 1, ixF.indexOf('\n', j + 1));
-			}
-
-			if (r != s) {
-				alert('X failed:\n[' + s + ']\n[' + r + ']');
-				return;
-			}
-		}
-}
-		timeX = ((new Date()).getTime() - timeX) / 1000;
-
-		alert('A=' + timeA + ' / F=' + timeF + ' / X=' + timeX);
-	},
-
-*/
 	///
 
 	loadDIF: function() {
@@ -231,18 +95,18 @@ if (0) {
 		this.difRules = [];
 		this.difExact = [];
 
-		var buffer = this.fileReadArray('chrome://rikaichan/content/deinflect.dat', 'UTF-8');
+		var buffer = rcxFile.readArray('chrome://rikaichan/content/deinflect.dat', 'UTF-8');
 		var prevLen = -1;
 		var g, o;
 
-		// i = 1: skip header
-		for (var i = 1; i < buffer.length; ++i) {
-			var f = buffer[i].split('\t');
+			// i = 1: skip header
+			for (var i = 1; i < buffer.length; ++i) {
+				var f = buffer[i].split('\t');
 
-			if (f.length == 1) {
+				if (f.length == 1) {
 				this.difReasons.push(f[0]);
-			}
-			else if (f.length == 4) {
+				}
+				else if (f.length == 4) {
 				o = {};
 				o.from = f[0];
 				o.to = f[1];
@@ -254,11 +118,11 @@ if (0) {
 					g = [];
 					g.flen = prevLen;
 					this.difRules.push(g);
-				}
+					}
 				g.push(o);
+				}
 			}
-		}
-	},
+		},
 
 	deinflect: function(word) {
 		var r = [];
@@ -276,10 +140,10 @@ if (0) {
 		var i, j, k;
 
 		i = 0;
-		do {
-			word = r[i].word;
-			var wordLen = word.length;
-			var type = r[i].type;
+			do {
+				word = r[i].word;
+				var wordLen = word.length;
+				var type = r[i].type;
 
 			for (j = 0; j < this.difRules.length; ++j) {
 				var g = this.difRules[j];
@@ -287,33 +151,33 @@ if (0) {
 					var end = word.substr(-g.flen);
 					for (k = 0; k < g.length; ++k) {
 						var rule = g[k];
-						if ((type & rule.type) && (end == rule.from)) {
-							var newWord = word.substr(0, word.length - rule.from.length) + rule.to;
-							if (newWord.length <= 1) continue;
+							if ((type & rule.type) && (end == rule.from)) {
+								var newWord = word.substr(0, word.length - rule.from.length) + rule.to;
+								if (newWord.length <= 1) continue;
 							o = {};
-							if (have[newWord] != undefined) {
-								o = r[have[newWord]];
-								o.type |= (rule.type >> 8);
+								if (have[newWord] != undefined) {
+									o = r[have[newWord]];
+									o.type |= (rule.type >> 8);
 
 								//o.reason += ' / ' + r[i].reason + ' ' + this.difReasons[rule.reason];
 								//o.debug += ' @ ' + rule.debug;
-								continue;
-							}
-							have[newWord] = r.length;
+									continue;
+								}
+								have[newWord] = r.length;
 							if (r[i].reason.length) o.reason = this.difReasons[rule.reason] + ' &lt; ' + r[i].reason;
 								else o.reason = this.difReasons[rule.reason];
-							o.type = rule.type >> 8;
-							o.word = newWord;
+								o.type = rule.type >> 8;
+								o.word = newWord;
 							//o.debug = r[i].debug + ' $ ' + rule.debug;
-							r.push(o);
+								r.push(o);
+							}
 						}
 					}
 				}
-			}
 
-		} while (++i < r.length);
+			} while (++i < r.length);
 
-		return r;
+			return r;
 	},
 
 
@@ -828,38 +692,6 @@ if (0) {
 		return b.join('');
 	},
 
-
-	makeHtmlForRuby: function(entry) {
-		var e;
-		var b;
-		var c, s, t;
-		var i, j, n;
-
-		if (entry == null) return '';
-
-		b = [];
-
-		s = t = '';
-
-		if (entry.title) {
-			b.push('<div class="w-title">' + entry.title + '</div>');
-		}
-
-		for (i = 0; i < entry.data.length; ++i) {
-			e = entry.data[i][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
-			if (!e) continue;
-
-			s = e[3];
-			t = s.replace(/\//g, '; ');
-			if (!this.config.wpos) t = t.replace(/^\([^)]+\)\s*/, '');
-			if (!this.config.wpop) t = t.replace('; (P)', '');
-			t = '<span class="w-def">' + t + '</span><br/>\n';
-		}
-		b.push(t);
-
-		return b.join('');
-	},
-
 	makeText: function(entry, max) {
 		var e;
 		var b;
@@ -910,5 +742,84 @@ if (0) {
 			}
 		}
 		return b.join('');
+	},
+
+	/* * * * */
+
+	find: function(data, text) {
+		const tlen = text.length;
+		var beg = 0;
+		var end = data.length - 1;
+		var i;
+		var mi;
+		var mis;
+
+		while (beg < end) {
+			mi = (beg + end) >> 1;
+			i = data.lastIndexOf('\n', mi) + 1;
+
+			mis = data.substr(i, tlen);
+			if (text < mis) end = i - 1;
+				else if (text > mis) beg = data.indexOf('\n', mi + 1) + 1;
+					else return data.substring(i, data.indexOf('\n', mi + 1));
+		}
+		return null;
+	}
+};
+
+var rcxFile = {
+	read1: function(url, charset) {
+		var ss;
+		var inp;
+		var buffer;
+		var conv;
+
+		ss = Components.classes['@mozilla.org/scriptableinputstream;1']
+				.getService(Components.interfaces.nsIScriptableInputStream);
+		inp = Components.classes['@mozilla.org/network/io-service;1']
+				.getService(Components.interfaces.nsIIOService)
+				.newChannel(url, null, null)
+				.open();
+		ss.init(inp);
+		buffer = ss.read(inp.available());
+		ss.close();
+		inp.close();
+		if (!charset) return buffer;
+
+		conv = Components.classes['@mozilla.org/intl/scriptableunicodeconverter']
+					.createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+		conv.charset = charset;
+		return conv.ConvertToUnicode(buffer);
+	},
+	
+	read2: function(uri, charset) {
+		var inp = Components.classes['@mozilla.org/network/io-service;1']
+				.getService(Components.interfaces.nsIIOService)
+				.newChannel(uri, null, null)
+				.open();
+				
+		var is = Components.classes['@mozilla.org/intl/converter-input-stream;1']
+                   .createInstance(Components.interfaces.nsIConverterInputStream);
+		is.init(inp, charset, 64 * 1024 * 1024, Components.interfaces.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
+
+		var buffer = '';
+		var s = {};		
+		while (is.readString(-1, s) > 0) {
+			buffer += s.value;
+		}
+		is.close();
+		
+		return buffer;
+	},
+
+	read: function(uri, charset) {
+		if (rcxMain.cfg.altread) return rcxFile.read2(uri, charset);
+			else return rcxFile.read1(uri, charset);
+	},
+
+	readArray: function(name, charset) {
+		var a = this.read(name, charset).split('\n');
+		while ((a.length > 0) && (a[a.length - 1].length == 0)) a.pop();
+		return a;
 	}
 };

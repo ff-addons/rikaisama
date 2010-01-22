@@ -5,6 +5,7 @@ pref('rikaichan.resizedoc', 0);
 pref('rikaichan.dictorder', 1);
 pref('rikaichan.title', 1);
 pref('rikaichan.enmode', 1);
+pref('rikaichan.minihelp', 1);
 pref('rikaichan.sticon', 1);
 
 pref('rikaichan.cmtoggle', true);
@@ -39,4 +40,5 @@ pref('rikaichan.snlf', 0);
 pref('rikaichan.ssep', 'Tab');
 
 pref('rikaichan.version', '');
+pref('rikaichan.altread', false);
 pref('rikaichan.checkversion', true);

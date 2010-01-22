@@ -1,7 +1,7 @@
 ﻿/*
 
 	Rikaichan
-	Copyright (C) 2005-2009 Jonathan Zarate
+	Copyright (C) 2005-2010 Jonathan Zarate
 	http://www.polarcloud.com/
 
 	---
@@ -40,9 +40,12 @@ var rcxMain = {
 	altView: 0,
 	enabled: 0,
 
-	init: function() {
-		window.addEventListener('load', this.onLoad, false);
+	/*
+	// note: can't use with addEventListener then removeEventListener
+	wrap: function(func) {
+		return function() { return func.apply(rcxMain, arguments) }
 	},
+	*/
 
     getCurrentBrowser: function() {
 		if (this.isTB) {
@@ -111,7 +114,12 @@ var rcxMain = {
 		}
 	},
 
-    onLoad: function() { rcxMain._onLoad(); },
+
+	init: function() {
+		window.addEventListener('load', this.onLoad, false);
+	},
+
+	onLoad: function() { rcxMain._onLoad() },
 	_onLoad: function() {
 		try {
 			window.addEventListener('unload', this.onUnload, false);
@@ -164,15 +172,16 @@ var rcxMain = {
 				}
 			}
 
-			if (rcxMain.cfg.checkversion)
-				setTimeout(function() { rcxMain.checkVersion(); }, 2000);
+			if (this.cfg.checkversion) {
+				setTimeout(function() { rcxMain.checkVersion() }, 2000);
+			}
 		}
 		catch (ex) {
-			alert('Exception in onLoad: ' + ex);
+			alert('ex: ' + ex);
 		}
 	},
 
-	onUnload: function() { rcxMain._onUnload(); },
+	onUnload: function() { rcxMain._onUnload() },
 	_onUnload: function() {
 		this.prefObs.unregister();
         if (this.isTB) {
@@ -186,7 +195,7 @@ var rcxMain = {
 		if (this.dict) rcxMain.dict.unlock();
 	},
 
-	//
+
 
 	getPrefBranch: function() {
 	    return Components.classes['@mozilla.org/preferences-service;1']
@@ -379,7 +388,6 @@ var rcxMain = {
 			v = 'v' + v;
 
 			if (p.getCharPref('version') != v) {
-				p.setBoolPref('checkversion', false);	// !
 				p.setCharPref('version', v);
 				this.showDownload();
 			}
@@ -401,7 +409,7 @@ var rcxMain = {
 
 		var en = (bro.rikaichan != null);
 		b = document.getElementById('rikaichan-toggle-cmd');
-		if (b) b.setAttribute('checked', en);		
+		if (b) b.setAttribute('checked', en);
 		// note: above doesn't work in TB 2.x
 		if (this.isTB) {
 			b = document.getElementById('rikaichan-toggle-cm');
@@ -416,10 +424,15 @@ var rcxMain = {
 		if (b) b.setAttribute('rc_enabled', bro.rikaichan != null);
 	},
 
-	showPopup: function(text, elem, x, y, looseWidth, lbPop) {
+	showPopup: function(text, elem, pos, lbPop) {
+		// outer-most document
 		const topdoc = content.document;
 
-		if ((isNaN(x)) || (isNaN(y))) x = y = 0;
+		var x = 0, y = 0;
+		if (pos) {
+			x = pos.screenX;
+			y = pos.screenY;
+		}
 
 		this.lbPop = lbPop;
 
@@ -436,6 +449,11 @@ var rcxMain = {
 			popup.setAttribute('id', 'rikaichan-window');
 			topdoc.documentElement.appendChild(popup);
 
+			// if this is not set then Cyrillic text is displayed with Japanese
+			// font, if the web page uses a Japanese code page as opposed to Unicode.
+			// This makes it unreadable.
+			popup.setAttribute('lang', 'en');		// ??? find a test case
+
 			popup.addEventListener('dblclick',
 				function (ev) {
 					rcxMain.hidePopup();
@@ -450,19 +468,17 @@ var rcxMain = {
 			}
 		}
 
-		popup.style.width = 'auto';
-		popup.style.height = 'auto';
-		popup.style.maxWidth = (looseWidth ? '' : '600px');
+		popup.style.maxWidth = (lbPop ? '' : '600px');
 
 		if (topdoc.contentType == 'text/plain') {
 			var df = document.createDocumentFragment();
-			df.appendChild(document.createElementNS('http://www.w3.org/1999/xhtml', 'span'));
-			df.firstChild.innerHTML = text;
-
+			var sp = document.createElementNS('http://www.w3.org/1999/xhtml', 'span');
+			df.appendChild(sp);
+			sp.innerHTML = text;
 			while (popup.firstChild) {
 				popup.removeChild(popup.firstChild);
 			}
-			popup.appendChild(df.firstChild);
+			popup.appendChild(df);
 		}
 		else {
 			popup.innerHTML = text;
@@ -473,105 +489,99 @@ var rcxMain = {
 			popup.style.left = '0px';
 			popup.style.display = '';
 
-			const bbo = this.getCurrentBrowser().boxObject;
-			var pW = popup.offsetWidth;
-			var pH = popup.offsetHeight;
+			var width = popup.offsetWidth;
+			var height = popup.offsetHeight;
 
-			// guess!
-			if (pW <= 0) pW = 200;
-			if (pH <= 0) {
-				pH = 0;
+			// guess! (??? still need this?)
+			if (width <= 0) width = 200;
+			if (height <= 0) {
+				height = 0;
 				var j = 0;
-				while ((j = text.indexOf('<br/>', j)) != -1) {
+				while ((j = text.indexOf('<br', j)) != -1) {
 					j += 5;
-					pH += 22;
+					height += 22;
 				}
-				pH += 25;
+				height += 25;
 			}
 
 			if (this.altView == 1) {
-				x = content.scrollX;
-				y = content.scrollY;
-			}
-			else if (this.altView == 2) {
-				x = (content.innerWidth - (pW + 20)) + content.scrollX;
-				y = (content.innerHeight - (pH + 20)) + content.scrollY;
-			}
-			else if (elem instanceof Components.interfaces.nsIDOMHTMLOptionElement) {
-				// these things are always on z-top, so go sideways
-
+				// upper-left
 				x = 0;
 				y = 0;
-
-				var p = elem;
-				while (p) {
-					x += p.offsetLeft;
-					y += p.offsetTop;
-					p = p.offsetParent;
-				}
-				if (elem.offsetTop > elem.parentNode.clientHeight) y -= elem.offsetTop;
-
-				if ((x + popup.offsetWidth) > content.innerWidth) {
-					// too much to the right, go left
-					x -= popup.offsetWidth + 5;
-					if (x < 0) x = 0;
-				}
-				else {
-					// use SELECT's width
-					x += elem.parentNode.offsetWidth + 5;
-				}
-
-/*
-				// in some cases (ex: google.co.jp), ebo doesn't add the width of the scroller (?), so use SELECT's width
-				const epbo = elem.ownerDocument.getBoxObjectFor(elem.parentNode);
-
-				const ebo = elem.ownerDocument.getBoxObjectFor(elem);
-				x = ebo.screenX - bbo.screenX;
-				y = ebo.screenY - bbo.screenY;
-
-				if (x > (content.innerWidth - (x + epbo.width))) {
-					x = (x - popup.offsetWidth - 5);
-					if (x < 0) x = 0;
-				}
-				else {
-					x += epbo.width + 5;
-				}
-*/
+			}
+			else if (this.altView == 2) {
+				// lower-right
+				x = (content.innerWidth - (width + 20));
+				y = (content.innerHeight - (height + 20));
 			}
 			else {
-				x -= bbo.screenX;
-				y -= bbo.screenY;
+				// convert xy relative to outer-most document
+				var cb = this.getCurrentBrowser();
+				var bo = cb.boxObject;
+				x -= bo.screenX;
+				y -= bo.screenY;
 
-				// go left if necessary
-				if ((x + pW) > (content.innerWidth - 20)) {
-					x = (content.innerWidth - pW) - 20;
-					if (x < 0) x = 0;
+				// when zoomed, convert to zoomed document pixel position
+				// - not in TB compose and ...?
+				if (cb.markupDocumentViewer != null) {
+					var z = cb.markupDocumentViewer.fullZoom;
+					if (z != 1) {
+						x = Math.round(x / z);
+						y = Math.round(y / z);
+					}
 				}
 
-				// below the mouse
-				var v = 25;
+				if (elem instanceof Components.interfaces.nsIDOMHTMLOptionElement) {
+					// these things are always on z-top, so go sideways
+					x -= pos.pageX;
+					y -= pos.pageY;
+					var p = elem;
+					while (p) {
+						x += p.offsetLeft;
+						y += p.offsetTop;
+						p = p.offsetParent;
+					}
 
-				// under the popup title
-				if ((elem.title) && (elem.title != '')) v += 20;
+					// right side of box
+					var w = elem.parentNode.offsetWidth + 5;
+					x += w;
 
-				// go up if necessary
-				if ((y + v + pH) > content.innerHeight) {
-					var t = y - pH - 30;
-					if (t >= 0) y = t;
+					if ((x + width) > content.innerWidth) {
+						// too much to the right, go left
+						x -= (w + width + 5);
+						if (x < 0) x = 0;
+					}
+
+					if ((y + height) > content.innerHeight) {
+						y = content.innerHeight - height - 5;
+						if (y < 0) y = 0;
+					}
 				}
-				else y += v;
+				else {
+					// go left if necessary
+					if ((x + width) > (content.innerWidth - 20)) {
+						x = (content.innerWidth - width) - 20;
+						if (x < 0) x = 0;
+					}
 
-				x += content.scrollX;
-				y += content.scrollY;
+					// below the mouse
+					var v = 25;
+
+					// under the popup title
+					if ((elem.title) && (elem.title != '')) v += 20;
+
+					// go up if necessary
+					if ((y + v + height) > content.innerHeight) {
+						var t = y - height - 30;
+						if (t >= 0) y = t;
+					}
+					else y += v;
+				}
 			}
 		}
-		else {
-			x += content.scrollX;
-			y += content.scrollY;
-		}
 
-		popup.style.left = x + 'px';
-		popup.style.top = y + 'px';
+		popup.style.left = (x + content.scrollX) + 'px';
+		popup.style.top = (y + content.scrollY) + 'px';
 		popup.style.display = '';
 	},
 
@@ -1022,7 +1032,7 @@ var rcxMain = {
 			tdata.prevSelView = doc.defaultView;
 		}
 
-		this.showPopup(this.dict.makeHtml(e), tdata.prevTarget, tdata.popX, tdata.popY, false);
+		this.showPopup(this.dict.makeHtml(e), tdata.prevTarget, tdata.pos);
 		return 1;
 	},
 
@@ -1061,24 +1071,9 @@ var rcxMain = {
 		if (tdata.title.length > e.textLen) e.title += '...';
 
 		this.lastFound = [e];
-		this.showPopup(this.dict.makeHtml(e), tdata.prevTarget, tdata.popX, tdata.popY, false);
+		this.showPopup(this.dict.makeHtml(e), tdata.prevTarget, tdata.pos);
 	},
-/*
-	inRange: function (event) {
-		var selection = event.view.getSelection();
-		if ((selection.rangeCount === 0) || (!event.rangeParent)) return false;
-		var newRange = event.view.document.createRange();
-		newRange.setStart(event.rangeParent, event.rangeOffset);
-		newRange.setEnd(event.rangeParent, event.rangeOffset);
 
-		var curRange = selection.getRangeAt(0);
-		if (newRange.compareBoundaryPoints(Range.START_TO_START, curRange) > -1 &&
-			newRange.compareBoundaryPoints(Range.END_TO_END, curRange) < 0)
-			return true;
-		else return false;
-	},
-	
-*/
 	onMouseMove: function(ev) { rcxMain._onMouseMove(ev); },
 	_onMouseMove: function(ev) {
 		var tdata = ev.currentTarget.rikaichan;	// per-tab data
@@ -1086,8 +1081,12 @@ var rcxMain = {
 		var ro = ev.rangeOffset;
 
 /*
-		don't do anything if moving within the current selection
-		if (this.cfg.highlight && this.inRange(ev)) return;
+		var cb = this.getCurrentBrowser();
+		var bbo = cb.boxObject;
+		var z = cb.markupDocumentViewer ? cb.markupDocumentViewer.fullZoom : 1;
+		var y = (ev.screenY - bbo.screenY);
+		this.status('sy=' + ev.screenY + ' z=' + z +
+			' bsy=' + bbo.screenY + ' y=' + y + ' y/z=' + Math.round(y / z));
 */
 
 		if (ev.target == tdata.prevTarget) {
@@ -1116,12 +1115,8 @@ var rcxMain = {
 
 		if ((rp) && (rp.data) && (ro < rp.data.length)) {
 			this.showMode = ev.shiftKey ? 1 : 0;
-			tdata.popX = ev.screenX;
-			tdata.popY = ev.screenY;
-			tdata.timer = setTimeout(
-				function() {
-					rcxMain.show(tdata);
-				}, this.cfg.popdelay);
+			tdata.pos = { screenX: ev.screenX, screenY: ev.screenY, pageX: ev.pageX, pageY: ev.pageY };
+			tdata.timer = setTimeout(function() { rcxMain.show(tdata) }, this.cfg.popdelay);
 			return;
 		}
 
@@ -1134,7 +1129,6 @@ var rcxMain = {
 			}
 		}
 
-		// FF3
 		if (ev.target.nodeName == 'OPTION') {
 			tdata.title = ev.target.text;
 		}
@@ -1143,44 +1137,26 @@ var rcxMain = {
 		}
 
 		if (tdata.title) {
-			tdata.popX = ev.screenX;
-			tdata.popY = ev.screenY;
-			tdata.timer = setTimeout(
-				function(tdata) {
-					rcxMain.showTitle(tdata);
-				}, this.cfg.popdelay, tdata);
+			tdata.pos = { screenX: ev.screenX, screenY: ev.screenY, pageX: ev.pageX, pageY: ev.pageY };
+			tdata.timer = setTimeout(function() { rcxMain.showTitle(tdata) }, this.cfg.popdelay);
+			return;
 		}
-		else {
+
+		if (tdata.pos) {
 			// dont close just because we moved from a valid popup slightly over to a place with nothing
-			var dx = tdata.popX - ev.screenX;
-			var dy = tdata.popY - ev.screenY;
+			var dx = tdata.pos.screenX - ev.screenX;
+			var dy = tdata.pos.screenY - ev.screenY;
 			var distance = Math.sqrt(dx * dx + dy * dy);
 			if (distance > 4) {
 				this.clearHi();
 				this.hidePopup();
 			}
 		}
-
 	},
-
-	miniHelp:
-		'<span style="font-weight:bold">Rikaichan enabled!</span><br><br>' +
-		'<table cellspacing=5>' +
-		'<tr><td>A</td><td>Alternate popup location</td></tr>' +
-		'<tr><td>Y</td><td>Move popup location down</td></tr>' +
-		'<tr><td>C</td><td>Copy to clipboard</td></tr>' +
-		'<tr><td>S</td><td>Save to file</td></tr>' +
-		'<tr><td>Shift/Enter&nbsp;&nbsp;</td><td>Switch dictionaries</td></tr>' +
-		'<tr><td>B</td><td>Previous character</td></tr>' +
-		'<tr><td>M</td><td>Next character</td></tr>' +
-		'<tr><td>N</td><td>Next word</td></tr>' +
-		'</table>',
 
 	inlineEnable: function(bro, mode) {
 		if (!this.dict) {
-			//	var time = (new Date()).getTime();
 			if (!this.loadDictionary()) return;
-			//	time = (((new Date()).getTime() - time) / 1000).toFixed(2);
 		}
 
 		if (bro.rikaichan == null) {
@@ -1193,8 +1169,6 @@ var rcxMain = {
 			bro.addEventListener('keyup', this.onKeyUp, true);
 
 			if (mode == 1) {
-				this.showPopup(this.miniHelp);
-
 				if (rcxMain.cfg.enmode > 0) {
 					this.enabled = 1;
 					if (rcxMain.cfg.enmode == 2) {
@@ -1202,20 +1176,21 @@ var rcxMain = {
 						this.rcxObs.notifyState('enable');
 					}
 				}
+
+				if (this.cfg.minihelp) this.showPopup(rcxFile.read('chrome://rikaichan/locale/minihelp.htm'));
+					else this.showPopup('Rikaichan Enabled');
 			}
 		}
 	},
 
 	inlineDisable: function(bro, mode) {
-		var e;
-
 		bro.removeEventListener('mousemove', this.onMouseMove, false);
 		bro.removeEventListener('mousedown', this.onMouseDown, false);
 		bro.removeEventListener('mouseup', this.onMouseUp, false);
 		bro.removeEventListener('keydown', this.onKeyDown, true);
 		bro.removeEventListener('keyup', this.onKeyUp, true);
 
-		e = bro.contentDocument.getElementById('rikaichan-css');
+		var e = bro.contentDocument.getElementById('rikaichan-css');
 		if (e) e.parentNode.removeChild(e);
 		e = bro.contentDocument.getElementById('rikaichan-window');
 		if (e) e.parentNode.removeChild(e);
@@ -1389,10 +1364,10 @@ var rcxMain = {
 				}
 			}
 
-			this.showPopup('<table class="q-tb"><tr><td class="q-w">' + html + '</td>' + kanji + '</tr></table>', null, 1, 1, true, true);
+			this.showPopup('<table class="q-tb"><tr><td class="q-w">' + html + '</td>' + kanji + '</tr></table>', null, null, true);
 		}
 	},
-	
+
 	statusClick: function(ev) {
 		if (ev.button != 2) rcxMain.inlineToggle();
 	},
@@ -1408,7 +1383,7 @@ var rcxMain = {
 		if (e) {
 			e.setAttribute('label', text.substr(0, 80));
 			e.setAttribute('hidden', 'false');
-			this.statusTimer = setTimeout(function(e) { e.setAttribute('hidden', 'true') }, 2500, e);
+			this.statusTimer = setTimeout(function() { e.setAttribute('hidden', 'true') }, 3000);
 		}
 	},
 };
@@ -1419,72 +1394,49 @@ rcxMain.init();
 
 
 /*
-rcd_con('**RIKAICHAN DEBUG**');
+var rcxDebug = {
+	echo: function(text) {
+		Components.classes['@mozilla.org/consoleservice;1']
+			.getService(Components.interfaces.nsIConsoleService)
+			.logStringMessage(text);
+		//	toJavaScriptConsole();
+	},
 
-function rcd_con(msg)
-{
-	Components.classes['@mozilla.org/consoleservice;1']
-		.getService(Components.interfaces.nsIConsoleService)
-		.logStringMessage(msg);
-//	toJavaScriptConsole();
-}
-
-function rcd_status(s)
-{
-	if (typeof(rcd_status_timeout) != 'undefined') {
-		clearTimeout(rcd_status_timeout);
-		rcd_status_timeout = undefined;
-	}
-
-	var e = document.getElementById('rikaichan-status-text');
-	if ((s) && (s.length)) {
-		e.setAttribute('label', s.substr(0, 80));
-		e.setAttribute('hidden', 'false');
-		rcd_status_timeout = setTimeout(rcd_status, 5000);
-	}
-	else {
-		e.setAttribute('hidden', 'true');
-	}
-}
-
-function rcd_dumo(o)
-{
-	var k;
-	var s = '[' + o + ']\r\n';
-	for (k in o) {
-		try {
-			s += k + '=' + String(o[k]).replace(/[\r\n\t]/g, ' ') + '\r\n';
+	status: function(text) {
+		if (rcxDebug.stimer) {
+			clearTimeout(rcxDebug.stimer);
+			rcxDebug.stimer = null;
 		}
-		catch (err) {
-			s += err + '\r\n';
-		}
-	}
-	rcd_con(s);
-}
 
-function rcd_clip(s) {
-	Components.classes['@mozilla.org/widget/clipboardhelper;1']
-		.getService(Components.interfaces.nsIClipboardHelper)
-		.copyString(s);
-}
+		var e = document.getElementById('rikaichan-status-text');
+		if (text) {
+			e.setAttribute('label', text);
+			e.setAttribute('hidden', false);
+			rcxDebug.stimer = setTimeout(rcxDebug.status, 5000);
+		}
+		else {
+			e.setAttribute('hidden', true);
+		}
+	},
+
+	dumpObj: function(o) {
+		rcxDebug.echo('[' + o + ']');
+		for (var key in o) {
+			try {
+				rcxDebug.echo(key + '=' + String(o[key]).replace(/[\r\n\t]/g, ' ') + '\r\n');
+			}
+			catch (ex) {
+				rcxDebug.echo(key + '=<exception: ' + ex + '>');
+			}
+		}
+	},
+
+	clip: function(text) {
+		Components.classes['@mozilla.org/widget/clipboardhelper;1']
+			.getService(Components.interfaces.nsIClipboardHelper)
+			.copyString(text);
+	}
+};
+
+rcxDebug.echo('**RIKAICHAN DEBUG**');
 /**/
-
-
-/*
-	2E80 - 2EFF	CJK Radicals Supplement
-	2F00 - 2FDF	Kangxi Radicals
-	2FF0 - 2FFF	Ideographic Description
-p	3000 - 303F CJK Symbols and Punctuation
-x	3040 - 309F Hiragana
-x	30A0 - 30FF Katakana
-	3190 - 319F	Kanbun
-	31F0 - 31FF Katakana Phonetic Extensions
-	3200 - 32FF Enclosed CJK Letters and Months
-	3300 - 33FF CJK Compatibility
-x	3400 - 4DBF	CJK Unified Ideographs Extension A
-x	4E00 - 9FFF	CJK Unified Ideographs
-x	F900 - FAFF	CJK Compatibility Ideographs
-p	FF00 - FFEF Halfwidth and Fullwidth Forms
-x	FF66 - FF9D	Katakana half-width
-
-*/

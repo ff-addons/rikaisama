@@ -1,7 +1,7 @@
 /*
 
 	Rikaichan
-	Copyright (C) 2005-2009 Jonathan Zarate
+	Copyright (C) 2005-2010 Jonathan Zarate
 	http://www.polarcloud.com/
 
 	---
