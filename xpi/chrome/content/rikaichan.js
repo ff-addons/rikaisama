@@ -524,7 +524,7 @@ var rcxMain = {
 				// when zoomed, convert to zoomed document pixel position
 				// - not in TB compose and ...?
 				if (cb.markupDocumentViewer != null) {
-					var z = cb.markupDocumentViewer.fullZoom;
+					var z = cb.markupDocumentViewer.fullZoom || 1;
 					if (z != 1) {
 						x = Math.round(x / z);
 						y = Math.round(y / z);
