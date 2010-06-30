@@ -30,9 +30,9 @@
 
 <overlay id="rikaichan" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-<script type="application/x-javascript" src="cfglist.js" />
-<script type="application/x-javascript" src="rikaichan.js" />
-<script type="application/x-javascript" src="data.js" />
+<script type="application/javascript;version=1.7" src="config.js" />
+<script type="application/javascript;version=1.7" src="rikaichan.js" />
+<script type="application/javascript;version=1.7" src="data.js" />
 
 <commandset id="composeCommands">
 	<command id="rikaichan-toggle-cmd" oncommand="rcxMain.inlineToggle()"/>

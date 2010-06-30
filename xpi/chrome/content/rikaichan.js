@@ -29,25 +29,16 @@
 	---
 
 	Please do not change or remove any of the copyrights or links to web pages
-	when modifying any of the files. - Jon
+	when modifying any of the files.
 
 */
 
 var rcxMain = {
-	haveNames: false,
-	canDoNames: false,
-	dictCount: 0,
 	altView: 0,
 	enabled: 0,
+	sticky: false,
 
-	/*
-	// note: can't use with addEventListener then removeEventListener
-	wrap: function(func) {
-		return function() { return func.apply(rcxMain, arguments) }
-	},
-	*/
-
-    getCurrentBrowser: function() {
+	getCurrentBrowser: function() {
 		if (this.isTB) {
 			var b = document.getElementById('messagepane');
 			if (b) return b;
@@ -56,9 +47,9 @@ var rcxMain = {
 		else {
 			return gBrowser.mCurrentBrowser;
 		}
-    },
+	},
 
-	hiddenDOMWindow: function() {
+	global: function() {
 		return Components.classes["@mozilla.org/appshell/appShellService;1"]
 			.getService(Components.interfaces.nsIAppShellService)
 			.hiddenDOMWindow;
@@ -88,7 +79,13 @@ var rcxMain = {
 	rcxObs: {
 		observe: function(subject, topic, data) {
 			if (topic == 'rikaichan') {
-				if ((rcxMain.cfg.enmode == 2) && ((data == 'enable') || (data == 'disable'))) {
+				if (data == 'getdic') {
+					rcxMain.showDownloadPage();
+					return;
+				}
+
+				// enmode: 0=tab, 1=browser, 2=all, 3=always
+				if ((rcxConfig.enmode >= 2) && ((data == 'enable') || (data == 'disable'))) {
 					if (rcxMain.enabled != (data == 'enable')) {
 						if (rcxMain.enabled) rcxMain.inlineDisable(gBrowser.mCurrentBrowser, 0);
 							else rcxMain.enabled = 1;
@@ -116,292 +113,145 @@ var rcxMain = {
 
 
 	init: function() {
-		window.addEventListener('load', this.onLoad, false);
+		window.addEventListener('load', function() { rcxMain.onLoad() }, false);
 	},
 
-	onLoad: function() { rcxMain._onLoad() },
-	_onLoad: function() {
-		try {
-			window.addEventListener('unload', this.onUnload, false);
+	onLoad: function() {
+		window.addEventListener('unload', function() { rcxMain.onUnload() }, false);
 
-			this.haveNames = this.canDoNames = (typeof(rcxNamesDict) != 'undefined');
-
-			var docID = document.documentElement.id;
-			this.isTB = ((docID == "messengerWindow") || (docID == "msgcomposeWindow"));
-
-			var mks;
-			if (this.isTB) {
-				mks = document.getElementById('mailKeys') || document.getElementById('editorKeys');
-			}
-			else {
-				mks = document.getElementById('mainKeyset') || document.getElementById('navKeys');
-				gBrowser.mTabContainer.addEventListener('select', this.onTabSelect, false);
-			}
-
-			var pb = this.getPrefBranch();
-			var names = ['toggle', 'lbar'];
-
-			for (var i = 1; i >= 0; --i) {
-				var na = names[i];
-				var v = pb.getCharPref(na + '.key');
-				if ((v.length > 0) && (v != '(disabled)')) {
-					var key = document.createElementNS(
-							'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'key');
-					key.setAttribute('id', 'rikaichan-key-' + na);
-					if (v.length > 1) key.setAttribute('keycode', 'VK_' + v.replace(' ', '_').toUpperCase());	// "Page Up" -> "VK_PAGE_UP"
-						else key.setAttribute('key', v);
-					key.setAttribute('modifiers', pb.getCharPref(na + '.mod'));
-					key.setAttribute('command', 'rikaichan-' + na + '-cmd');
+		var docID = document.documentElement.id;
+		this.isTB = ((docID == "messengerWindow") || (docID == "msgcomposeWindow"));
+		var mks = this.isTB ? (document.getElementById('mailKeys') || document.getElementById('editorKeys')) :
+					document.getElementById('mainKeyset') || document.getElementById('navKeys');
+		if (mks) {
+			var prefs = new rcxPrefs();
+			['toggle', 'lbar'].forEach(function(name) {
+				let s = prefs.getString(name + '.key');
+				if ((s.length) && (s != '(disabled)')) {
+					let key = document.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'key');
+					key.setAttribute('id', 'rikaichan-key-' + name);
+					if (s.length > 1) key.setAttribute('keycode', 'VK_' + s.replace(' ', '_').toUpperCase());	// "Page Up" -> "VK_PAGE_UP"
+						else key.setAttribute('key', s);
+					key.setAttribute('modifiers', prefs.getString(name + '.mod'));
+					key.setAttribute('command', 'rikaichan-' + name + '-cmd');
 					mks.appendChild(key);
 				}
-			}
 
-			this.loadPrefs();
-			this.prefObs.register();
-			if (this.isTB) {
-				this.tbObs.register();
-			}
-			else {
-				this.rcxObs.register();
+			});
+		}
 
-				if (rcxMain.cfg.enmode == 2) {
-					if (this.hiddenDOMWindow().rikaichan_active == 1) {
-						this.enabled = 1;
-						this.onTabSelect();
-					}
+		rcxConfig.load();
+		rcxConfig.observer.start();
+
+		if (this.isTB) {
+			this.tbObs.register();
+		}
+		else {
+			gBrowser.mTabContainer.addEventListener('select', this.onTabSelect, false);
+			this.rcxObs.register();
+
+			// enmode: 0=tab, 1=browser, 2=all, 3=always
+			if (rcxConfig.enmode >= 2) {
+				if ((this.global().rikaichanActive) || (rcxConfig.enmode == 3)) {
+					this.enabled = 1;
+					this.onTabSelect();
 				}
 			}
-
-			if (this.cfg.checkversion) {
-				setTimeout(function() { rcxMain.checkVersion() }, 2000);
-			}
 		}
-		catch (ex) {
-			alert('ex: ' + ex);
+
+		if (rcxConfig.checkversion) {
+			setTimeout(function() { rcxMain.checkVersion() }, 1500);
 		}
 	},
 
-	onUnload: function() { rcxMain._onUnload() },
-	_onUnload: function() {
-		this.prefObs.unregister();
-        if (this.isTB) {
+
+
+	onUnload: function() {
+		rcxConfig.observer.stop();
+		if (this.isTB) {
 			this.tbObs.unregister();
 		}
 		else {
 			gBrowser.mTabContainer.removeEventListener('select', this.onTabSelect, false);
 			this.rcxObs.unregister();
 		}
-
-		if (this.dict) rcxMain.dict.unlock();
 	},
 
-
-
-	getPrefBranch: function() {
-	    return Components.classes['@mozilla.org/preferences-service;1']
-				.getService(Components.interfaces.nsIPrefService)
-				.getBranch('rikaichan.');
-	},
-
-	prefObs: {
-		observe: function(aSubject, aTopic, aPrefName) {
-            rcxMain.loadPrefs();
-		},
-		register: function() {
-			Components.classes['@mozilla.org/preferences-service;1']
-				.getService(Components.interfaces.nsIPrefBranch)
-				.QueryInterface(Components.interfaces.nsIPrefBranchInternal)
-				.addObserver('rikaichan.', rcxMain.prefObs, false);
-		},
-		unregister: function() {
-			Components.classes['@mozilla.org/preferences-service;1']
-					.getService(Components.interfaces.nsIPrefBranch)
-					.QueryInterface(Components.interfaces.nsIPrefBranchInternal)
-					.removeObserver('rikaichan.', rcxMain.prefObs);
+	initDictionary: function() {
+		if (rcxData.missing) {
+			if (confirm('No dictionary file was found. Show the download page?')) {
+				this.showDownloadPage();
+			}
+			return false;
 		}
-	},
-
-	loadPrefs: function() {
 		try {
-		    var pb = this.getPrefBranch();
-			var xm = ['cm', 'tm'];
-			var i;
-			var a, b, c;
-
-			this.cfg = {};
-			for (i = 0; i < rcxCfgList.length; ++i) {
-				b = rcxCfgList[i];
-				switch (b[0]) {
-				case 0:
-					this.cfg[b[1]] = pb.getIntPref(b[1]);
-					break;
-				case 1:
-					this.cfg[b[1]] = pb.getCharPref(b[1]);
-					break;
-				case 2:
-					this.cfg[b[1]] = pb.getBoolPref(b[1]);
-					break;
-				}
-			}
-
-			this.dictCount = 3;
-			this.canDoNames = this.haveNames;
-			if (!this.haveNames) this.cfg.dictorder = 0;
-			switch (this.cfg.dictorder) {
-			case 0:
-				this.canDoNames = false;
-				this.dictCount = 2;
-			case 1:
-				this.kanjiN = 1;
-				this.namesN = 2;
-				break;
-			case 2:
-				this.kanjiN = 2;
-				this.namesN = 1;
-				break;
-			}
-
-			for (i = 1; i >= 0; --i) {
-				c = xm[i];
-				try {
-					a = !this.cfg[c + 'toggle'];
-					b = !this.cfg[c + 'lbar'];
-					document.getElementById('rikaichan-toggle-' + c).hidden = a;
-					document.getElementById('rikaichan-lbar-' + c).hidden = b;
-					document.getElementById('rikaichan-separator-' + xm[i]).hidden = a || b;
-				}
-				catch (ex) {
-					//	alert('unable to set menu: c=' + c + ' ex=' + ex)
-				}
-			}
-
-			switch (this.cfg.ssep) {
-			case 'Tab':
-				this.cfg.ssep = '\t';
-				break;
-			case 'Comma':
-				this.cfg.ssep = ',';
-				break;
-			case 'Space':
-				this.cfg.ssep = ' ';
-				break;
-			}
-
-			this.cfg.css = (this.cfg.css.indexOf('/') == -1) ? ('chrome://rikaichan/skin/popup-' + this.cfg.css + '.css') : this.cfg.css;
-			if (!this.isTB) {
-				for (i = 0; i < gBrowser.browsers.length; ++i) {
-					c = gBrowser.browsers[i].contentDocument.getElementById('rikaichan-css');
-					if (c) c.setAttribute('href', this.cfg.css);
-				}
-			}
-
-			c = { };
-			c.kdisp = [];
-			a = pb.getCharPref('kindex').split(',');
-			for (i = 0; i < a.length; ++i) {
-				c.kdisp[a[i]] = 1;
-			}
-			c.wmax = this.cfg.wmax;
-			c.wpop = this.cfg.wpop;
-			c.wpos = this.cfg.wpos;
-			c.namax = this.cfg.namax;
-			this.dconfig = c;
-			if (this.dict) this.dict.setConfig(c);
-
-			if (this.isTB) this.cfg.enmode = 0;
-
-			b = document.getElementById('rikaichan-status');
-			if (b) b.hidden = (this.cfg.sticon == 0);
+			rcxData.init();
 		}
 		catch (ex) {
-			alert('Exception in LoadPrefs: ' + ex);
-		}
-	},
-
-	loadDictionary: function() {
-		if (!this.dict) {
-			if (typeof(rcxWordDict) == 'undefined') {
-				this.showDownload();
-				return false;
-			}
-			try {
-				this.dict = new rcxDict(this.haveNames && !this.cfg.nadelay);
-				this.dict.setConfig(this.dconfig);
-			}
-			catch (ex) {
-				alert('Error loading dictionary: ' + ex);
-				return false;
-			}
-
-			this.status('Dictionary Loaded.');
+			alert('Error: ' + ex);
+			return false;
 		}
 		return true;
 	},
 
-	showDownload: function() {
-		const url = 'http://rikaichan.mozdev.org/welcome.html';
-
+	showDownloadPage: function() {
+		var url = 'http://rikaichan.mozdev.org/getdic2.html?version=' + (this.getVersion() || '');
 		try {
-			var u = '';
-
-			if (this.version != null) {
-				u += 'rv=' + this.version + '&';
-			}
-			if ((typeof(rcxWordDict) != 'undefined') && (rcxWordDict.version != null)) {
-				u += 'wv=' + rcxWordDict.version + '&';
-			}
-			if ((typeof(rcxNamesDict) != 'undefined') && (rcxNamesDict.version != null)) {
-				u += 'nv=' + rcxNamesDict.version + '&';
-			}
-			if (u.length) u = url + '?' + u;
-				else u = url;
-
 			if (this.isTB) {
 				Components.classes['@mozilla.org/messenger;1'].createInstance()
 					.QueryInterface(Components.interfaces.nsIMessenger)
-					.launchExternalURL(u);
+					.launchExternalURL(url);
 			}
 			else {
-				var w = window.open(u, 'rcxdict');
+				var w = window.open(url, 'rikaichan');
 				if (w) w.focus();
 			}
 		}
 		catch (ex) {
-			if (typeof(rcxWordDict) == 'undefined') {
-				alert('[rikaichan] Please install a dictionary file from ' + url);
-			}
-			else {
-				alert('[rikaichan] There was an error while opening ' + url);
-			}
+			alert('There was an error opening ' + url);
 		}
+	},
+
+	getVersion: function() {
+		try {
+			return Components.classes['@mozilla.org/extensions/manager;1']
+				.getService(Components.interfaces.nsIExtensionManager)
+				.getItemForID('{0AA9101C-D3C1-4129-A9B7-D778C6A17F82}').version;
+		}
+		catch (ex) {
+			// todo...
+		};
+		return null;
 	},
 
 	checkVersion: function() {
-		try {
-			var p = this.getPrefBranch();
-
-			// not in SeaMonkey 1?
-			var v = Components.classes['@mozilla.org/extensions/manager;1']
-				.getService(Components.interfaces.nsIExtensionManager)
-				.getItemForID('{0AA9101C-D3C1-4129-A9B7-D778C6A17F82}').version;
-			this.version = v;
+		let v = this.getVersion();
+		if (v) {
+			let prefs = new rcxPrefs();
 			v = 'v' + v;
-
-			if (p.getCharPref('version') != v) {
-				p.setCharPref('version', v);
-				this.showDownload();
+			if (prefs.getString('version') != v) {
+				prefs.setString('version', v);
+				this.showDownloadPage();
 			}
-		}
-		catch (ex) {
-			//	alert('checkVersion: ' + ex);
 		}
 	},
 
-	onTabSelect: function() { rcxMain._onTabSelect(); },
+	onTabSelect: function() {
+		// see rcxData.loadConfig
+		clearTimeout(rcxMain.tabTimer);
+		rcxMain.tabTimer = null;
+		if ((rcxData.dicPath) && (!rcxData.dicPath.ready)) {
+			rcxMain.tabTimer = setTimeout(rcxMain.onTabSelect, 500);
+			return;
+		}
+
+		rcxMain._onTabSelect();
+	},
+
 	_onTabSelect: function() {
 		var bro = this.getCurrentBrowser();
 
-		if ((this.cfg.enmode > 0) && (this.enabled == 1) && (bro.rikaichan == null))
+		if ((rcxConfig.enmode > 0) && (this.enabled == 1) && (bro.rikaichan == null))
 			this.inlineEnable(bro, 0);
 
 		var b = document.getElementById('rikaichan-toggle-button');
@@ -441,7 +291,7 @@ var rcxMain = {
 			var css = topdoc.createElementNS('http://www.w3.org/1999/xhtml', 'link');
 			css.setAttribute('rel', 'stylesheet');
 			css.setAttribute('type', 'text/css');
-			css.setAttribute('href', this.cfg.css);
+			css.setAttribute('href', rcxConfig.css);
 			css.setAttribute('id', 'rikaichan-css');
 			topdoc.getElementsByTagName('head')[0].appendChild(css);
 
@@ -460,7 +310,7 @@ var rcxMain = {
 					ev.stopPropagation();
 				}, true);
 
-			if (this.cfg.resizedoc) {
+			if (rcxConfig.resizedoc) {
 				if ((topdoc.body.clientHeight < 1024) && (topdoc.body.style.minHeight == '')) {
 					topdoc.body.style.minHeight = '1024px';
 					topdoc.body.style.overflow = 'auto';
@@ -632,12 +482,12 @@ var rcxMain = {
 		if ((!f) || (f.length == 0)) return null;
 
 		if (clip) {
-			me = this.cfg.smaxce;
-			mk = this.cfg.smaxck;
+			me = rcxConfig.smaxce;
+			mk = rcxConfig.smaxck;
 		}
 		else {
-			me = this.cfg.smaxfe;
-			mk = this.cfg.smaxfk;
+			me = rcxConfig.smaxfe;
+			mk = rcxConfig.smaxfk;
 		}
 
 		if (!this.fromLB) mk = 1;
@@ -647,18 +497,31 @@ var rcxMain = {
 			e = f[i];
 			if (e.kanji) {
 				if (mk-- <= 0) continue
-				text += this.dict.makeText(e, 1);
+				text += rcxData.makeText(e, 1);
 			}
 			else {
 				if (me <= 0) continue;
-				text += this.dict.makeText(e, me);
+				text += rcxData.makeText(e, me);
 				me -= e.data.length;
 			}
 		}
 
-		if (this.cfg.snlf == 1) text = text.replace(/\n/g, '\r\n');
-			else if (this.cfg.snlf == 2) text = text.replace(/\n/g, '\r');
-		if (this.cfg.ssep != '\t') return text.replace(/\t/g, this.cfg.ssep);
+		if (rcxConfig.snlf == 1) text = text.replace(/\n/g, '\r\n');
+			else if (rcxConfig.snlf == 2) text = text.replace(/\n/g, '\r');
+
+		var sep = rcxConfig.ssep;
+		switch (sep) {
+		case 'Tab':
+			sep = '\t';
+			break;
+		case 'Comma':
+			sep = ',';
+			break;
+		case 'Space':
+			sep = ' ';
+			break;
+		}
+		if (sep != '\t') return text.replace(/\t/g, sep);
 
 		return text;
 	},
@@ -682,7 +545,7 @@ var rcxMain = {
 		try {
 			if ((text = this.savePrep(0)) == null) return;
 
-			if (this.cfg.sfile.length == 0) {
+			if (rcxConfig.sfile.length == 0) {
 				this.showPopup('Please set the filename in Preferences.');
 				return;
 			}
@@ -690,15 +553,15 @@ var rcxMain = {
 			lf = Components.classes['@mozilla.org/file/local;1']
 					.createInstance(Components.interfaces.nsILocalFile);
 
-			lf.initWithPath(this.cfg.sfile);
+			lf.initWithPath(rcxConfig.sfile);
 
 			fos = Components.classes['@mozilla.org/network/file-output-stream;1']
 				.createInstance(Components.interfaces.nsIFileOutputStream);
-			fos.init(lf, 0x02 | 0x08 | 0x10, 0644, 0);
+			fos.init(lf, 0x02 | 0x08 | 0x10, -1, 0);
 
 			os = Components.classes['@mozilla.org/intl/converter-output-stream;1']
 					.createInstance(Components.interfaces.nsIConverterOutputStream);
-			os.init(fos, this.cfg.sfcs, 0, 0x3F);	// unknown -> '?'
+			os.init(fos, rcxConfig.sfcs, 0, 0x3F);	// unknown -> '?'
 			os.writeString(text);
 			os.close();
 
@@ -712,7 +575,7 @@ var rcxMain = {
 	},
 
 	configPage: function() {
-		window.openDialog('chrome://rikaichan/content/prefs.xul', '', 'chrome,centerscreen');
+		window.openDialog('chrome://rikaichan/content/options.xul', '', 'chrome,centerscreen');
 	},
 
 	//
@@ -721,21 +584,25 @@ var rcxMain = {
 
 	onKeyDown: function(ev) { rcxMain._onKeyDown(ev) },
 	_onKeyDown: function(ev) {
-//		this.status("keyCode=" + ev.keyCode + ' charCode=' + ev.charCode + ' detail=' + ev.detail);
+		//	this.status('keyCode=' + ev.keyCode + ' charCode=' + ev.charCode + ' detail=' + ev.detail);
 
 		if ((ev.altKey) || (ev.metaKey) || (ev.ctrlKey)) return;
 		if ((ev.shiftKey) && (ev.keyCode != 16)) return;
 		if (this.keysDown[ev.keyCode]) return;
 		if (!this.isVisible()) return;
-		if ((this.cfg.nopopkeys) && (ev.keyCode != 16)) return;
+		if ((rcxConfig.nopopkeys) && (ev.keyCode != 16)) return;
 
 		var i;
 
 		switch (ev.keyCode) {
 		case 16:	// shift
 		case 13:	// enter
-			this.showMode = (this.showMode + 1) % this.dictCount;
-			this.show(ev.currentTarget.rikaichan);
+			let tdata = ev.currentTarget.rikaichan;
+			if (tdata) {
+				rcxData.selectNext();	// @@@ hmm
+				if (tdata.titleShown) this.showTitle(tdata);
+					else this.show(tdata);
+			}
 			break;
 		case 27:	// esc
 			this.hidePopup();
@@ -749,6 +616,13 @@ var rcxMain = {
 		case 67:	// c
 			this.copyToClip();
 			break;
+		case 68:	// d
+			let p = new rcxPrefs();
+			let b = !p.getBool('hidedef');
+			p.setBool('hidedef', b);
+			this.status((b ? 'Hide' : 'Show') + ' definition');
+			this.show(ev.currentTarget.rikaichan);
+			break;
 		case 83:	// s
 			this.saveToFile();
 			break;
@@ -756,7 +630,7 @@ var rcxMain = {
 			var ofs = ev.currentTarget.rikaichan.uofs;
 			for (i = 50; i > 0; --i) {
 				ev.currentTarget.rikaichan.uofs = --ofs;
-				this.showMode = 0;
+				rcxData.select(0);
 				if (this.show(ev.currentTarget.rikaichan) >= 0) {
 					if (ofs >= ev.currentTarget.rikaichan.uofs) break;	// ! change later
 				}
@@ -767,9 +641,13 @@ var rcxMain = {
 		case 78:	// n
 			for (i = 50; i > 0; --i) {
 				ev.currentTarget.rikaichan.uofs += ev.currentTarget.rikaichan.uofsNext;
-				this.showMode = 0;
+				rcxData.select(0);
 				if (this.show(ev.currentTarget.rikaichan) >= 0) break;
 			}
+			break;
+		case 75:	// k
+			this.sticky = !this.sticky;
+			this.status(this.sticky ? 'Sticky Popup' : 'Normal Popup');
 			break;
 		case 89:	// y
 			this.altView = 0;
@@ -777,13 +655,17 @@ var rcxMain = {
 			this.show(ev.currentTarget.rikaichan);
 			break;
 		default:
+			if ((ev.keyCode >= 49) && (ev.keyCode <= 57)) {	// 1-9
+				rcxData.select(ev.keyCode - 49);
+				this.show(ev.currentTarget.rikaichan);
+			}
 			return;
 		}
 
 		this.keysDown[ev.keyCode] = 1;
 
 		// don't eat shift if in this mode
-		if (!this.cfg.nopopkeys) {
+		if (!rcxConfig.nopopkeys) {
 			ev.preventDefault();
 		}
 	},
@@ -797,13 +679,7 @@ var rcxMain = {
 
 	onMouseDown: function(ev) {
 		rcxMain.mouseButtons |= (1 << ev.button);
-		if (rcxMain.lbPop) {
-			var e = ev.target;
-			for (var i = 15; (i > 0) && (e != null); --i) {
-				if (e.id == 'rikaichan-window') return;
-				e = e.parentNode;
-			}
-		}
+		if (rcxMain.cursorInPopup(ev)) return;
 		rcxMain.hidePopup();
 	},
 
@@ -816,9 +692,6 @@ var rcxMain = {
 		const u = c.charCodeAt(0);
 		return c + ' U' + hex[(u >>> 12) & 15] + hex[(u >>> 8) & 15] + hex[(u >>> 4) & 15] + hex[u & 15];
 	},
-
-	kanjiN: 1,
-	namesN: 2,
 
 	inlineNames: {
 		// text node
@@ -865,69 +738,45 @@ var rcxMain = {
 		'RP': true
 	},
 
-	isInline: function(node) {
-		return this.inlineNames.hasOwnProperty(node.nodeName);
-	},
-
-	// XPath expression which evaluates to text nodes
-	// tells rikaichan which text to translate
-	// expression to get all text nodes that are not in (RP or RT) elements
-	textNodeExpr: 'descendant-or-self::text()[not(parent::rp) and not(ancestor::rt)]',
-
-	// XPath expression which evaluates to a boolean. If it evaluates to true
-	// then rikaichan will not start looking for text in this text node
-	// ignore text in RT elements
-	startElementExpr: 'boolean(parent::rp or ancestor::rt)',
-
-	// Gets text from a node
-	// returns a string
+	// Gets text from a node and returns it
 	// node: a node
 	// selEnd: the selection end object will be changed as a side effect
 	// maxLength: the maximum length of returned string
-	// xpathExpr: an XPath expression, which evaluates to text nodes, will be evaluated
-	// relative to "node" argument
-	getInlineText: function (node, selEndList, maxLength, xpathExpr) {
+	getInlineText: function (node, selEndList, maxLength) {
 		var text = '';
 		var endIndex;
 
-		if (node.nodeName == '#text') {
-			endIndex = Math.min(maxLength, node.data.length);
-			selEndList.push({node: node, offset: endIndex});
-			return node.data.substring(0, endIndex);
-		}
+		if (node.nodeType == Node.TEXT_NODE && node.data.length == 0) return ''
 
-		var result = xpathExpr.evaluate(node, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+		var result = node.ownerDocument.evaluate('descendant-or-self::text()[not(parent::rp) and not(ancestor::rt)]',
+						node, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
 
 		while ((text.length < maxLength) && (node = result.iterateNext())) {
 			endIndex = Math.min(node.data.length, maxLength - text.length);
 			text += node.data.substring(0, endIndex);
-			selEndList.push( {node: node, offset: endIndex} );
+			selEndList.push(node);
 		}
 
 		return text;
 	},
 
-	// given a node which must not be null,
-	// returns either the next sibling or next sibling of the father or
-	// next sibling of the fathers father and so on or null
+	// Given a node which must not be null, returns either the next sibling or
+	// the next sibling of the father or the next sibling of the fathers father
+	// and so on or null
 	getNext: function(node) {
-		var nextNode;
-
-		if ((nextNode = node.nextSibling) != null)
-			return nextNode
-		if (((nextNode = node.parentNode) != null) && this.isInline(nextNode))
-			return this.getNext(nextNode);
-
+		do {
+			if (node.nextSibling) return node.nextSibling;
+			node = node.parentNode;
+		} while ((node) && (this.inlineNames[node.nodeName]));
 		return null;
 	},
 
-	getTextFromRange: function (rangeParent, offset, selEndList, maxLength) {
+	getTextFromRange: function(rangeParent, offset, selEndList, maxLength) {
 		var text = '';
 		var endIndex;
 
-		var xpathExpr = rangeParent.ownerDocument.createExpression(this.textNodeExpr, null);
-
-		if (rangeParent.ownerDocument.evaluate(this.startElementExpr, rangeParent, null, XPathResult.BOOLEAN_TYPE, null).booleanValue)
+		if (rangeParent.ownerDocument.evaluate('boolean(parent::rp or ancestor::rt)',
+			rangeParent, null, XPathResult.BOOLEAN_TYPE, null).booleanValue)
 			return '';
 
 		if (rangeParent.nodeType != Node.TEXT_NODE)
@@ -935,13 +784,48 @@ var rcxMain = {
 
 		endIndex = Math.min(rangeParent.data.length, offset + maxLength);
 		text += rangeParent.data.substring(offset, endIndex);
-		selEndList.push( {node: rangeParent, offset: endIndex} );
+		selEndList.push(rangeParent);
 
 		var nextNode = rangeParent;
-		while (((nextNode = this.getNext(nextNode)) != null) && (this.isInline(nextNode)) && (text.length < maxLength))
-			text += this.getInlineText(nextNode, selEndList, maxLength - text.length, xpathExpr);
-
+		while (((nextNode = this.getNext(nextNode)) != null) &&
+			(this.inlineNames[nextNode.nodeName]) && (text.length < maxLength)) {
+			text += this.getInlineText(nextNode, selEndList, maxLength - text.length);
+		}
 		return text;
+	},
+
+	highlightMatch: function(doc, rp, ro, matchLen, selEndList, tdata) {
+		if (selEndList.length === 0) return;
+
+		var selEnd;
+		var offset = matchLen + ro;
+		// before the loop
+		// |----!------------------------!!-------|
+		// |(------)(---)(------)(---)(----------)|
+		// offset: '!!' lies in the fifth node
+		// rangeOffset: '!' lies in the first node
+		// both are relative to the first node
+		// after the loop
+		// |---!!-------|
+		// |(----------)|
+		// we have found the node in which the offset lies and the offset
+		// is now relative to this node
+		for (var i = 0; i < selEndList.length; ++i) {
+			selEnd = selEndList[i]
+			if (offset <= selEnd.data.length) break;
+			offset -= selEnd.data.length;
+		}
+
+		var range = doc.createRange();
+		range.setStart(rp, ro);
+		range.setEnd(selEnd, offset);
+
+		var sel = doc.defaultView.getSelection();
+		if ((!sel.isCollapsed) && (tdata.selText != sel.toString()))
+			return;
+		sel.removeAllRanges();
+		sel.addRange(range);
+		tdata.selText = sel.toString();
 	},
 
 	show: function(tdata) {
@@ -988,31 +872,17 @@ var rcxMain = {
 		//selection end data
 		var selEndList = [];
 		var text = this.getTextFromRange(rp, ro, selEndList, 13);
+		if (text.length == 0) {
+			this.clearHi();
+			this.hidePopup();
+			return 0;
+		}
 
-		rp = tdata.prevRangeNode;
-		var e = null;
-		var m = this.showMode;
-
-		do {
-			switch (this.showMode) {
-			case 0:
-				e = this.dict.wordSearch(text, false);
-				break;
-			case this.kanjiN:
-				e = this.dict.kanjiSearch(text.charAt(0));
-				break;
-			case this.namesN:
-				e = this.dict.wordSearch(text, true);
-				break;
-			}
-			if (e) break;
-			this.showMode = (this.showMode + 1) % this.dictCount;
-		} while (this.showMode != m);
-
-		if (!e) {
+		var e = rcxData.wordSearch(text);
+		if (e == null) {
 			this.hidePopup();
 			this.clearHi();
-			return -1;
+			return 0;
 		}
 		this.lastFound = [e];
 
@@ -1021,47 +891,24 @@ var rcxMain = {
 		tdata.uofs = (ro - tdata.prevRangeOfs);
 
 		// don't try to highlight form elements
-		if ((this.cfg.highlight) && (!('form' in tdata.prevTarget))) {
-			var doc = rp.ownerDocument;
+		if ((rcxConfig.highlight) && (!('form' in tdata.prevTarget))) {
+			var doc = tdata.prevRangeNode.ownerDocument;
 			if (!doc) {
 				this.clearHi();
 				this.hidePopup();
 				return 0;
 			}
-			this.highlightMatch(doc, rp, ro, e.matchLen, selEndList, tdata);
+			this.highlightMatch(doc, tdata.prevRangeNode, ro, e.matchLen, selEndList, tdata);
 			tdata.prevSelView = doc.defaultView;
 		}
 
-		this.showPopup(this.dict.makeHtml(e), tdata.prevTarget, tdata.pos);
+		tdata.titleShown = false;
+		this.showPopup(rcxData.makeHtml(e), tdata.prevTarget, tdata.pos);
 		return 1;
 	},
 
-	highlightMatch: function (doc, rp, ro, matchLen, selEndList, tdata) {
-		if (selEndList.length === 0) return;
-
-		var selEnd;
-		var offset = matchLen + ro;
-
-		for (var i = 0, len = selEndList.length; i < len; i++) {
-			selEnd = selEndList[i]
-			if (offset <= selEnd.offset) break;
-			offset -= selEnd.offset;
-		}
-
-		var range = doc.createRange();
-		range.setStart(rp, ro);
-		range.setEnd(selEnd.node, offset);
-
-		var sel = doc.defaultView.getSelection();
-		if ((!sel.isCollapsed) && (tdata.selText != sel.toString()))
-			return;
-		sel.removeAllRanges();
-		sel.addRange(range);
-		tdata.selText = sel.toString();
-	},
-
 	showTitle: function(tdata) {
-		var e = this.dict.translate(tdata.title);
+		var e = rcxData.translate(tdata.title);
 		if (!e) {
 			this.hidePopup();
 			return;
@@ -1071,7 +918,8 @@ var rcxMain = {
 		if (tdata.title.length > e.textLen) e.title += '...';
 
 		this.lastFound = [e];
-		this.showPopup(this.dict.makeHtml(e), tdata.prevTarget, tdata.pos);
+		tdata.titleShown = true;
+		this.showPopup(rcxData.makeHtml(e), tdata.prevTarget, tdata.pos);
 	},
 
 	onMouseMove: function(ev) { rcxMain._onMouseMove(ev); },
@@ -1088,6 +936,12 @@ var rcxMain = {
 		this.status('sy=' + ev.screenY + ' z=' + z +
 			' bsy=' + bbo.screenY + ' y=' + y + ' y/z=' + Math.round(y / z));
 */
+
+		if ((this.sticky) && (this.cursorInPopup(ev))) {
+			clearTimeout(tdata.timer);
+			tdata.timer = null;
+			return;
+		}
 
 		if (ev.target == tdata.prevTarget) {
 			if (tdata.title) return;
@@ -1114,13 +968,14 @@ var rcxMain = {
 		if ((this.mouseButtons != 0) || (this.lbPop)) return;
 
 		if ((rp) && (rp.data) && (ro < rp.data.length)) {
-			this.showMode = ev.shiftKey ? 1 : 0;
+			rcxData.select(ev.shiftKey ? rcxData.kanjiPos : 0);
+			//	tdata.pos = ev;
 			tdata.pos = { screenX: ev.screenX, screenY: ev.screenY, pageX: ev.pageX, pageY: ev.pageY };
-			tdata.timer = setTimeout(function() { rcxMain.show(tdata) }, this.cfg.popdelay);
+			tdata.timer = setTimeout(function() { rcxMain.show(tdata) }, rcxConfig.popdelay);
 			return;
 		}
 
-		if (this.cfg.title) {
+		if (rcxConfig.title) {
 			if ((typeof(ev.target.title) == 'string') && (ev.target.title.length)) {
 				tdata.title = ev.target.title;
 			}
@@ -1137,12 +992,13 @@ var rcxMain = {
 		}
 
 		if (tdata.title) {
+			//	tdata.pos = ev;
 			tdata.pos = { screenX: ev.screenX, screenY: ev.screenY, pageX: ev.pageX, pageY: ev.pageY };
-			tdata.timer = setTimeout(function() { rcxMain.showTitle(tdata) }, this.cfg.popdelay);
+			tdata.timer = setTimeout(function() { rcxMain.showTitle(tdata) }, rcxConfig.popdelay);
 			return;
 		}
 
-		if (tdata.pos) {
+		if ((tdata.pos) && (!this.sticky)) {
 			// dont close just because we moved from a valid popup slightly over to a place with nothing
 			var dx = tdata.pos.screenX - ev.screenX;
 			var dy = tdata.pos.screenY - ev.screenY;
@@ -1154,11 +1010,17 @@ var rcxMain = {
 		}
 	},
 
-	inlineEnable: function(bro, mode) {
-		if (!this.dict) {
-			if (!this.loadDictionary()) return;
-		}
+	cursorInPopup: function(pos) {
+		var popup = content.document.getElementById('rikaichan-window');
+		return (popup && (popup.style.display !== 'none') &&
+			(pos.pageX >= popup.offsetLeft) &&
+			(pos.pageX <= popup.offsetLeft + popup.offsetWidth) &&
+			(pos.pageY >= popup.offsetTop) &&
+			(pos.pageY <= popup.offsetTop + popup.offsetHeight));
+	},
 
+	inlineEnable: function(bro, mode) {
+		if (!this.initDictionary()) return;
 		if (bro.rikaichan == null) {
 			bro.rikaichan = {};
 			this.mouseButtons = 0;
@@ -1169,15 +1031,15 @@ var rcxMain = {
 			bro.addEventListener('keyup', this.onKeyUp, true);
 
 			if (mode == 1) {
-				if (rcxMain.cfg.enmode > 0) {
+				if (rcxConfig.enmode > 0) {
 					this.enabled = 1;
-					if (rcxMain.cfg.enmode == 2) {
-						this.hiddenDOMWindow().rikaichan_active = 1;
+					if (rcxConfig.enmode == 2) {
+						this.global().rikaichanActive = true;
 						this.rcxObs.notifyState('enable');
 					}
 				}
 
-				if (this.cfg.minihelp) this.showPopup(rcxFile.read('chrome://rikaichan/locale/minihelp.htm'));
+				if (rcxConfig.minihelp) this.showPopup(rcxFile.read('chrome://rikaichan/locale/minihelp.htm'));
 					else this.showPopup('Rikaichan Enabled');
 			}
 		}
@@ -1205,15 +1067,17 @@ var rcxMain = {
 				this.inlineDisable(gBrowser.browsers[i], 0);
 			}
 
-			if ((rcxMain.cfg.enmode == 2) && (mode == 1)) {
-				this.hiddenDOMWindow().rikaichan_active = 0;
+			if ((rcxConfig.enmode == 2) && (mode == 1)) {
+				this.global().rikaichanActive = false;
 				this.rcxObs.notifyState('disable');
 			}
 		}
+
+		rcxData.done();
 	},
 
 	inlineToggle: function() {
-        var bro = this.getCurrentBrowser();
+		var bro = this.getCurrentBrowser();
 		if (bro.rikaichan) this.inlineDisable(bro, 1);
 			else this.inlineEnable(bro, 1);
 		this.onTabSelect();
@@ -1241,20 +1105,19 @@ var rcxMain = {
 		}
 	},
 
+
 	lbHide: function() {
 		document.getElementById('rikaichan-lbar').hidden = true;
 		this.hidePopup();
+		rcxData.done();
+		this.lbText.value = '';
 	},
 
 	lbToggle: function() {
-		var e;
-		var h;
-		var text;
-
-		text = this.getSelected(window.content).substr(0, 30);
+		let text = this.getSelected(window.content).substr(0, 30);
 		this.lbText = document.getElementById('rikaichan-lbar-text');
 
-		e = document.getElementById('rikaichan-lbar');
+		let e = document.getElementById('rikaichan-lbar');
 		if (e.hidden) {
 			e.hidden = false;
 		}
@@ -1284,9 +1147,7 @@ var rcxMain = {
 	},
 
 	lbSearchButton: function() {
-		var text;
-
-		text = this.getSelected(window.content).substr(0, 30);
+		let text = this.getSelected(window.content).substr(0, 30);
 		if (text.length) {
 			this.lbText.value = text;
 			this.clearSelected(window.content);
@@ -1299,66 +1160,53 @@ var rcxMain = {
 	},
 
 	lbSearch: function() {
-		var names;
-		var have;
-		var html;
-		var kanji;
-		var s, t, e, i, c;
-
-		s = this.lbText.value.replace(/^\s+/, '').replace(/\s+$/, '');
+		let s = this.lbText.value.replace(/^\s+|\s+$/g, '');
 		if (!s.length) return;
 
-		names = 0;
-		if (this.haveNames) {
-			if ((this.lbLast == s) && (this.isVisible())) {
-				this.lbLast = '';
-				names = 1;
-			}
-			else this.lbLast = s;
+		if ((this.lbLast == s) && (this.isVisible())) {
+			rcxData.selectNext();
+		}
+		else {
+			this.lbLast = s;
+			rcxData.select(0);
 		}
 
-		if ((s.length == 0) || (!this.loadDictionary())) {
+		if ((s.length == 0) || (!this.initDictionary())) {
 			this.hidePopup();
 		}
 		else {
-			html = kanji = '';
-
-			// checkme: is this range ok?
-			if ((s.search(/[:*\uFF0A]/) != -1) || (s.search(/^([^\u3000-\uFFFF]+)$/) != -1)) {
-				t = s.replace(/;$/, '/')		// ; -> /
-					.replace(/\uFF0A/, '*');	// J* -> *
-				if ((e = this.dict.bruteSearch(t, names)) == null) {
-					e = this.dict.bruteSearch(t, !names);
-				}
+			let result;
+			let html;
+			if ((s.search(/^:/) != -1) || (s.search(/^([^\u3000-\uFFFF]+)$/) != -1)) {
+				// ":word"  = force a text search of "word"
+				result = rcxData.textSearch(s.replace(/^:/, ''));
 			}
 			else {
-				if ((e = this.dict.wordSearch(s, names)) == null) {
-					e = this.dict.wordSearch(s, !names);
-				}
+				result = rcxData.wordSearch(s, true);
 			}
-
-			if (e) {
-				html = this.dict.makeHtml(e);
-				this.lastFound = [e];
+			if (result) {
+				html = rcxData.makeHtml(result);
+				this.lastFound = [result];
 			}
 			else {
-				html = '\u300C ' + s + ' \u300D was not found in the word' + ((this.haveNames) ? ' or name ' : '') + ' dictionary.';
+				html = '\u300C ' + s + ' \u300D was not found.';
 				this.lastFound = [];
 			}
 			this.lastFound.fromLB = 1;
 
-			have = {};
-			t = s + html;
-			for (i = 0; i < t.length; ++i) {
-				c = t.charCodeAt(i);
+			let kanji = '';
+			let have = {};
+			let t = s + html;
+			for (let i = 0; i < t.length; ++i) {
+				let c = t.charCodeAt(i);
 				if ((c >= 0x3000) && (c <= 0xFFFF)) {
 					c = t.charAt(i);
 					if (!have[c]) {
-						e = this.dict.kanjiSearch(c);
-						if (e) {
-							this.lastFound.push(e);
+						result = rcxData.kanjiSearch(c);
+						if (result) {
+							this.lastFound.push(result);
 							have[c] = 1;
-							kanji += '<td class="q-k">' + this.dict.makeHtml(e) + '</td>';
+							kanji += '<td class="q-k">' + rcxData.makeHtml(result) + '</td>';
 						}
 					}
 				}
@@ -1385,12 +1233,81 @@ var rcxMain = {
 			e.setAttribute('hidden', 'false');
 			this.statusTimer = setTimeout(function() { e.setAttribute('hidden', 'true') }, 3000);
 		}
-	},
+	}
 };
 
-///
+/*
+var rcxLookupBar = {
+};
+*/
 
-rcxMain.init();
+var rcxConfig = {
+	observer: {
+		observe: function(subject, topic, data) {
+			if (topic == 'nsPref:changed') rcxConfig.load();
+		},
+		start: function() {
+			Components.classes['@mozilla.org/preferences-service;1']
+				.getService(Components.interfaces.nsIPrefBranch)
+				.QueryInterface(Components.interfaces.nsIPrefBranch2)
+				.addObserver('rikaichan.', this, false);
+		},
+		stop: function() {
+			Components.classes['@mozilla.org/preferences-service;1']
+					.getService(Components.interfaces.nsIPrefBranch)
+					.QueryInterface(Components.interfaces.nsIPrefBranch2)
+					.removeObserver('rikaichan.', this);
+		}
+	},
+
+	load: function() {
+		let p = new rcxPrefs();
+
+		for (let i = rcxConfigList.length - 1; i >= 0; --i) {
+			let [type, name] = rcxConfigList[i];
+			switch (type) {
+			case 0:
+				rcxConfig[name] = p.getInt(name, null);
+				break;
+			case 1:
+				rcxConfig[name] = p.getString(name, '');
+				break;
+			case 2:
+				rcxConfig[name] = p.getBool(name, null);
+				break;
+			}
+		}
+
+		['cm', 'tm'].forEach(function(name) {
+			let a = !rcxConfig[name + 'toggle'];
+			let e = document.getElementById('rikaichan-toggle-' + name);
+			if (e) e.hidden = a;
+
+			let b = !rcxConfig[name + 'lbar'];
+			e = document.getElementById('rikaichan-lbar-' + name);
+			if (e) e.hidden = b;
+
+			e = document.getElementById('rikaichan-separator-' + name);
+			if (e) e.hidden = a || b;
+		}, this);
+
+		rcxConfig.css = (rcxConfig.css.indexOf('/') == -1) ? ('chrome://rikaichan/skin/popup-' + rcxConfig.css + '.css') : rcxConfig.css;
+		if (rcxMain.isTB) {
+			rcxConfig.enmode = 0;
+		}
+		else {
+			for (let i = gBrowser.browsers.length - 1; i >= 0; --i) {
+				let e = gBrowser.browsers[i].contentDocument.getElementById('rikaichan-css');
+				if (e) e.setAttribute('href', rcxConfig.css);
+			}
+		}
+
+		let e = document.getElementById('rikaichan-status');
+		if (e) e.hidden = (rcxConfig.sticon == 0);
+
+		rcxData.loadConfig();
+	}
+};
 
 
 /*
@@ -1399,7 +1316,10 @@ var rcxDebug = {
 		Components.classes['@mozilla.org/consoleservice;1']
 			.getService(Components.interfaces.nsIConsoleService)
 			.logStringMessage(text);
-		//	toJavaScriptConsole();
+			if (!rcxDebug.consoneOnce) {
+				//	toJavaScriptConsole();
+				rcxDebug.consoneOnce = 1;
+			}
 	},
 
 	status: function(text) {
@@ -1437,6 +1357,7 @@ var rcxDebug = {
 			.copyString(text);
 	}
 };
+*/
 
-rcxDebug.echo('**RIKAICHAN DEBUG**');
-/**/
+
+rcxMain.init();

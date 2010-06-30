@@ -1,0 +1,384 @@
+<?xml version="1.0"?>
+<!--
+
+	Rikaichan
+	Copyright (C) 2005-2010 Jonathan Zarate
+	http://www.polarcloud.com/
+
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+
+	Please do not change or remove any of the copyrights or links to web pages
+	when modifying any of the files. - Jon
+
+-->
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!DOCTYPE overlay SYSTEM "chrome://rikaichan/locale/options.dtd">
+
+<dialog title="Rikaichan - Options"
+		xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+		buttons="accept,cancel"
+		ondialogaccept="return rcxOptions.onOK();"
+		ondialogcancel="return true;"
+		onload="rcxOptions.onLoad();">
+
+<script type="application/javascript;version=1.7" src="config.js"/>
+<script type="application/javascript;version=1.7" src="options.js"/>
+
+<tabbox>
+<tabs>
+	<tab label="&Tab.General;"/>
+	<tab label="&Tab.Menus;"/>
+	<tab label="&Tab.Keyboard;"/>
+	<tab label="&Tab.Dictionaries;"/>
+	<tab label="&Tab.KanjiDictionary;"/>
+	<tab label="&Tab.ClipboardAndSave;"/>
+</tabs>
+<tabpanels>
+	<tabpanel><!-- General -->
+		<grid>
+			<columns><column/><column/></columns>
+			<rows>
+				<row>
+					<label value="&General.ColorScheme;" control="rcp-css"/>
+					<menulist id="rcp-css">
+						<menupopup>
+						<menuitem label="&General.Blue;" value="blue"/>
+						<menuitem label="&General.LightBlue;" value="light-blue"/>
+						<menuitem label="&General.Black;" value="black"/>
+						<menuitem label="&General.Yellow;" value="yellow"/>
+						</menupopup>
+					</menulist>
+				</row>
+				<row id="rcp-enmode-box">
+					<label value="&General.EnableMode;" control="rcp-enmode"/>
+					<menulist id="rcp-enmode">
+						<menupopup>
+						<menuitem label="&General.CurrentTabOnly;" value="0"/>
+						<menuitem label="&General.CurrentBrowserOnly;" value="1"/>
+						<menuitem label="&General.AllBrowsers;" value="2"/>
+						<menuitem label="&General.AlwaysEnableAtStartup;" value="3"/>
+						</menupopup>
+					</menulist>
+				</row>
+
+				<checkbox label="&General.HighlightText;" id="rcp-highlight"/>
+				<checkbox label="&General.EnlargeSmallDocuments;" id="rcp-resizedoc"/>
+				<checkbox label="&General.ShowIconInStatusbar;" id="rcp-sticon"/>
+				<checkbox label="&General.ShowMiniHelp;" id="rcp-minihelp"/>
+				<checkbox label="First run check at start (for debug)" id="rcp-checkversion"/>
+			</rows>
+		</grid>
+	</tabpanel>
+
+	<tabpanel><!-- Menu -->
+		<vbox>
+			<groupbox style="padding-right:5em">
+				<caption label="&Menus.ContextMenu;"/>
+				<vbox>
+					<checkbox id="rcp-cmtoggle" label="&Menus.Toggle;"/>
+					<checkbox id="rcp-cmlbar" label="&Menus.LookupBar;"/>
+				</vbox>
+			</groupbox>
+			<groupbox style="padding-right:5em">
+				<caption label="&Menus.ToolsMenu;"/>
+				<vbox>
+					<checkbox id="rcp-tmtoggle" label="&Menus.Toggle;"/>
+					<checkbox id="rcp-tmlbar" label="&Menus.LookupBar;"/>
+				</vbox>
+			</groupbox>
+		</vbox>
+	</tabpanel>
+
+	<tabpanel><!-- Keyboard -->
+		<grid>
+			<columns><column/><column/></columns>
+			<rows>
+				<row>
+					<label value="&Keyboard.Toggle;"/>
+					<checkbox label="&Keyboard.Ctrl;" id="rcp-toggle-accel"/>
+					<checkbox label="&Keyboard.Alt;" id="rcp-toggle-alt"/>
+					<checkbox label="&Keyboard.Shift;" id="rcp-toggle-shift"/>
+					<menulist id="rcp-toggle-key" editable="true" oninput="rcxOptions.keyChanged(this)" oncommand="rcxOptions.keyChanged(this)">
+						<menupopup id="rcp-toggle-list"/>
+					</menulist>
+				</row>
+				<row>
+					<label value="&Keyboard.LookupBar;"/>
+					<checkbox label="&Keyboard.Ctrl;" id="rcp-lbar-accel"/>
+					<checkbox label="&Keyboard.Alt;" id="rcp-lbar-alt"/>
+					<checkbox label="&Keyboard.Shift;" id="rcp-lbar-shift"/>
+					<menulist id="rcp-lbar-key" editable="true" oninput="rcxOptions.keyChanged(this)" oncommand="rcxOptions.keyChanged(this)">
+						<menupopup id="rcp-lbar-list"/>
+					</menulist>
+				</row>
+
+				<description value="&Keyboard.NoteRestartBrowser;"/>
+				<spacer style="height:2em"/>
+
+				<groupbox>
+					<caption label="&Keyboard.KeysWhenVisible;"/>
+					<grid>
+						<columns><column/><column/></columns>
+						<rows>
+							<row>
+								<description value="&Keyboard.AlternateView;"/>
+								<description value="A"/>
+							</row>
+							<row>
+								<description value="&Keyboard.StickyPopup;"/>
+								<description value="K"/>
+							</row>
+							<row>
+								<description value="&Keyboard.MovePopupDown;"/>
+								<description value="Y"/>
+							</row>
+							<row>
+								<description value="&Keyboard.CopyToClipboard;"/>
+								<description value="C"/>
+							</row>
+							<row>
+								<description value="&Keyboard.SaveToFile;"/>
+								<description value="S"/>
+							</row>
+							<row>
+								<description value="&Keyboard.SwitchDictionary;"/>
+								<description value="SHIFT, ENTER, 1-9"/>
+							</row>
+							<row>
+								<description value="&Keyboard.PreviousCharacter;"/>
+								<description value="B"/>
+							</row>
+							<row>
+								<description value="&Keyboard.NextCharacter;"/>
+								<description value="M"/>
+							</row>
+							<row>
+								<description value="&Keyboard.NextWord;"/>
+								<description value="N"/>
+							</row>
+						</rows>
+					</grid>
+					<spacer style="height:1em"/>
+					<checkbox label="&Keyboard.DisableTheseKeys;" id="rcp-nopopkeys"/>
+				</groupbox>
+			</rows>
+		</grid>
+	</tabpanel>
+
+	<tabpanel><!-- Dictionaries -->
+		<grid>
+			<columns><column/><column/></columns>
+			<rows>
+				<groupbox>
+					<caption label="&Dictionaries.Priority;"/>
+					<hbox>
+						<listbox id="rcp-priority" flex="1"/>
+						<vbox>
+							<button label="&#8593;" oncommand="rcxOptions.movePriority(-1)"/>
+							<button label="&#8595;" oncommand="rcxOptions.movePriority(1)"/>
+							<spacer style="height:2em"/>
+							<button label="&Dictionaries.Download;" oncommand="rcxOptions.Download()"/>
+						</vbox>
+					</hbox>
+				</groupbox>
+				<checkbox label="&Dictionaries.HideDefinitions;" id="rcp-hidedef"/>
+				<checkbox label="&Dictionaries.ShowWordType;" id="rcp-wpos"/>
+				<checkbox label="&Dictionaries.ShowPopular;" id="rcp-wpop"/>
+				<row>
+					<label value="&Dictionaries.MaxEntries;" control="rcp-wmax"/>
+					<textbox id="rcp-wmax" maxlength="5" size="5"/>
+				</row>
+				<row>
+					<label value="&Dictionaries.MaxNames;" control="rcp-namax"/>
+					<textbox id="rcp-namax" maxlength="5" size="5"/>
+				</row>
+			</rows>
+		</grid>
+	</tabpanel>
+
+	<tabpanel><!-- Kanji Dictionary -->
+		<vbox>
+			<groupbox>
+				<caption label="&Kanji.DisplayedInformation;"/>
+				<hbox>
+					<vbox>
+						<checkbox id="rcp-kindex-COMP" label="Kanji Components"/>
+						<checkbox id="rcp-kindex-H" label="Halpern"/>
+						<checkbox id="rcp-kindex-L" label="Heisig"/>
+						<checkbox id="rcp-kindex-E" label="Henshall"/>
+						<checkbox id="rcp-kindex-DK" label="Kanji Learners Dictionary"/>
+						<checkbox id="rcp-kindex-N" label="Nelson"/>
+					</vbox>
+					<vbox>
+						<checkbox id="rcp-kindex-V" label="New Nelson"/>
+						<checkbox id="rcp-kindex-Y" label="PinYin"/>
+						<checkbox id="rcp-kindex-P" label="Skip Pattern"/>
+						<checkbox id="rcp-kindex-IN" label="Tuttle Kanji &amp; Kana"/>
+						<checkbox id="rcp-kindex-I" label="Tuttle Kanji Dictionary"/>
+						<checkbox id="rcp-kindex-U" label="Unicode"/>
+					</vbox>
+				</hbox>
+			</groupbox>
+			<box flex="1"/>
+		</vbox>
+	</tabpanel>
+
+	<tabpanel><!-- Clipboard & Save File -->
+		<grid flex="1">
+			<columns><column/><column flex="1"/></columns>
+			<rows>
+				<row>
+					<label value="&ClipSave.LineEnding;" control="rcp-snlf"/>
+					<hbox>
+						<menulist id="rcp-snlf">
+							<menupopup>
+							<menuitem label="Unix (\n)" value="0"/>
+							<menuitem label="DOS/Windows (\r\n)" value="1"/>
+							<menuitem label="Mac (\r)" value="2"/>
+							</menupopup>
+						</menulist>
+						<spacer flex="1"/>
+					</hbox>
+				</row>
+				<row>
+					<label value="&ClipSave.FieldSeparator;" control="rcp-ssep"/>
+					<hbox>
+						<menulist editable="true" id="rcp-ssep">
+							<menupopup>
+							<menuitem label="&ClipSave.Tab;"/>
+							<menuitem label="&ClipSave.Comma;"/>
+							<menuitem label="&ClipSave.Space;"/>
+							</menupopup>
+						</menulist>
+						<spacer flex="1"/>
+					</hbox>
+				</row>
+				<groupbox>
+					<caption label="&ClipSave.Clipboard;"/>
+					<grid>
+						<columns><column/><column/><column flex="1"/></columns>
+						<rows>
+							<row>
+								<label value="&ClipSave.Entries;" control="rcp-smaxce"/>
+								<menulist editable="true" id="rcp-smaxce">
+									<menupopup>
+									<menuitem label="1"/>
+									<menuitem label="2"/>
+									<menuitem label="3"/>
+									<menuitem label="4"/>
+									<menuitem label="5"/>
+									<menuitem label="6"/>
+									<menuitem label="7"/>
+									<menuitem label="8"/>
+									<menuitem label="9"/>
+									<menuitem label="10"/>
+									<menuitem label="100"/>
+									</menupopup>
+								</menulist>
+								<spacer/>
+							</row>
+							<row>
+								<label value="&ClipSave.KanjiLookupBar;" control="rcp-smaxck"/>
+								<menulist editable="true" id="rcp-smaxck">
+									<menupopup>
+									<menuitem label="0"/>
+									<menuitem label="1"/>
+									<menuitem label="2"/>
+									<menuitem label="3"/>
+									<menuitem label="4"/>
+									<menuitem label="5"/>
+									</menupopup>
+								</menulist>
+								<spacer/>
+							</row>
+						</rows>
+					</grid>
+				</groupbox>
+				<groupbox>
+					<caption label="&ClipSave.Save;"/>
+					<grid>
+						<columns><column/><column/></columns>
+						<rows>
+						<row>
+							<label value="&ClipSave.Filename;" control="rcp-sfile"/>
+							<hbox>
+								<textbox id="rcp-sfile" size="50" maxlength="255" flex="1"/>
+								<button label="..." oncommand="rcxOptions.browseFile('rcp-sfile')"/>
+							</hbox>
+						</row>
+						<row>
+							<label value="&ClipSave.Encoding;" control="rcp-sfcs"/>
+							<hbox>
+								<menulist id="rcp-sfcs" flex="0">
+									<menupopup>
+									<menuitem label="UTF-8" value="utf-8"/>
+									<menuitem label="UTF-16" value="utf-16"/>
+									<menuitem label="Shift-JIS" value="shift-jis"/>
+									<menuitem label="EUC-JP" value="euc-jp"/>
+									</menupopup>
+								</menulist>
+								<spacer/>
+							</hbox>
+						</row>
+						<row>
+							<label value="&ClipSave.Entries;" control="rcp-smaxfe"/>
+							<hbox>
+								<menulist editable="true" id="rcp-smaxfe">
+									<menupopup>
+									<menuitem label="1"/>
+									<menuitem label="2"/>
+									<menuitem label="3"/>
+									<menuitem label="4"/>
+									<menuitem label="5"/>
+									<menuitem label="6"/>
+									<menuitem label="7"/>
+									<menuitem label="8"/>
+									<menuitem label="9"/>
+									<menuitem label="10"/>
+									<menuitem label="100"/>
+									</menupopup>
+								</menulist>
+								<spacer/>
+							</hbox>
+						</row>
+						<row>
+							<label value="&ClipSave.KanjiLookupBar;" control="rcp-smaxfk"/>
+							<hbox>
+								<menulist editable="true" id="rcp-smaxfk">
+									<menupopup>
+									<menuitem label="0"/>
+									<menuitem label="1"/>
+									<menuitem label="2"/>
+									<menuitem label="3"/>
+									<menuitem label="4"/>
+									<menuitem label="5"/>
+									</menupopup>
+								</menulist>
+								<spacer/>
+							</hbox>
+						</row>
+						</rows>
+					</grid>
+				</groupbox>
+			</rows>
+		</grid>
+	</tabpanel>
+
+</tabpanels>
+</tabbox>
+
+</dialog>

@@ -23,24 +23,19 @@
 	---
 
 	Please do not change or remove any of the copyrights or links to web pages
-	when modifying any of the files. - Jon
+	when modifying any of the files.
 
 */
 
 // 0 = integer, 1 = string, 2 = checkbox/boolean
-var rcxCfgList = [
+var rcxConfigList = [
 	// general
 	[1, 'css'],
-	[0, 'popdelay'],
-	[0, 'highlight'],
-	[0, 'resizedoc'],
-	[0, 'dictorder'],
-	[0, 'title'],
 	[0, 'enmode'],
-	[0, 'sticon'],
-	[0, 'minihelp'],
-
-	[2, 'altread'],
+	[2, 'highlight'],
+	[2, 'resizedoc'],
+	[2, 'sticon'],
+	[2, 'minihelp'],
 	[2, 'checkversion'],
 
 	// menus
@@ -52,14 +47,14 @@ var rcxCfgList = [
 	// keyboard
 	[2, 'nopopkeys'],
 
-	// words
+	// dictionary
+	[2, 'wpos'],
+	[2, 'wpop'],
 	[0, 'wmax'],
-	[0, 'wpos'],
-	[0, 'wpop'],
-
-	// names
-	[0, 'nadelay'],
 	[0, 'namax'],
+	
+	// kanji
+	[1, 'kindex'],
 
 	// clipboard / save file
 	[1, 'sfile'],
@@ -69,5 +64,48 @@ var rcxCfgList = [
 	[0, 'smaxce'],
 	[0, 'smaxck'],
 	[0, 'snlf'],
-	[1, 'ssep']
+	[1, 'ssep'],
+	
+	// not in GUI
+	[0, 'popdelay'],
+	[2, 'title'],
+	[2, 'hidedef'],
+//	[2, 'sticky']
 ];
+
+
+
+function rcxPrefs() {
+	this.branch = Components.classes['@mozilla.org/preferences-service;1']
+		.getService(Components.interfaces.nsIPrefService)
+		.getBranch('rikaichan.');
+}
+
+rcxPrefs.prototype = {
+	getString: function(key) {
+		return this.branch.getComplexValue(key, Components.interfaces.nsISupportsString).data;
+	},
+
+	setString: function(key, value) {
+		let s = Components.classes['@mozilla.org/supports-string;1']
+			.createInstance(Components.interfaces.nsISupportsString);
+		s.data = value;
+		this.branch.setComplexValue(key, Components.interfaces.nsISupportsString, s);
+	},
+
+	getInt: function(key) {
+		return this.branch.getIntPref(key)
+	},
+
+	setInt: function(key, value) {
+		this.branch.setIntPref(key, value)
+	},
+
+	getBool: function(key) {
+		return this.branch.getBoolPref(key)
+	},
+
+	setBool: function(key, value) {
+		this.branch.setBoolPref(key, value)
+	}
+};

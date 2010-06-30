@@ -6,12 +6,6 @@
 
 	---
 
-	Based on rikaiXUL 0.4 by Todd Rudick
-	http://rikaixul.mozdev.org/
-	http://www.rikai.com/
-
-	---
-
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
@@ -29,157 +23,233 @@
 	---
 
 	Please do not change or remove any of the copyrights or links to web pages
-	when modifying any of the files. - Jon
+	when modifying any of the files.
 
 */
 
-function rcxDict(loadNames) {
-	var hWindow = Components.classes["@mozilla.org/appshell/appShellService;1"]
-				.getService(Components.interfaces.nsIAppShellService)
-				.hiddenDOMWindow;
+var rcxData = {
+	ready: false,
+	kanjiPos: 0,
+	dicList: [],
 
-	if (hWindow.rikaichan_dict) {
-		hWindow.rikaichan_dict.lock();
-		return hWindow.rikaichan_dict;
-	}
+	loadConfig: function() {
+		let reinit = false;
 
-	this.loadDictionary();
-	if (loadNames) this.loadNames();
-	this.loadDIF();
+		if (this.ready) {
+			this.done();
+			reinit = true;
+		}
 
-	this.lock();
-	this.hWindow = hWindow;
-	hWindow.rikaichan_dict = this;
-}
+		if (typeof(rcxDicList) == 'undefined') {
+			rcxDicList = {};
+			this.missing = true;
+		}
+		if (rcxDicList['kanji@local'] == null) {
+			rcxDicList['kanji@local'] = {
+				name: 'Kanji',
+				id: 'kanji@local',
+				isKanji: true
+			};
+		}
 
-rcxDict.prototype = {
+		//	rcxMain.global().rcxDicList = rcxDicList;
 
-	lockCount: 0,
+		let prefs = new rcxPrefs();
+		let order = prefs.getString('dpriority');
+		if (order == '') order = 'rikaichan-jpen@polarcloud.com#|rikaichan-jpde@polarcloud.com#|rikaichan-jpfr@polarcloud.com#|rikaichan-jpru@polarcloud.com#|rikaichan-jpnames@polarcloud.com#|kanji@local#';
 
-	lock: function() {
-		++this.lockCount;
+		this.dicList = [];
+		this.kanjiPos = 0;
+
+		let done = {};
+
+		// arrange dicList based on user setting
+		let oa = order.split('|');
+		for (let i = 0; i < oa.length; ++i) {
+			if (oa[i].match(/^(.+?)#/)) {
+				let dic = rcxDicList[RegExp.$1];
+				if (dic) {
+					this.dicList.push(dic);
+					done[dic.id] = true;
+				}
+			}
+		}
+
+		// anything new is added at the end
+		for (let id in rcxDicList) {
+			if (!done[id]) this.dicList.push(rcxDicList[id]);
+		}
+
+		let ids = [];
+
+		// rebuild dpriority string which is also used by Options
+		let order2 = [];
+		for (let i = 0; i < this.dicList.length; ++i) {
+			let dic = this.dicList[i];
+			let s = dic.id + '#' + dic.name;
+			if (dic.version) s += ' v' + dic.version;
+			order2.push(s)
+
+			if (dic.isKanji) this.kanjiPos = i;	// keep track of position
+				else ids.push(dic.id);
+		}
+		order2 = this.missing ? '' : order2.join('|');
+		if (order != order2) prefs.setString('dpriority', order2);
+
+
+		// FF 3.7a workaround; @@ revisit later
+		if (!rcxData.dicPath) {
+			rcxData.dicPath = { ready: false };
+			try {
+				Components.utils.import('resource://gre/modules/AddonManager.jsm');
+				// ! asynchronous
+				AddonManager.getAddonsByIDs(ids, function(addons) {
+					for (let i = 0; i < addons.length; ++i) {
+						let a = addons[i];
+						// URL->URI changed in 3.7a6?
+						rcxData.dicPath[a.id] = a.getResourceURI('install.rdf')
+								.QueryInterface(Components.interfaces.nsIFileURL)
+								.file.parent.path;
+						//	alert(a.id + ': path=' + rcxData.dicPath[a.id]);
+					}
+					rcxData.dicPath.ready = true;
+				});
+				return;
+			}
+			catch (ex) { }
+			rcxData.dicPath.ready = true;
+		}
+
+		if (reinit) this.init();
 	},
 
-	unlock: function() {
-		if (--this.lockCount == 0) {
-			delete this.hWindow.rikaichan_dict;
+	init: function() {
+		if (this.ready) return;
+
+		this.kanjiShown = {};
+		let a = rcxConfig.kindex.split(',');
+		for (let i = a.length - 1; i >= 0; --i) {
+			this.kanjiShown[a[i]] = 1;
+		}
+
+		for (let i = this.dicList.length - 1; i >= 0; --i) {
+			let dic = this.dicList[i];
+			if (dic.isKanji) continue;
+			if ((!dic.findWord) || (!dic.findText)) this.dicList[i] = dic = new RcxDic(dic);
+			if (dic.open) dic.open();
+		}
+
+		this.ready = true;
+	},
+
+	done: function() {
+		this.ready = false;
+		this.kanjiData = null;
+		this.kanjiShown = null;
+		this.radData = null;
+		this.deinflect.done();
+
+		for (let i = this.dicList.length - 1; i >= 0; --i) {
+			try {
+				let dic = this.dicList[i];
+				if (dic.close) dic.close();
+			}
+			catch (ex) { }
 		}
 	},
 
-	//
 
-	config: {},
+	selected: 0,
 
-	setConfig: function(c) {
-		this.config = c;
+	selectNext: function() {
+		this.selected = (this.selected + this.searchSkipped + 1) % this.dicList.length;
+		this.searchSkipped = 0;
 	},
 
-	//
-	loadNames: function() {
-		if ((this.nameDict) && (this.nameIndex)) return;
-		this.nameDict = rcxFile.read(rcxNamesDict.datURI, rcxNamesDict.datCharset);
-		this.nameIndex = rcxFile.read(rcxNamesDict.idxURI, rcxNamesDict.idxCharset);
+	select: function(n) {
+		if ((n < 0) || (n >= this.dicList.length)) return;
+		this.selected = n;
+		this.searchSkipped = 0;
 	},
 
-	//	Note: These are mostly flat text files; loaded as one continous string to reduce memory use
-	loadDictionary: function() {
-		this.wordDict = rcxFile.read(rcxWordDict.datURI, rcxWordDict.datCharset);
-		this.wordIndex = rcxFile.read(rcxWordDict.idxURI, rcxWordDict.idxCharset);
-		this.kanjiData = rcxFile.read('chrome://rikaichan/content/kanji.dat', 'UTF-8');
-		this.radData = rcxFile.readArray('chrome://rikaichan/content/radicals.dat', 'UTF-8');
-	},
-	///
+	deinflect: {
+		init: function() {
+			this.reasons = [];
+			this.rules = [];
 
-	loadDIF: function() {
-		this.difReasons = [];
-		this.difRules = [];
-		this.difExact = [];
-
-		var buffer = rcxFile.readArray('chrome://rikaichan/content/deinflect.dat', 'UTF-8');
-		var prevLen = -1;
-		var g, o;
+			var buffer = rcxFile.readArray('chrome://rikaichan/content/deinflect.dat');
+			var ruleGroup = [];
+			ruleGroup.fromLen = -1;
 
 			// i = 1: skip header
 			for (var i = 1; i < buffer.length; ++i) {
 				var f = buffer[i].split('\t');
 
 				if (f.length == 1) {
-				this.difReasons.push(f[0]);
+					this.reasons.push(f[0]);
 				}
 				else if (f.length == 4) {
-				o = {};
-				o.from = f[0];
-				o.to = f[1];
-				o.type = f[2];
-				o.reason = f[3];
-
-				if (prevLen != o.from.length) {
-					prevLen = o.from.length;
-					g = [];
-					g.flen = prevLen;
-					this.difRules.push(g);
+					var r = { from: f[0], to: f[1], type: f[2], reason: f[3] };
+					if (ruleGroup.fromLen != r.from.length) {
+						ruleGroup = [];
+						ruleGroup.fromLen = r.from.length;
+						this.rules.push(ruleGroup);
 					}
-				g.push(o);
+					ruleGroup.push(r);
 				}
 			}
+			this.ready = true;
 		},
 
-	deinflect: function(word) {
-		var r = [];
-		var have = [];
-		var o;
+		done: function() {
+			this.reasons = null;
+			this.rules = null;
+			this.ready = false;
+		},
 
-		o = {};
-		o.word = word;
-		o.type = 0xFF;
-		o.reason = '';
-		//o.debug = 'root';
-		r.push(o);
-		have[word] = 0;
+		go: function(word) {
+			if (!this.ready) this.init();
 
-		var i, j, k;
+			var have = [];
+			have[word] = 0;
 
-		i = 0;
+			var r = [{ word: word, type: 0xFF, reason: '' }];
+			var i = 0;
 			do {
 				word = r[i].word;
 				var wordLen = word.length;
 				var type = r[i].type;
 
-			for (j = 0; j < this.difRules.length; ++j) {
-				var g = this.difRules[j];
-				if (g.flen <= wordLen) {
-					var end = word.substr(-g.flen);
-					for (k = 0; k < g.length; ++k) {
-						var rule = g[k];
+				for (var j = 0; j < this.rules.length; ++j) {
+					var ruleGroup = this.rules[j];
+					if (ruleGroup.fromLen <= wordLen) {
+						var end = word.substr(-ruleGroup.fromLen);
+						for (var k = 0; k < ruleGroup.length; ++k) {
+							var rule = ruleGroup[k];
 							if ((type & rule.type) && (end == rule.from)) {
 								var newWord = word.substr(0, word.length - rule.from.length) + rule.to;
 								if (newWord.length <= 1) continue;
-							o = {};
+								var o = {};
 								if (have[newWord] != undefined) {
 									o = r[have[newWord]];
 									o.type |= (rule.type >> 8);
-
-								//o.reason += ' / ' + r[i].reason + ' ' + this.difReasons[rule.reason];
-								//o.debug += ' @ ' + rule.debug;
 									continue;
 								}
 								have[newWord] = r.length;
-							if (r[i].reason.length) o.reason = this.difReasons[rule.reason] + ' &lt; ' + r[i].reason;
-								else o.reason = this.difReasons[rule.reason];
+								if (r[i].reason.length) o.reason = this.reasons[rule.reason] + ' &lt; ' + r[i].reason;
+									else o.reason = this.reasons[rule.reason];
 								o.type = rule.type >> 8;
 								o.word = newWord;
-							//o.debug = r[i].debug + ' $ ' + rule.debug;
 								r.push(o);
 							}
 						}
 					}
 				}
-
 			} while (++i < r.length);
 
 			return r;
+		}
 	},
-
 
 
 	// katakana -> hiragana conversion tables
@@ -191,18 +261,18 @@ rcxDict.prototype = {
 		0x3062,0x3065,0x3067,0x3069,0xFF85,0xFF86,0xFF87,0xFF88,0xFF89,0x3070,0x3073,0x3076,0x3079,0x307C],
 	cs:[0x3071,0x3074,0x3077,0x307A,0x307D],
 
-	wordSearch: function(word, doNames, max) {
-		var i, u, v, r, p;
-		var trueLen = [0];
-		var entry = { };
+	_wordSearch: function(word, dic, max) {
+		if (!this.ready) this.init();
 
 		// half & full-width katakana to hiragana conversion
 		// note: katakana vu is never converted to hiragana
 
-		p = 0;
-		r = '';
-		for (i = 0; i < word.length; ++i) {
-			u = v = word.charCodeAt(i);
+		var trueLen = [0];
+		var p = 0;
+		var r = '';
+		for (let i = 0; i < word.length; ++i) {
+			let u = word.charCodeAt(i);
+			let v = u;
 
 			if (u <= 0x3000) break;
 
@@ -241,218 +311,218 @@ rcxDict.prototype = {
 		word = r;
 
 
-		var dict;
-		var index;
+		var result = { data: [] };
 		var maxTrim;
-		var cache = [];
-        var have = [];
-        var count = 0;
-        var maxLen = 0;
 
-		if (doNames) {
-			// check: split this
-
-			this.loadNames();
-			dict = this.nameDict;
-			index = this.nameIndex;
-			maxTrim = this.config.namax;
-			entry.names = 1;
+		if (dic.isName) {
+			maxTrim = rcxConfig.namax;
+			result.names = 1;
 		}
 		else {
-			dict = this.wordDict;
-			index = this.wordIndex;
-			maxTrim = this.config.wmax;
+			maxTrim = rcxConfig.wmax;
 		}
+
 
 		if (max != null) maxTrim = max;
 
-		entry.data = [];
+		var have = [];
+		var count = 0;
+		var maxLen = 0;
 
-        while (word.length > 0) {
+		while (word.length > 0) {
 			var showInf = (count != 0);
-			var trys;
-
-			if (doNames) trys = [{'word': word, 'type': 0xFF, 'reason': null}];
-				else trys = this.deinflect(word);
-
-            for (i = 0; i < trys.length; i++) {
-                u = trys[i];
-
-				var ix = cache[u.word];
-				if (!ix) {
-					ix = this.find(index, u.word + ',');
-					if (!ix) {
-						cache[u.word] = [];
-						continue;
-					}
-					ix = ix.split(',');
-					cache[u.word] = ix;
-				}
-
-                for (var j = 1; j < ix.length; ++j) {
-                    var ofs = ix[j];
-					if (have[ofs]) continue;
-
-					var dentry = dict.substring(ofs, dict.indexOf('\n', ofs));
+			var variants = dic.isName ? [{word: word, type: 0xFF, reason: null}] : this.deinflect.go(word);
+			for (var i = 0; i < variants.length; i++) {
+				var v = variants[i];
+				var entries = dic.findWord(v.word);
+				for (var j = 0; j < entries.length; ++j) {
+					var dentry = entries[j];
+					if (have[dentry]) continue;
 
 					var ok = true;
-					if (i > 0) {
-						// > 0 a de-inflected word
+					if ((dic.hasType) && (i > 0)) {
+						// i > 0 a de-inflected word
 
-						// ex:
-						// /(io) (v5r) to finish/to close/
-						// /(v5r) to finish/to close/(P)/
-						// /(aux-v,v1) to begin to/(P)/
-						// /(adj-na,exp,int) thank you/many thanks/
-						// /(adj-i) shrill/
-
-						var w;
-						var x = dentry.split(/[,()]/);
-						var y = u.type;
-						var z = x.length - 1;
-						if (z > 10) z = 10;
-						for (; z >= 0; --z) {
-							w = x[z];
-							if ((y & 1) && (w == 'v1')) break;
-							if ((y & 4) && (w == 'adj-i')) break;
-							if ((y & 2) && (w.substr(0, 2) == 'v5')) break;
-							if ((y & 16) && (w.substr(0, 3) == 'vs-')) break;
-							if ((y & 8) && (w == 'vk')) break;
+						var gloss = dentry.split(/[,()]/);
+						var y = v.type;
+						var z;
+						for (z = gloss.length - 1; z >= 0; --z) {
+							var g = gloss[z];
+							if ((y & 1) && (g == 'v1')) break;
+							if ((y & 4) && (g == 'adj-i')) break;
+							if ((y & 2) && (g.substr(0, 2) == 'v5')) break;
+							if ((y & 16) && (g.substr(0, 3) == 'vs-')) break;
+							if ((y & 8) && (g == 'vk')) break;
 						}
 						ok = (z != -1);
 					}
-                    if (ok) {
-                        if (count >= maxTrim) {
-							entry.more = 1;
+					if (ok) {
+						if (count >= maxTrim) {
+							result.more = 1;
 							break;
 						}
 
-						have[ofs] = 1;
-                        ++count;
-                        if (maxLen == 0) maxLen = trueLen[word.length];
+						have[dentry] = 1;
+						++count;
+						if (maxLen == 0) maxLen = trueLen[word.length];
 
-						if (trys[i].reason) {
-							if (showInf) r = '&lt; ' + trys[i].reason + ' &lt; ' + word;
-								else r = '&lt; ' + trys[i].reason;
+						var r = null;
+						if (v.reason) {
+							if (showInf) r = '&lt; ' + v.reason + ' &lt; ' + word;
+								else r = '&lt; ' + v.reason;
 						}
-						else {
-							r = null;
-						}
-
-						entry.data.push([dentry, r]);
-                    }
-                }	// for j < ix.length
+						result.data.push([dentry, r]);
+					}
+				}	// for j < entries.length
 				if (count >= maxTrim) break;
-            }	// for i < trys.length
-            if (count >= maxTrim) break;
-            word = word.substr(0, word.length - 1);
-        }	// while word.length > 0
+			}	// for i < variants.length
+			if (count >= maxTrim) break;
+			word = word.substr(0, word.length - 1);
+		}	// while word.length > 0
 
-		if (entry.data.length == 0) return null;
+		if (result.data.length == 0) return null;
 
-		entry.matchLen = maxLen;
-        return entry;
-    },
+		result.matchLen = maxLen;
+		return result;
+	},
+
+	wordSearch: function(word, noKanji) {
+		this.searchSkipped = 0;
+		let ds = this.selected;
+		do {
+			let dic = this.dicList[ds];
+			if ((!noKanji) || (!dic.isKanji)) {
+				let e;
+				if (dic.isKanji) e = this.kanjiSearch(word.charAt(0));
+					else e = this._wordSearch(word, dic, null);
+				if (e) {
+					if (ds != 0) e.title = dic.name;
+					return e;
+				}
+			}
+			this.searchSkipped++;
+			ds = (ds + 1) % this.dicList.length;
+		} while (ds != this.selected);
+		return null;
+	},
 
 	translate: function(text) {
-		var e, o;
-		var skip;
-
-		o = {};
-		o.data = [];
-		o.textLen = text.length;
-
+		var result = { data: [], textLen: text.length };
 		while (text.length > 0) {
-			e = this.wordSearch(text, false, 1);
+			var e = null;
+			var ds = this.selected;
+			do {
+				if (!this.dicList[ds].isKanji) {
+					e = this._wordSearch(text, this.dicList[ds], 1);
+					if (e != null) break;
+				}
+				ds = (ds + 1) % this.dicList.length;
+			} while (ds != this.selected);
+
 			if (e != null) {
-				if (o.data.length >= this.config.wmax) {
-					o.more = 1;
+				if (result.data.length >= rcxConfig.wmax) {
+					result.more = 1;
 					break;
 				}
-//				o.data = o.data.concat(e.data);
-				o.data.push(e.data[0]);
-				skip = e.matchLen;
+				result.data.push(e.data[0]);
+				text = text.substr(e.matchLen);
 			}
 			else {
-				skip = 1;
+				text = text.substr(1);
 			}
-			text = text.substr(skip, text.length - skip);
 		}
-
-		if (o.data.length == 0) {
-			return null;
-		}
-
-		o.textLen -= text.length;
-		return o;
+		this.searchSkipped = (this.selected == this.kanjiPos) ? 1 : 0;
+		if (result.data.length == 0) return null;
+		result.textLen -= text.length;
+		return result;
 	},
 
-	bruteSearch: function(text, doNames) {
-		var r, e, d, i, j;
-		var wb, we;
-		var max;
+	textSearch: function(text) {
+		this.searchSkipped = 0;
+		if (!this.ready) this.init();
+		text = text.toLowerCase();
+		let ds = this.selected;
+		do {
+			let dic = this.dicList[ds];
+			if (!dic.isKanji) {
+				let result = { data: [], reason: [], kanji: 0, more: 0, names: dic.isName };
 
-		r = 1;
-		if (text.charAt(0) == ':') {
-			text = text.substr(1, text.length - 1);
-			if (text.charAt(0) != ':') r = 0;
-		}
-		if (r) {
-			if (text.search(/[\u3000-\uFFFF]/) != -1) {
-				wb = we = '[\\s\\[\\]]';
-			}
-			else {
-				wb = '[\\)/]\\s*';
-				we = '\\s*[/\\(]';
-			}
-			if (text.charAt(0) == '*') {
-				text = text.substr(1, text.length - 1);
-				wb = '';
-			}
-			if (text.charAt(text.length - 1) == '*') {
-				text = text.substr(0, text.length - 1);
-				we = '';
-			}
-			text = wb + text.replace(/[\[\\\^\$\.\|\?\*\+\(\)]/g, function(c) { return '\\' + c; }) + we;
-		}
+				let r = dic.findText(text);
 
-		e = { data: [], reason: [], kanji: 0, more: 0 };
+				// try priorizing
+				let list = [];
+				let sW = /[\sW]/;
+				let slashText = '/' + text + '/';
+				for (let i = 0; i < r.length; ++i) {
+					let t = r[i].replace(/\(.+?\)/g, '').toLowerCase();
 
-		if (doNames) {
-			e.names = 1;
-			max = this.config.namax;
-			this.loadNames();
-			d = this.nameDict;
-		}
-		else {
-			e.names = 0;
-			max = this.config.wmax;
-			d = this.wordDict;
-		}
+					// closer to the beginning = better
+					let d = t.indexOf(text);
+					if (d >= 0) {
+						// the exact text within an entry = best
+						if (t.replace(/\s+/g, '').indexOf(slashText) != -1) {
+							d -= 100;
+						}
+						// a word within an entry = better
+						else if (((d == 0) || (sW.test(t.substr(d - 1, 1)))) &&
+								(((d + text.length) >= t.length) || (sW.test(t.substr(d + text.length, 1))))) {
+							d -= 50;
+						}
+					}
+					else d = 9999;
+					list.push({ rank: d, text: r[i] });
+				}
 
-		r = new RegExp(text, 'igm');
-		while (r.test(d)) {
-			if (e.data.length >= max) {
-				e.more = 1;
-				break;
+				let max = dic.isName ? rcxConfig.namax : rcxConfig.wmax;
+				list.sort(function(a, b) { return a.rank - b.rank });
+				for (let i = 0; i < list.length; ++i) {
+					if (result.data.length >= max) {
+						result.more = 1;
+						break;
+					}
+					//	result.data.push([list[i].text + '[' + list[i].rank + ']/', null]);
+					result.data.push([list[i].text, null]);
+				}
+
+				/*
+				let j = (list.length > 100) ? 100 : list.length;
+				for (let i = 0; i < j; ++i) {
+					rcxDebug.echo(i + ': [' + list[i].rank + '] ' + list[i].text);
+				}*/
+
+				/*
+				for (let i = 0; i < r.length; ++i) {
+					if (result.data.length >= max) {
+						result.more = 1;
+						break;
+					}
+					result.data.push([r[i], null]);
+				}
+				*/
+
+				if (result.data.length) {
+					if (ds != 0) result.title = dic.name;
+					return result;
+				}
 			}
-			j = d.indexOf('\n', r.lastIndex);
-			e.data.push([d.substring(d.lastIndexOf('\n', r.lastIndex - 1) + 1, j), null]);
-			r.lastIndex = j + 1;
-		}
-
-		return e.data.length ? e : null;
+			this.searchSkipped++;
+			ds = (ds + 1) % this.dicList.length;
+		} while (ds != this.selected);
+		return null;
 	},
 
+	// @@@ todo later...
 	kanjiSearch: function(kanji) {
 		const hex = '0123456789ABCDEF';
 		var kde;
-		var entry;
+		var result;
 		var a, b;
 		var i;
 
 		i = kanji.charCodeAt(0);
 		if (i < 0x3000) return null;
+
+		if (!this.kanjiData) this.kanjiData = rcxFile.read('chrome://rikaichan/content/kanji.dat');
 
 		kde = this.find(this.kanjiData, kanji);
 		if (!kde) return null;
@@ -460,27 +530,29 @@ rcxDict.prototype = {
 		a = kde.split('|');
 		if (a.length != 6) return null;
 
-		entry = { };
-		entry.kanji = a[0];
+		result = { };
+		result.kanji = a[0];
 
-		entry.misc = {};
-		entry.misc['U'] = hex[(i >>> 12) & 15] + hex[(i >>> 8) & 15] + hex[(i >>> 4) & 15] + hex[i & 15];
+		result.misc = {};
+		result.misc['U'] = hex[(i >>> 12) & 15] + hex[(i >>> 8) & 15] + hex[(i >>> 4) & 15] + hex[i & 15];
 
 		b = a[1].split(' ');
 		for (i = 0; i < b.length; ++i) {
 			if (b[i].match(/^([A-Z]+)(.*)/)) {
-				if (!entry.misc[RegExp.$1]) entry.misc[RegExp.$1] = RegExp.$2;
-					else entry.misc[RegExp.$1] += ' ' + RegExp.$2;
+				if (!result.misc[RegExp.$1]) result.misc[RegExp.$1] = RegExp.$2;
+					else result.misc[RegExp.$1] += ' ' + RegExp.$2;
 			}
 		}
 
-		entry.onkun = a[2].replace(/\s+/g, '\u3001 ');
-		entry.nanori = a[3].replace(/\s+/g, '\u3001 ');
-		entry.bushumei = a[4].replace(/\s+/g, '\u3001 ');
-		entry.eigo = a[5];
+		result.onkun = a[2].replace(/\s+/g, '\u3001 ');
+		result.nanori = a[3].replace(/\s+/g, '\u3001 ');
+		result.bushumei = a[4].replace(/\s+/g, '\u3001 ');
+		result.eigo = a[5];
 
-		return entry;
+		return result;
 	},
+
+	// ---
 
 	numList: [
 /*
@@ -507,7 +579,6 @@ rcxDict.prototype = {
 		'U',	'Unicode'
 	],
 
-
 	makeHtml: function(entry) {
 		var e;
 		var b;
@@ -515,6 +586,9 @@ rcxDict.prototype = {
 		var i, j, n;
 
 		if (entry == null) return '';
+
+		if (!this.ready) this.init();
+		if (!this.radData) this.radData = rcxFile.readArray('chrome://rikaichan/content/radicals.dat');
 
 		b = [];
 
@@ -553,7 +627,7 @@ rcxDict.prototype = {
 				'<td class="k-abox-f">freq<br/>' + (entry.misc['F'] ? entry.misc['F'] : '-') + '</td>' +
 				'<td class="k-abox-s">strokes<br/>' + entry.misc['S'] + '</td>' +
 				'</tr></table>';
-			if (this.config.kdisp['COMP'] == 1) {
+			if (this.kanjiShown['COMP']) {
 				k = this.radData[bn].split('\t');
 				box += '<table class="k-bbox-tb">' +
 						'<tr><td class="k-bbox-1a">' + k[0] + '</td>' +
@@ -578,7 +652,7 @@ rcxDict.prototype = {
 
 			for (i = 0; i < this.numList.length; i += 2) {
 				c = this.numList[i];
-				if (this.config.kdisp[c] == 1) {
+				if (this.kanjiShown[c]) {
 					s = entry.misc[c];
 					c = ' class="k-mix-td' + (j ^= 1) + '"';
 					nums += '<tr><td' + c + '>' + this.numList[i + 1] + '</td><td' + c + '>' + (s ? s : '-') + '</td></tr>';
@@ -589,7 +663,7 @@ rcxDict.prototype = {
 			b.push('<table class="k-main-tb"><tr><td valign="top">');
 			b.push(box);
 			b.push('<span class="k-kanji">' + entry.kanji + '</span><br/>');
-			b.push('<div class="k-eigo">' + entry.eigo + '</div>');
+			if (!rcxConfig.hidedef) b.push('<div class="k-eigo">' + entry.eigo + '</div>');
 			b.push('<div class="k-yomi">' + yomi + '</div>');
 			b.push('</td></tr><tr><td>' + nums + '</td></tr></table>');
 			return b.join('');
@@ -614,7 +688,8 @@ rcxDict.prototype = {
 					else c.push('<span class="w-kana">' + e[1] + '</span><br/> ');
 
 				s = e[3];
-				t = '<span class="w-def">' + s.replace(/\//g, '; ') + '</span><br/>';
+				if (rcxConfig.hidedef) t = '';
+					else t = '<span class="w-def">' + s.replace(/\//g, '; ') + '</span><br/>';
 			}
 			c.push(t);
 			if (c.length > 4) {
@@ -680,10 +755,15 @@ rcxDict.prototype = {
 				if (entry.data[i][1]) b.push(' <span class="w-conj">(' + entry.data[i][1] + ')</span>');
 
 				s = e[3];
-				t = s.replace(/\//g, '; ');
-				if (!this.config.wpos) t = t.replace(/^\([^)]+\)\s*/, '');
-				if (!this.config.wpop) t = t.replace('; (P)', '');
-				t = '<br/><span class="w-def">' + t + '</span><br/>';
+				if (rcxConfig.hidedef) {
+					t = '<br/>';
+				}
+				else {
+					t = s.replace(/\//g, '; ');
+					if (!rcxConfig.wpos) t = t.replace(/^\([^)]+\)\s*/, '');
+					if (!rcxConfig.wpop) t = t.replace('; (P)', '');
+					t = '<br/><span class="w-def">' + t + '</span><br/>';
+				}
 			}
 			b.push(t);
 			if (entry.more) b.push('...<br/>');
@@ -699,6 +779,7 @@ rcxDict.prototype = {
 		var t;
 
 		if (entry == null) return '';
+		if (!this.ready) this.init();
 
 		b = [];
 
@@ -716,7 +797,7 @@ rcxDict.prototype = {
 
 			for (i = 0; i < this.numList.length; i += 2) {
 				e = this.numList[i];
-				if (this.config.kdisp[e] == 1) {
+				if (this.kanjiShown[e]) {
 					j = entry.misc[e];
 					b.push(this.numList[i + 1].replace('&amp;', '&') + '\t' + (j ? j : '-') + '\n');
 				}
@@ -736,15 +817,15 @@ rcxDict.prototype = {
 				}
 
 				t = e[3].replace(/\//g, '; ');
-				if (!this.config.wpos) t = t.replace(/^\([^)]+\)\s*/, '');
-				if (!this.config.wpop) t = t.replace('; (P)', '');
+				if (!rcxConfig.wpos) t = t.replace(/^\([^)]+\)\s*/, '');
+				if (!rcxConfig.wpop) t = t.replace('; (P)', '');
 				b.push('\t' + t + '\n');
 			}
 		}
 		return b.join('');
 	},
 
-	/* * * * */
+	// ---
 
 	find: function(data, text) {
 		const tlen = text.length;
@@ -768,58 +849,208 @@ rcxDict.prototype = {
 };
 
 var rcxFile = {
-	read1: function(url, charset) {
-		var ss;
-		var inp;
-		var buffer;
-		var conv;
-
-		ss = Components.classes['@mozilla.org/scriptableinputstream;1']
-				.getService(Components.interfaces.nsIScriptableInputStream);
-		inp = Components.classes['@mozilla.org/network/io-service;1']
-				.getService(Components.interfaces.nsIIOService)
-				.newChannel(url, null, null)
-				.open();
-		ss.init(inp);
-		buffer = ss.read(inp.available());
-		ss.close();
-		inp.close();
-		if (!charset) return buffer;
-
-		conv = Components.classes['@mozilla.org/intl/scriptableunicodeconverter']
-					.createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-		conv.charset = charset;
-		return conv.ConvertToUnicode(buffer);
-	},
-	
-	read2: function(uri, charset) {
+	read: function(uri) {
 		var inp = Components.classes['@mozilla.org/network/io-service;1']
 				.getService(Components.interfaces.nsIIOService)
 				.newChannel(uri, null, null)
 				.open();
-				
+
 		var is = Components.classes['@mozilla.org/intl/converter-input-stream;1']
-                   .createInstance(Components.interfaces.nsIConverterInputStream);
-		is.init(inp, charset, 64 * 1024 * 1024, Components.interfaces.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
+					.createInstance(Components.interfaces.nsIConverterInputStream);
+		is.init(inp, 'UTF-8', 4 * 1024 * 1024,
+			Components.interfaces.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
 
 		var buffer = '';
-		var s = {};		
+		var s = {};
 		while (is.readString(-1, s) > 0) {
 			buffer += s.value;
 		}
 		is.close();
-		
+
 		return buffer;
 	},
 
-	read: function(uri, charset) {
-		if (rcxMain.cfg.altread) return rcxFile.read2(uri, charset);
-			else return rcxFile.read1(uri, charset);
-	},
-
-	readArray: function(name, charset) {
-		var a = this.read(name, charset).split('\n');
+	readArray: function(name) {
+		var a = this.read(name).split('\n');
 		while ((a.length > 0) && (a[a.length - 1].length == 0)) a.pop();
 		return a;
 	}
+};
+
+function RcxDb(name)
+{
+	this.open = function() {
+		var f;
+
+		if (name.match(/(.+)\|(.+)/)) {
+			let id = RegExp.$1;
+			let nm = RegExp.$2;
+			try {
+				f = Components.classes['@mozilla.org/extensions/manager;1']
+					.getService(Components.interfaces.nsIExtensionManager)
+					.getInstallLocation(id).getItemFile(id, nm);
+			}
+			catch (ex) {
+				if ((rcxData.dicPath) && (rcxData.dicPath[id])) {
+					f = Components.classes['@mozilla.org/file/local;1']
+						.createInstance(Components.interfaces.nsILocalFile);
+					f.initWithPath(rcxData.dicPath[id]);
+					f.append(nm);
+				}
+
+				if (!f) throw 'Could not find or open ' + id + '/' + nm;
+
+/*
+				if (!f) {
+					f = Components.classes['@mozilla.org/file/directory_service;1']
+						.getService(Components.interfaces.nsIProperties)
+						.get('ProfD', Components.interfaces.nsIFile);
+					f.append('extensions');
+					f.append(id);
+					f.append(nm);
+					if (!f.exists()) {
+						f = Components.classes['@mozilla.org/file/directory_service;1']
+							.getService(Components.interfaces.nsIProperties)
+							.get('APlugns', Components.interfaces.nsIFile).parent;
+						f.append('extensions');
+						f.append(id);
+						f.append(nm);
+					}
+				}
+*/
+			}
+		}
+		else {
+			f = Components.classes['@mozilla.org/file/local;1']
+				.createInstance(Components.interfaces.nsILocalFile);
+			f.initWithPath(name);
+		}
+
+		// The files may get installed as read-only, breaking
+		// index creation. Try changing the file permission.
+		if (!f.isWritable()) f.permissions |= 0600;
+
+		this.db = Components.classes['@mozilla.org/storage/service;1']
+			.getService(Components.interfaces.mozIStorageService)
+			.openDatabase(f);
+	};
+
+	this.close = function() {
+		if (this.db) {
+			try {
+				this.db.close();
+			}
+			catch (ex) {
+			}
+			this.db = null;
+		}
+	};
+
+	this.exec = function(stm) {
+		var rows = [];
+		if (!this.db) this.open();
+		var st = this.db.createStatement(stm);
+		for (var i = arguments.length - 1; i > 0; --i) {
+			if (arguments[i] != null) st.bindUTF8StringParameter(i - 1, arguments[i]);
+		}
+		while (st.executeStep()) {
+			var r = [];
+			for (var i = st.columnCount - 1; i >= 0; --i) {
+				r[st.getColumnName(i)] = st.getUTF8String(i);
+			}
+			rows.push(r);
+		}
+		return rows;
+	};
+
+	this.indexExists = function(index) {
+		if (!this.db) this.open();
+		return this.db.indexExists(index);
+	};
+
+	this.beginTransaction = function() {
+		if (!this.db) this.open();
+		this.db.beginTransaction();
+	};
+
+	this.commitTransaction = function() {
+		this.db.commitTransaction();
+	};
+
+	this.rollbackTransaction = function() {
+		this.db.rollbackTransaction();
+	};
+
+	return this;
+}
+
+function RcxDic(dic)
+{
+	this.name = dic.name;
+	this.version = dic.version;
+	this.id = dic.id;
+	this.hasType = dic.hasType;
+	this.isName = dic.isName;
+
+	this.open = function() {
+		try {
+			if (this.rdb) return;
+
+			this.rdb = new RcxDb(this.id + '|dict.sqlite');
+			this.rdb.open();
+			this.checkIndex('kanji');
+			this.checkIndex('kana');
+		}
+		catch (ex) {
+			this.close();
+			throw ex;
+		}
+	};
+
+	this.close = function() {
+		if (this.rdb) {
+			try {
+				this.rdb.close();
+			}
+			catch (ex) {
+			}
+			this.rdb = null;
+		}
+	};
+
+	this.checkIndex = function(name) {
+		var ix = 'ix_' + name;
+		if (this.rdb.indexExists(ix)) return;
+
+		if (!rcxData.indexCreateNotice) {
+			alert('The index for one or more dictionaries needs to be created. This may take a while on slower computers.');
+			rcxData.indexCreateNotice = true;
+		}
+
+		this.rdb.exec('CREATE INDEX ' + ix + ' ON dict (' + name + ' ASC)');
+	};
+
+	this.find = function(query, arg1) {
+		if (!this.rdb) this.open();
+		var r = this.rdb.exec(query, arg1);
+		var entries = [];
+		for (var i = 0; i < r.length; ++i) {
+			var x = r[i];
+			if (!x.entry.length) continue;
+			// rcx currently expects an edict-like format
+			if (x.entry[x.entry.length - 1] == '/') entries.push(x.entry);
+				else entries.push((x.kanji ? (x.kanji + ' [' + x.kana + ']') : x.kana) + ' /' + x.entry + '/');
+		}
+		return entries;
+	};
+
+	this.findWord = function(word) {
+		return this.find('SELECT * FROM dict WHERE kanji=?1 OR kana=?1 LIMIT 100', word);
+	};
+
+	this.findText = function(text) {
+		return this.find('SELECT * FROM dict WHERE entry LIKE ?1 LIMIT 300', '%' + text + '%');
+	};
+
+	return this;
 };

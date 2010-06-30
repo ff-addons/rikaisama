@@ -1,0 +1,75 @@
+
+<!ENTITY Tab.General "General">
+<!ENTITY Tab.Menus "Menus">
+<!ENTITY Tab.Keyboard "Keyboard">
+<!ENTITY Tab.Dictionaries "Dictionaries">
+<!ENTITY Tab.KanjiDictionary "Kanji Dictionary">
+<!ENTITY Tab.ClipboardAndSave "Clipboard &amp; Save">
+
+
+<!ENTITY General.ColorScheme "Color scheme">
+<!ENTITY General.Blue "Blue">
+<!ENTITY General.LightBlue "Light Blue">
+<!ENTITY General.Black "Black">
+<!ENTITY General.Yellow "Yellow">
+<!ENTITY General.EnableMode "Enable mode">
+<!ENTITY General.CurrentTabOnly "Current tab only">
+<!ENTITY General.CurrentBrowserOnly "Current browser only">
+<!ENTITY General.AllBrowsers "All browsers">
+<!ENTITY General.AlwaysEnableAtStartup "Always enable at startup">
+<!ENTITY General.HighlightText "Highlight text">
+<!ENTITY General.EnlargeSmallDocuments "Enlarge small documents">
+<!ENTITY General.ShowIconInStatusbar "Show icon in statusbar">
+<!ENTITY General.ShowMiniHelp "Show mini help">
+
+
+<!ENTITY Menus.ContextMenu "Context Menu">
+<!ENTITY Menus.Toggle "Toggle">
+<!ENTITY Menus.LookupBar "LookupBar">
+<!ENTITY Menus.ToolsMenu "ToolsMenu">
+
+
+<!ENTITY Keyboard.Toggle "Toggle">
+<!ENTITY Keyboard.LookupBar "LookupBar">
+<!ENTITY Keyboard.Ctrl "Ctrl">
+<!ENTITY Keyboard.Alt "Alt">
+<!ENTITY Keyboard.Shift "Shift">
+<!ENTITY Keyboard.NoteRestartBrowser "Note: Restart the browser after making changes.">
+
+
+<!ENTITY Keyboard.KeysWhenVisible "Keys when popup is visible">
+<!ENTITY Keyboard.AlternateView "Alternate view">
+<!ENTITY Keyboard.StickyPopup "Sticky popup">
+<!ENTITY Keyboard.MovePopupDown "Move popup down temporarily">
+<!ENTITY Keyboard.CopyToClipboard "Copy to clipboard">
+<!ENTITY Keyboard.SaveToFile "Save to file">
+<!ENTITY Keyboard.SwitchDictionary "Switch dictionary">
+<!ENTITY Keyboard.PreviousCharacter "Previous character">
+<!ENTITY Keyboard.NextCharacter "Next character">
+<!ENTITY Keyboard.NextWord "Next word">
+<!ENTITY Keyboard.DisableTheseKeys "Disable these keys">
+
+
+<!ENTITY Dictionaries.Priority "Priority">
+<!ENTITY Dictionaries.HideDefinitions "Hide definitions">
+<!ENTITY Dictionaries.ShowWordType "Show word type indicators [example: (v1,n)]">
+<!ENTITY Dictionaries.ShowPopular "Show &quot;popular&quot; indicator [example: (P)]">
+<!ENTITY Dictionaries.MaxEntries "Maximum entries displayed">
+<!ENTITY Dictionaries.MaxNames "Maximum names displayed">
+<!ENTITY Dictionaries.Download "Download...">
+
+
+<!ENTITY Kanji.DisplayedInformation "Displayed Information">
+
+
+<!ENTITY ClipSave.LineEnding "Line ending">
+<!ENTITY ClipSave.FieldSeparator "Field separator">
+<!ENTITY ClipSave.Tab "Tab">
+<!ENTITY ClipSave.Comma "Comma">
+<!ENTITY ClipSave.Space "Space">
+<!ENTITY ClipSave.Clipboard "Clipboard">
+<!ENTITY ClipSave.Entries "Entries">
+<!ENTITY ClipSave.KanjiLookupBar "Kanji (LookupBar)">
+<!ENTITY ClipSave.Save "Save">
+<!ENTITY ClipSave.Filename "Filename">
+<!ENTITY ClipSave.Encoding "Encoding">

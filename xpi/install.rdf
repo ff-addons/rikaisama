@@ -1,34 +1,28 @@
 <?xml version="1.0"?>
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
-	<Description about="urn:mozilla:install-manifest">
 
+	<Description about="urn:mozilla:install-manifest">
 		<em:id>{0AA9101C-D3C1-4129-A9B7-D778C6A17F82}</em:id>
 		<em:name>Rikaichan</em:name>
-		<em:version>1.09</em:version>
-		<em:description>Popup Japanese dictionary. Licensed under GNU GPL.</em:description>
-		<em:creator>Jonathan Zarate</em:creator>
-		<em:contributor>Based on rikaiXUL by Todd Rudick</em:contributor>
-		<em:contributor>JMDICT, ENAMDICT, KANJDIC2 by James William Breen and Electronic Dictionary Research &amp; Development Group</em:contributor>
-		<em:contributor>RADKFILE by Michael Raine and James William Breen</em:contributor>
-		<em:contributor>Thunderbird port by Josh Glover</em:contributor>
-		<em:homepageURL>http://www.polarcloud.com/</em:homepageURL>
+		<em:version>2.00</em:version>
+		<em:description>Japanese dictionary extension</em:description>
+		<em:optionsURL>chrome://rikaichan/content/options.xul</em:optionsURL>
 		<em:iconURL>chrome://rikaichan/skin/smile.png</em:iconURL>
-		<em:optionsURL>chrome://rikaichan/content/prefs.xul</em:optionsURL>
-
-		<em:file>
-			<Description about="urn:mozilla:extension:file:rikaichan.jar">
-				<em:package>content/</em:package>
-				<em:skin>skin/classic/</em:skin>
-				<em:locale>locale/en-US/</em:locale>
-			</Description>
-		</em:file>
+		<em:homepageURL>http://www.polarcloud.com/rikaichan/</em:homepageURL>
+		<em:creator>Jonathan Zarate</em:creator>
+		<em:contributor>Todd Rudick</em:contributor>
+		<em:contributor>James William Breen</em:contributor>
+		<em:contributor>Electronic Dictionary Research &amp; Development Group</em:contributor>
+		<em:contributor>Michael Raine</em:contributor>
+		<em:contributor>Josh Glover</em:contributor>
+		<em:contributor>Zork Zero</em:contributor>
 
 		<!-- Firefox -->
 		<em:targetApplication>
 			<Description>
 				<em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
 				<em:minVersion>2.0</em:minVersion>
-				<em:maxVersion>3.7a1pre</em:maxVersion>
+				<em:maxVersion>3.7a6pre</em:maxVersion>
 			</Description>
 		</em:targetApplication>
 
@@ -36,7 +30,7 @@
 		<em:targetApplication>
 			<Description>
 				<em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id>
-				<em:minVersion>2.0</em:minVersion>
+				<em:minVersion>3.0</em:minVersion>
 				<em:maxVersion>3.2a1pre</em:maxVersion>
 			</Description>
 		</em:targetApplication>
@@ -46,7 +40,7 @@
 			<Description>
 				<em:id>{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}</em:id>
 				<em:minVersion>2.0</em:minVersion>
-				<em:maxVersion>2.1a1pre</em:maxVersion>
+				<em:maxVersion>2.1a3</em:maxVersion>
 			</Description>
 		</em:targetApplication>
 
