@@ -37,6 +37,8 @@ var rcxMain = {
 	altView: 0,
 	enabled: 0,
 	sticky: false,
+	id: '{0AA9101C-D3C1-4129-A9B7-D778C6A17F82}',
+	version: null,
 
 	getCurrentBrowser: function() {
 		if (this.isTB) {
@@ -159,8 +161,26 @@ var rcxMain = {
 			}
 		}
 
+		try {
+			// ref: https://developer.mozilla.org/en/Addons/Add-on_Manager/AddonManager
+			Components.utils.import('resource://gre/modules/AddonManager.jsm');
+			AddonManager.getAddonByID(this.id, function(addon) {
+				rcxMain.version = addon.version;
+			});
+		}
+		catch (ex) {
+			try {
+				this.version = Components.classes['@mozilla.org/extensions/manager;1']
+					.getService(Components.interfaces.nsIExtensionManager)
+					.getItemForID(this.id).version;
+			}
+			catch (ex) {
+				this.version = null;
+			}
+		}
+
 		if (rcxConfig.checkversion) {
-			setTimeout(function() { rcxMain.checkVersion() }, 1500);
+			setTimeout(function() { rcxMain.checkVersion() }, 2000);
 		}
 	},
 
@@ -195,7 +215,7 @@ var rcxMain = {
 	},
 
 	showDownloadPage: function() {
-		var url = 'http://rikaichan.mozdev.org/getdic2.html?version=' + (this.getVersion() || '');
+		var url = 'http://rikaichan.mozdev.org/getdic2.html?version=' + (this.version || '');
 		try {
 			if (this.isTB) {
 				Components.classes['@mozilla.org/messenger;1'].createInstance()
@@ -212,20 +232,8 @@ var rcxMain = {
 		}
 	},
 
-	getVersion: function() {
-		try {
-			return Components.classes['@mozilla.org/extensions/manager;1']
-				.getService(Components.interfaces.nsIExtensionManager)
-				.getItemForID('{0AA9101C-D3C1-4129-A9B7-D778C6A17F82}').version;
-		}
-		catch (ex) {
-			// todo...
-		};
-		return null;
-	},
-
 	checkVersion: function() {
-		let v = this.getVersion();
+		let v = this.version;
 		if (v) {
 			let prefs = new rcxPrefs();
 			v = 'v' + v;
@@ -238,6 +246,7 @@ var rcxMain = {
 
 	onTabSelect: function() {
 		// see rcxData.loadConfig
+		// @@ todo
 		clearTimeout(rcxMain.tabTimer);
 		rcxMain.tabTimer = null;
 		if ((rcxData.dicPath) && (!rcxData.dicPath.ready)) {
@@ -490,7 +499,7 @@ var rcxMain = {
 			mk = rcxConfig.smaxfk;
 		}
 
-		if (!this.fromLB) mk = 1;
+		if (!f.fromLB) mk = 1;
 
 		text = '';
 		for (i = 0; i < f.length; ++i) {
@@ -675,18 +684,18 @@ var rcxMain = {
 	},
 
 
-	mouseButtons: 0,
+	//	mouseButtons: 0,
 
 	onMouseDown: function(ev) {
-		rcxMain.mouseButtons |= (1 << ev.button);
+		//	rcxMain.mouseButtons |= (1 << ev.button);
 		if (rcxMain.cursorInPopup(ev)) return;
 		rcxMain.hidePopup();
 	},
-
+/*
 	onMouseUp: function(ev) {
 		rcxMain.mouseButtons &= ~(1 << ev.button);
 	},
-
+*/
 	unicodeInfo: function(c) {
 		const hex = '0123456789ABCDEF';
 		const u = c.charCodeAt(0);
@@ -964,8 +973,15 @@ var rcxMain = {
 		tdata.title = null;
 		tdata.uofs = 0;
 		this.uofsNext = 1;
-
-		if ((this.mouseButtons != 0) || (this.lbPop)) return;
+/*		
+		if (this.mouseButtons) {
+			// test: mouseup doesn't fire if auto-scrolling? remove mouseButtons entirely?
+			if (ev.button == 0) this.mouseButtons = 0;
+				else return;
+		}		
+*/
+		if (ev.button != 0) return;
+		if (this.lbPop) return;
 
 		if ((rp) && (rp.data) && (ro < rp.data.length)) {
 			rcxData.select(ev.shiftKey ? rcxData.kanjiPos : 0);
@@ -1023,10 +1039,10 @@ var rcxMain = {
 		if (!this.initDictionary()) return;
 		if (bro.rikaichan == null) {
 			bro.rikaichan = {};
-			this.mouseButtons = 0;
+			//	this.mouseButtons = 0;
 			bro.addEventListener('mousemove', this.onMouseMove, false);
 			bro.addEventListener('mousedown', this.onMouseDown, false);
-			bro.addEventListener('mouseup', this.onMouseUp, false);
+			//	bro.addEventListener('mouseup', this.onMouseUp, false);
 			bro.addEventListener('keydown', this.onKeyDown, true);
 			bro.addEventListener('keyup', this.onKeyUp, true);
 
@@ -1048,7 +1064,7 @@ var rcxMain = {
 	inlineDisable: function(bro, mode) {
 		bro.removeEventListener('mousemove', this.onMouseMove, false);
 		bro.removeEventListener('mousedown', this.onMouseDown, false);
-		bro.removeEventListener('mouseup', this.onMouseUp, false);
+		//	bro.removeEventListener('mouseup', this.onMouseUp, false);
 		bro.removeEventListener('keydown', this.onKeyDown, true);
 		bro.removeEventListener('keyup', this.onKeyUp, true);
 
