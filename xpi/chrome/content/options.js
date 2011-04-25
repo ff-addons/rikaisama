@@ -107,6 +107,10 @@ var rcxOptions = {
 		for (let i = 0; i < s.length; ++i) {
 			if (s[i].match(/(.+?)#(.+)/)) e.appendItem(RegExp.$2, RegExp.$1);
 		}
+		
+		if ((arguments.length) && (arguments[0] == 'dic')) {
+			document.getElementById('rcp-tabbox').selectedIndex = 3;
+		}
 	},
 
 	onOK: function() {

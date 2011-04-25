@@ -1,4 +1,3 @@
-
 <!ENTITY Tab.General "General">
 <!ENTITY Tab.Menus "Menus">
 <!ENTITY Tab.Keyboard "Keyboard">
@@ -18,6 +17,8 @@
 <!ENTITY General.AllBrowsers "All browsers">
 <!ENTITY General.AlwaysEnableAtStartup "Always enable at startup">
 <!ENTITY General.HighlightText "Highlight text">
+<!ENTITY General.TranAltTitle "Translate alt/title tags">
+<!ENTITY General.SelectedInLookupBar "Automatically use selected text in Lookupbar">
 <!ENTITY General.EnlargeSmallDocuments "Enlarge small documents">
 <!ENTITY General.ShowIconInStatusbar "Show icon in statusbar">
 <!ENTITY General.ShowMiniHelp "Show mini help">
@@ -43,6 +44,7 @@
 <!ENTITY Keyboard.MovePopupDown "Move popup down temporarily">
 <!ENTITY Keyboard.CopyToClipboard "Copy to clipboard">
 <!ENTITY Keyboard.SaveToFile "Save to file">
+<!ENTITY Keyboard.HideShowDefinitions "Hide/show definitions">
 <!ENTITY Keyboard.SwitchDictionary "Switch dictionary">
 <!ENTITY Keyboard.PreviousCharacter "Previous character">
 <!ENTITY Keyboard.NextCharacter "Next character">

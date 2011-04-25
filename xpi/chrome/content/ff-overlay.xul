@@ -62,7 +62,7 @@
 		key="rikaichan-copy-key" command="rikaichan-copy-cmd" hidden="true" insertbefore="devToolsSeparator"/>
 </menupopup>
 
-<window id="main-window">
+<toolbox id="navigator-toolbox">
 	<toolbar id="rikaichan-lbar" hidden="true" align="center" fullscreentoolbar="true" insertbefore="browser-stack,browser">
 		<toolbarbutton id="rikaichan-lbar-close" tooltiptext="&rikaichan.lbar.close.tip;"
 			oncommand="rcxMain.lbHide();" />
@@ -77,13 +77,19 @@
 		<toolbarbutton id="rikaichan-lbar-config" tooltiptext="&rikaichan.lbar.config.tip;"
 			oncommand="rcxMain.configPage();" />
 	</toolbar>
-</window>
+</toolbox>
 
 <toolbarpalette id="BrowserToolbarPalette">
 	<toolbarbutton id="rikaichan-toggle-button" class="toolbarbutton-1"
 		label="&rikaichan.toolbar.toggle;" tooltiptext="&rikaichan.toolbar.toggle.tip;"
 		command="rikaichan-toggle-cmd" />
 	<toolbarbutton id="rikaichan-lbar-button" class="toolbarbutton-1"
+		label="&rikaichan.toolbar.lbar;" tooltiptext="&rikaichan.toolbar.lbar.tip;"
+		command="rikaichan-lbar-cmd" />
+	<toolbarbutton id="rikaichan-toggle-button-gs" class="toolbarbutton-1"
+		label="&rikaichan.toolbar.toggle;" tooltiptext="&rikaichan.toolbar.toggle.tip;"
+		command="rikaichan-toggle-cmd" />
+	<toolbarbutton id="rikaichan-lbar-button-gs" class="toolbarbutton-1"
 		label="&rikaichan.toolbar.lbar;" tooltiptext="&rikaichan.toolbar.lbar.tip;"
 		command="rikaichan-lbar-cmd" />
 </toolbarpalette>

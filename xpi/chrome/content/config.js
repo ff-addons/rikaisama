@@ -33,6 +33,8 @@ var rcxConfigList = [
 	[1, 'css'],
 	[0, 'enmode'],
 	[2, 'highlight'],
+	[2, 'title'],
+	[2, 'selinlb'],
 	[2, 'resizedoc'],
 	[2, 'sticon'],
 	[2, 'minihelp'],
@@ -68,7 +70,6 @@ var rcxConfigList = [
 	
 	// not in GUI
 	[0, 'popdelay'],
-	[2, 'title'],
 	[2, 'hidedef'],
 //	[2, 'sticky']
 ];

@@ -76,8 +76,12 @@ var rcxData = {
 		}
 
 		// anything new is added at the end
+		let addedNew = false;
 		for (let id in rcxDicList) {
-			if (!done[id]) this.dicList.push(rcxDicList[id]);
+			if (!done[id]) {
+				this.dicList.push(rcxDicList[id]);
+				addedNew = true;
+			}
 		}
 
 		let ids = [];
@@ -96,6 +100,10 @@ var rcxData = {
 		order2 = this.missing ? '' : order2.join('|');
 		if (order != order2) prefs.setString('dpriority', order2);
 
+		if (addedNew) {
+			// show dictionary tab if we have a new dictionary
+			window.openDialog('chrome://rikaichan/content/options.xul', '', 'chrome,centerscreen', 'dic');
+		}
 
 		// FF 3.7a workaround; @@ revisit later
 		if (!rcxData.dicPath) {

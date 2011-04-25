@@ -1,6 +1,7 @@
 pref('rikaichan.css', 'blue');
 pref('rikaichan.enmode', 1);
 pref('rikaichan.highlight', true);
+pref('rikaichan.selinlb', true);
 pref('rikaichan.resizedoc', false);
 pref('rikaichan.sticon', true);
 pref('rikaichan.minihelp', true);

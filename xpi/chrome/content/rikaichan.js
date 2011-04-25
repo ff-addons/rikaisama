@@ -604,8 +604,10 @@ var rcxMain = {
 		var i;
 
 		switch (ev.keyCode) {
-		case 16:	// shift
 		case 13:	// enter
+			this.clearHi();
+			// continues...
+		case 16:	// shift
 			let tdata = ev.currentTarget.rikaichan;
 			if (tdata) {
 				rcxData.selectNext();	// @@@ hmm
@@ -615,6 +617,7 @@ var rcxMain = {
 			break;
 		case 27:	// esc
 			this.hidePopup();
+			this.clearHi();
 			break;
 		case 65:	// a
 			this.altView = (this.altView + 1) % 3;
@@ -626,11 +629,10 @@ var rcxMain = {
 			this.copyToClip();
 			break;
 		case 68:	// d
-			let p = new rcxPrefs();
-			let b = !p.getBool('hidedef');
-			p.setBool('hidedef', b);
-			this.status((b ? 'Hide' : 'Show') + ' definition');
-			this.show(ev.currentTarget.rikaichan);
+			rcxConfig.hidedef = !rcxConfig.hidedef;
+			this.status((rcxConfig.hidedef ? 'Hide' : 'Show') + ' definition');
+			if (rcxConfig.hidedef) this.showPopup('Hiding definitions. Press "D" to show again.');
+				else this.show(ev.currentTarget.rikaichan);
 			break;
 		case 83:	// s
 			this.saveToFile();
@@ -675,6 +677,7 @@ var rcxMain = {
 
 		// don't eat shift if in this mode
 		if (!rcxConfig.nopopkeys) {
+			ev.stopPropagation();
 			ev.preventDefault();
 		}
 	},
@@ -684,18 +687,10 @@ var rcxMain = {
 	},
 
 
-	//	mouseButtons: 0,
-
 	onMouseDown: function(ev) {
-		//	rcxMain.mouseButtons |= (1 << ev.button);
-		if (rcxMain.cursorInPopup(ev)) return;
-		rcxMain.hidePopup();
+		if (!rcxMain.cursorInPopup(ev)) rcxMain.hidePopup();
 	},
-/*
-	onMouseUp: function(ev) {
-		rcxMain.mouseButtons &= ~(1 << ev.button);
-	},
-*/
+
 	unicodeInfo: function(c) {
 		const hex = '0123456789ABCDEF';
 		const u = c.charCodeAt(0);
@@ -973,13 +968,7 @@ var rcxMain = {
 		tdata.title = null;
 		tdata.uofs = 0;
 		this.uofsNext = 1;
-/*		
-		if (this.mouseButtons) {
-			// test: mouseup doesn't fire if auto-scrolling? remove mouseButtons entirely?
-			if (ev.button == 0) this.mouseButtons = 0;
-				else return;
-		}		
-*/
+
 		if (ev.button != 0) return;
 		if (this.lbPop) return;
 
@@ -1039,10 +1028,8 @@ var rcxMain = {
 		if (!this.initDictionary()) return;
 		if (bro.rikaichan == null) {
 			bro.rikaichan = {};
-			//	this.mouseButtons = 0;
 			bro.addEventListener('mousemove', this.onMouseMove, false);
 			bro.addEventListener('mousedown', this.onMouseDown, false);
-			//	bro.addEventListener('mouseup', this.onMouseUp, false);
 			bro.addEventListener('keydown', this.onKeyDown, true);
 			bro.addEventListener('keyup', this.onKeyUp, true);
 
@@ -1064,7 +1051,6 @@ var rcxMain = {
 	inlineDisable: function(bro, mode) {
 		bro.removeEventListener('mousemove', this.onMouseMove, false);
 		bro.removeEventListener('mousedown', this.onMouseDown, false);
-		//	bro.removeEventListener('mouseup', this.onMouseUp, false);
 		bro.removeEventListener('keydown', this.onKeyDown, true);
 		bro.removeEventListener('keyup', this.onKeyUp, true);
 
@@ -1130,7 +1116,7 @@ var rcxMain = {
 	},
 
 	lbToggle: function() {
-		let text = this.getSelected(window.content).substr(0, 30);
+		let text = rcxConfig.selinlb ? this.getSelected(window.content).substr(0, 30) : '';
 		this.lbText = document.getElementById('rikaichan-lbar-text');
 
 		let e = document.getElementById('rikaichan-lbar');
@@ -1163,10 +1149,12 @@ var rcxMain = {
 	},
 
 	lbSearchButton: function() {
-		let text = this.getSelected(window.content).substr(0, 30);
-		if (text.length) {
-			this.lbText.value = text;
-			this.clearSelected(window.content);
+		if (rcxConfig.selinlb) {
+			let text = this.getSelected(window.content).substr(0, 30);
+			if (text.length) {
+				this.lbText.value = text;
+				this.clearSelected(window.content);
+			}
 		}
 
 		this.lbSearch();

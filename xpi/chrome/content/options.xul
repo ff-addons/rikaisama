@@ -38,7 +38,7 @@
 <script type="application/javascript;version=1.7" src="config.js"/>
 <script type="application/javascript;version=1.7" src="options.js"/>
 
-<tabbox>
+<tabbox id="rcp-tabbox">
 <tabs>
 	<tab label="&Tab.General;"/>
 	<tab label="&Tab.Menus;"/>
@@ -76,6 +76,8 @@
 				</row>
 
 				<checkbox label="&General.HighlightText;" id="rcp-highlight"/>
+				<checkbox label="&General.TranAltTitle;" id="rcp-title"/>
+				<checkbox label="&General.SelectedInLookupBar;" id="rcp-selinlb"/>
 				<checkbox label="&General.EnlargeSmallDocuments;" id="rcp-resizedoc"/>
 				<checkbox label="&General.ShowIconInStatusbar;" id="rcp-sticon"/>
 				<checkbox label="&General.ShowMiniHelp;" id="rcp-minihelp"/>
@@ -153,6 +155,10 @@
 							<row>
 								<description value="&Keyboard.SaveToFile;"/>
 								<description value="S"/>
+							</row>
+							<row>
+								<description value="&Keyboard.HideShowDefinitions;"/>
+								<description value="D"/>
 							</row>
 							<row>
 								<description value="&Keyboard.SwitchDictionary;"/>
