@@ -1,7 +1,7 @@
 /*
 
 	Rikaichan
-	Copyright (C) 2005-2010 Jonathan Zarate
+	Copyright (C) 2005-2011 Jonathan Zarate
 	http://www.polarcloud.com/
 
 	---
@@ -52,6 +52,9 @@ var rcxOptions = {
 	onLoad: function() {
 		if (navigator.userAgent.search(/thunderbird|shredder/i) != -1) {
 			document.getElementById('rcp-enmode-box').hidden = true;
+		}
+		else if (navigator.userAgent.search(/firefox/i) != -1) {
+			document.getElementById('rcp-bottomlb').hidden = false;
 		}
 
 		let pb = new rcxPrefs();
@@ -108,7 +111,7 @@ var rcxOptions = {
 			if (s[i].match(/(.+?)#(.+)/)) e.appendItem(RegExp.$2, RegExp.$1);
 		}
 		
-		if ((arguments.length) && (arguments[0] == 'dic')) {
+		if ((window.arguments.length) && (window.arguments[0] == 'dic')) {
 			document.getElementById('rcp-tabbox').selectedIndex = 3;
 		}
 	},

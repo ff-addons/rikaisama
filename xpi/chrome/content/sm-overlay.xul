@@ -2,7 +2,7 @@
 <!--
 
 	Rikaichan
-	Copyright (C) 2005-2010 Jonathan Zarate
+	Copyright (C) 2005-2011 Jonathan Zarate
 	http://www.polarcloud.com/
 
 
@@ -65,8 +65,17 @@
 	<toolbar id="rikaichan-lbar" hidden="true" align="center" fullscreentoolbar="true" insertbefore="browser-stack">
 		<toolbarbutton id="rikaichan-lbar-close" tooltiptext="&rikaichan.lbar.close.tip;"
 			oncommand="rcxMain.lbHide();" />
-		<textbox id="rikaichan-lbar-text"
-			onkeypress="rcxMain.lbKeyPress(event);" />
+
+		<toolbaritem id="rcx-lookupbar-texttbi" title="Rikaichan Lookup">
+			<hbox id="rcx-lookupbar-hbox" align="center" persist="width">
+				<textbox id="rcx-lookupbar-text" emptytext="rikaichan" flex="1"
+					onkeypress="rcxMain.lbKeyPress(event);" />
+			</hbox>
+			<splitter id="rcx-lookupbar-split" tooltiptext="Resize" resizeafter="grow">
+				<vbox id="rcx-lookupbar-grip" />
+			</splitter>
+		</toolbaritem>
+
 		<toolbarbutton id="rikaichan-lbar-search" tooltiptext="&rikaichan.lbar.search.tip;"
 			oncommand="rcxMain.lbSearchButton();" />
 		<toolbarbutton id="rikaichan-lbar-copy" tooltiptext="&rikaichan.lbar.copy.tip;"
@@ -85,6 +94,22 @@
 	<toolbarbutton id="rikaichan-lbar-button" class="toolbarbutton-1"
 		label="&rikaichan.toolbar.lbar;" tooltiptext="&rikaichan.toolbar.lbar.tip;"
 		command="rikaichan-lbar-cmd" />
+	<toolbarbutton id="rikaichan-toggle-button-gs" class="toolbarbutton-1"
+		label="&rikaichan.toolbar.toggle;" tooltiptext="&rikaichan.toolbar.toggle.tip;"
+		command="rikaichan-toggle-cmd" />
+	<toolbarbutton id="rikaichan-lbar-button-gs" class="toolbarbutton-1"
+		label="&rikaichan.toolbar.lbar;" tooltiptext="&rikaichan.toolbar.lbar.tip;"
+		command="rikaichan-lbar-cmd" />
+
+	<toolbaritem id="rcx-lookupbox" title="Rikaichan Lookup">
+		<hbox id="rcx-lookupbox-hbox" align="center" persist="width">
+			<textbox id="rcx-lookupbox-text" emptytext="rikaichan" flex="1"
+				onkeypress="rcxMain.lookupBoxKey(event);" />
+		</hbox>
+		<splitter id="rcx-lookupbox-split" tooltiptext="Resize" resizeafter="grow">
+			<vbox id="rcx-lookupbox-grip" />
+		</splitter>
+	</toolbaritem>
 </toolbarpalette>
 
 <statusbar id="status-bar" class="chromeclass-status">

@@ -1,7 +1,7 @@
 /*
 
 	Rikaichan
-	Copyright (C) 2005-2010 Jonathan Zarate
+	Copyright (C) 2005-2011 Jonathan Zarate
 	http://www.polarcloud.com/
 
 	---
@@ -35,10 +35,10 @@ var rcxConfigList = [
 	[2, 'highlight'],
 	[2, 'title'],
 	[2, 'selinlb'],
+	[2, 'bottomlb'],
 	[2, 'resizedoc'],
 	[2, 'sticon'],
 	[2, 'minihelp'],
-	[2, 'checkversion'],
 
 	// menus
 	[2, 'tmtoggle'],
@@ -54,6 +54,7 @@ var rcxConfigList = [
 	[2, 'wpop'],
 	[0, 'wmax'],
 	[0, 'namax'],
+	[2, 'hidex'],
 	
 	// kanji
 	[1, 'kindex'],
@@ -71,6 +72,7 @@ var rcxConfigList = [
 	// not in GUI
 	[0, 'popdelay'],
 	[2, 'hidedef'],
+	[2, 'checkversion']
 //	[2, 'sticky']
 ];
 

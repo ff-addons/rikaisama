@@ -2,7 +2,7 @@
 <!--
 
 	Rikaichan
-	Copyright (C) 2005-2010 Jonathan Zarate
+	Copyright (C) 2005-2011 Jonathan Zarate
 	http://www.polarcloud.com/
 
 
@@ -78,10 +78,10 @@
 				<checkbox label="&General.HighlightText;" id="rcp-highlight"/>
 				<checkbox label="&General.TranAltTitle;" id="rcp-title"/>
 				<checkbox label="&General.SelectedInLookupBar;" id="rcp-selinlb"/>
+				<checkbox label="&General.BottomLookupBar;" id="rcp-bottomlb" hidden="true" />
 				<checkbox label="&General.EnlargeSmallDocuments;" id="rcp-resizedoc"/>
 				<checkbox label="&General.ShowIconInStatusbar;" id="rcp-sticon"/>
 				<checkbox label="&General.ShowMiniHelp;" id="rcp-minihelp"/>
-				<checkbox label="First run check at start (for debug)" id="rcp-checkversion"/>
 			</rows>
 		</grid>
 	</tabpanel>
@@ -106,114 +106,115 @@
 	</tabpanel>
 
 	<tabpanel><!-- Keyboard -->
-		<grid>
-			<columns><column/><column/></columns>
-			<rows>
-				<row>
-					<label value="&Keyboard.Toggle;"/>
-					<checkbox label="&Keyboard.Ctrl;" id="rcp-toggle-accel"/>
-					<checkbox label="&Keyboard.Alt;" id="rcp-toggle-alt"/>
-					<checkbox label="&Keyboard.Shift;" id="rcp-toggle-shift"/>
-					<menulist id="rcp-toggle-key" editable="true" oninput="rcxOptions.keyChanged(this)" oncommand="rcxOptions.keyChanged(this)">
-						<menupopup id="rcp-toggle-list"/>
-					</menulist>
-				</row>
-				<row>
-					<label value="&Keyboard.LookupBar;"/>
-					<checkbox label="&Keyboard.Ctrl;" id="rcp-lbar-accel"/>
-					<checkbox label="&Keyboard.Alt;" id="rcp-lbar-alt"/>
-					<checkbox label="&Keyboard.Shift;" id="rcp-lbar-shift"/>
-					<menulist id="rcp-lbar-key" editable="true" oninput="rcxOptions.keyChanged(this)" oncommand="rcxOptions.keyChanged(this)">
-						<menupopup id="rcp-lbar-list"/>
-					</menulist>
-				</row>
+		<vbox>
+			<grid>
+				<columns><column/><column/><column/><column/><column/></columns>
+				<rows>
+					<row>
+						<label value="&Keyboard.Toggle;"/>
+						<checkbox label="&Keyboard.Ctrl;" id="rcp-toggle-accel"/>
+						<checkbox label="&Keyboard.Alt;" id="rcp-toggle-alt"/>
+						<checkbox label="&Keyboard.Shift;" id="rcp-toggle-shift"/>
+						<menulist id="rcp-toggle-key" editable="true" oninput="rcxOptions.keyChanged(this)" oncommand="rcxOptions.keyChanged(this)">
+							<menupopup id="rcp-toggle-list"/>
+						</menulist>
+					</row>
+					<row>
+						<label value="&Keyboard.LookupBar;"/>
+						<checkbox label="&Keyboard.Ctrl;" id="rcp-lbar-accel"/>
+						<checkbox label="&Keyboard.Alt;" id="rcp-lbar-alt"/>
+						<checkbox label="&Keyboard.Shift;" id="rcp-lbar-shift"/>
+						<menulist id="rcp-lbar-key" editable="true" oninput="rcxOptions.keyChanged(this)" oncommand="rcxOptions.keyChanged(this)">
+							<menupopup id="rcp-lbar-list"/>
+						</menulist>
+					</row>
+				</rows>
+			</grid>
 
-				<description value="&Keyboard.NoteRestartBrowser;"/>
-				<spacer style="height:2em"/>
+			<description value="&Keyboard.NoteRestartBrowser;"/>
 
-				<groupbox>
-					<caption label="&Keyboard.KeysWhenVisible;"/>
-					<grid>
-						<columns><column/><column/></columns>
-						<rows>
-							<row>
-								<description value="&Keyboard.AlternateView;"/>
-								<description value="A"/>
-							</row>
-							<row>
-								<description value="&Keyboard.StickyPopup;"/>
-								<description value="K"/>
-							</row>
-							<row>
-								<description value="&Keyboard.MovePopupDown;"/>
-								<description value="Y"/>
-							</row>
-							<row>
-								<description value="&Keyboard.CopyToClipboard;"/>
-								<description value="C"/>
-							</row>
-							<row>
-								<description value="&Keyboard.SaveToFile;"/>
-								<description value="S"/>
-							</row>
-							<row>
-								<description value="&Keyboard.HideShowDefinitions;"/>
-								<description value="D"/>
-							</row>
-							<row>
-								<description value="&Keyboard.SwitchDictionary;"/>
-								<description value="SHIFT, ENTER, 1-9"/>
-							</row>
-							<row>
-								<description value="&Keyboard.PreviousCharacter;"/>
-								<description value="B"/>
-							</row>
-							<row>
-								<description value="&Keyboard.NextCharacter;"/>
-								<description value="M"/>
-							</row>
-							<row>
-								<description value="&Keyboard.NextWord;"/>
-								<description value="N"/>
-							</row>
-						</rows>
-					</grid>
-					<spacer style="height:1em"/>
-					<checkbox label="&Keyboard.DisableTheseKeys;" id="rcp-nopopkeys"/>
-				</groupbox>
-			</rows>
-		</grid>
+			<spacer style="height:2em"/>
+
+			<groupbox>
+				<caption label="&Keyboard.KeysWhenVisible;"/>
+				<grid>
+					<columns><column/><column/></columns>
+					<rows>
+						<row>
+							<description value="&Keyboard.AlternateView;"/>
+							<description value="A"/>
+						</row>
+						<row>
+							<description value="&Keyboard.StickyPopup;"/>
+							<description value="K"/>
+						</row>
+						<row>
+							<description value="&Keyboard.MovePopupDown;"/>
+							<description value="Y"/>
+						</row>
+						<row>
+							<description value="&Keyboard.CopyToClipboard;"/>
+							<description value="C"/>
+						</row>
+						<row>
+							<description value="&Keyboard.SaveToFile;"/>
+							<description value="S"/>
+						</row>
+						<row>
+							<description value="&Keyboard.HideShowDefinitions;"/>
+							<description value="D"/>
+						</row>
+						<row>
+							<description value="&Keyboard.SwitchDictionary;"/>
+							<description value="SHIFT, ENTER, 1-9"/>
+						</row>
+						<row>
+							<description value="&Keyboard.PreviousCharacter;"/>
+							<description value="B"/>
+						</row>
+						<row>
+							<description value="&Keyboard.NextCharacter;"/>
+							<description value="M"/>
+						</row>
+						<row>
+							<description value="&Keyboard.NextWord;"/>
+							<description value="N"/>
+						</row>
+					</rows>
+				</grid>
+				<spacer style="height:1em"/>
+				<checkbox label="&Keyboard.DisableTheseKeys;" id="rcp-nopopkeys"/>
+			</groupbox>
+		</vbox>
 	</tabpanel>
 
 	<tabpanel><!-- Dictionaries -->
-		<grid>
-			<columns><column/><column/></columns>
-			<rows>
-				<groupbox>
-					<caption label="&Dictionaries.Priority;"/>
-					<hbox>
-						<listbox id="rcp-priority" flex="1"/>
-						<vbox>
-							<button label="&#8593;" oncommand="rcxOptions.movePriority(-1)"/>
-							<button label="&#8595;" oncommand="rcxOptions.movePriority(1)"/>
-							<spacer style="height:2em"/>
-							<button label="&Dictionaries.Download;" oncommand="rcxOptions.Download()"/>
-						</vbox>
-					</hbox>
-				</groupbox>
-				<checkbox label="&Dictionaries.HideDefinitions;" id="rcp-hidedef"/>
-				<checkbox label="&Dictionaries.ShowWordType;" id="rcp-wpos"/>
-				<checkbox label="&Dictionaries.ShowPopular;" id="rcp-wpop"/>
-				<row>
-					<label value="&Dictionaries.MaxEntries;" control="rcp-wmax"/>
-					<textbox id="rcp-wmax" maxlength="5" size="5"/>
-				</row>
-				<row>
-					<label value="&Dictionaries.MaxNames;" control="rcp-namax"/>
-					<textbox id="rcp-namax" maxlength="5" size="5"/>
-				</row>
-			</rows>
-		</grid>
+		<vbox flex="1">
+			<groupbox flex="1">
+				<caption label="&Dictionaries.Priority;"/>
+				<hbox flex="1">
+					<listbox id="rcp-priority" flex="1" />
+					<vbox>
+						<button label="&#8593;" oncommand="rcxOptions.movePriority(-1)"/>
+						<button label="&#8595;" oncommand="rcxOptions.movePriority(1)"/>
+						<spacer style="height:2em"/>
+						<button label="&Dictionaries.Download;" oncommand="rcxOptions.Download()"/>
+					</vbox>
+				</hbox>
+			</groupbox>
+			<checkbox label="&Dictionaries.HideDefinitions;" id="rcp-hidedef"/>
+			<checkbox label="&Dictionaries.HideX;" id="rcp-hidex"/>
+			<checkbox label="&Dictionaries.ShowWordType;" id="rcp-wpos"/>
+			<checkbox label="&Dictionaries.ShowPopular;" id="rcp-wpop"/>
+			<hbox>
+				<label value="&Dictionaries.MaxEntries;" control="rcp-wmax"/>
+				<textbox id="rcp-wmax" maxlength="5" size="5"/>
+			</hbox>
+			<hbox>
+				<label value="&Dictionaries.MaxNames;" control="rcp-namax"/>
+				<textbox id="rcp-namax" maxlength="5" size="5"/>
+			</hbox>
+		</vbox>
 	</tabpanel>
 
 	<tabpanel><!-- Kanji Dictionary -->

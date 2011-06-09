@@ -53,3 +53,24 @@
 #rikaichan-status[rc_enabled=true] {
 	list-style-image: url("chrome://rikaichan/skin/smile_star.png");
 }
+
+#rcx-lookupbar-text {
+	min-width: 150px;
+}
+
+#rcx-lookupbox-text {
+	min-width: 65px;
+}
+
+#rcx-lookupbox-grip,
+#rcx-lookupbar-grip {
+	background-image: url("chrome://rikaichan/skin/gripper.png");
+	min-height: 22px;
+	min-width: 3px;
+}
+
+#rcx-lookupbox-split,
+#rcx-lookupbar-split {
+	background: transparent;
+	border: none !important;
+}

@@ -19,6 +19,7 @@
 <!ENTITY General.HighlightText "Highlight text">
 <!ENTITY General.TranAltTitle "Translate alt/title tags">
 <!ENTITY General.SelectedInLookupBar "Automatically use selected text in Lookupbar">
+<!ENTITY General.BottomLookupBar "Show Lookupbar at the bottom">
 <!ENTITY General.EnlargeSmallDocuments "Enlarge small documents">
 <!ENTITY General.ShowIconInStatusbar "Show icon in statusbar">
 <!ENTITY General.ShowMiniHelp "Show mini help">
@@ -54,6 +55,7 @@
 
 <!ENTITY Dictionaries.Priority "Priority">
 <!ENTITY Dictionaries.HideDefinitions "Hide definitions">
+<!ENTITY Dictionaries.HideX "Hide (X)-rated entries">
 <!ENTITY Dictionaries.ShowWordType "Show word type indicators [example: (v1,n)]">
 <!ENTITY Dictionaries.ShowPopular "Show &quot;popular&quot; indicator [example: (P)]">
 <!ENTITY Dictionaries.MaxEntries "Maximum entries displayed">

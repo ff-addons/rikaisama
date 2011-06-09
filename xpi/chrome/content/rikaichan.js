@@ -1,7 +1,7 @@
 ﻿/*
 
 	Rikaichan
-	Copyright (C) 2005-2010 Jonathan Zarate
+	Copyright (C) 2005-2011 Jonathan Zarate
 	http://www.polarcloud.com/
 
 	---
@@ -81,8 +81,18 @@ var rcxMain = {
 	rcxObs: {
 		observe: function(subject, topic, data) {
 			if (topic == 'rikaichan') {
+//				rcxDebug.echo('observe: ' + data);	// @@@
+
 				if (data == 'getdic') {
 					rcxMain.showDownloadPage();
+					return;
+				}
+				
+				if (data == 'dicready') {
+					if (rcxMain.tabSelectPending) {
+						rcxMain.tabSelectPending = false;
+						rcxMain.onTabSelect();
+					}
 					return;
 				}
 
@@ -107,6 +117,7 @@ var rcxMain = {
 				.removeObserver(rcxMain.rcxObs, 'rikaichan');
 		},
 		notifyState: function(state) {
+//			rcxDebug.echo('notifyState: ' + state);	// @@@
 			Components.classes['@mozilla.org/observer-service;1']
 				.getService(Components.interfaces.nsIObserverService)
 				.notifyObservers(null, 'rikaichan', state);
@@ -142,6 +153,8 @@ var rcxMain = {
 			});
 		}
 
+		this.rcxObs.register();
+
 		rcxConfig.load();
 		rcxConfig.observer.start();
 
@@ -150,7 +163,6 @@ var rcxMain = {
 		}
 		else {
 			gBrowser.mTabContainer.addEventListener('select', this.onTabSelect, false);
-			this.rcxObs.register();
 
 			// enmode: 0=tab, 1=browser, 2=all, 3=always
 			if (rcxConfig.enmode >= 2) {
@@ -246,15 +258,13 @@ var rcxMain = {
 
 	onTabSelect: function() {
 		// see rcxData.loadConfig
-		// @@ todo
-		clearTimeout(rcxMain.tabTimer);
-		rcxMain.tabTimer = null;
 		if ((rcxData.dicPath) && (!rcxData.dicPath.ready)) {
-			rcxMain.tabTimer = setTimeout(rcxMain.onTabSelect, 500);
-			return;
+			rcxMain.tabSelectPending = true;
+//			rcxDebug.echo('tabSelectPending = true');	// @@@
 		}
-
-		rcxMain._onTabSelect();
+		else {
+			rcxMain._onTabSelect();
+		}
 	},
 
 	_onTabSelect: function() {
@@ -747,20 +757,16 @@ var rcxMain = {
 	// selEnd: the selection end object will be changed as a side effect
 	// maxLength: the maximum length of returned string
 	getInlineText: function (node, selEndList, maxLength) {
-		var text = '';
-		var endIndex;
+		if ((node.nodeType == Node.TEXT_NODE) && (node.data.length == 0)) return ''
 
-		if (node.nodeType == Node.TEXT_NODE && node.data.length == 0) return ''
-
-		var result = node.ownerDocument.evaluate('descendant-or-self::text()[not(parent::rp) and not(ancestor::rt)]',
+		let text = '';
+		let result = node.ownerDocument.evaluate('descendant-or-self::text()[not(parent::rp) and not(ancestor::rt)]',
 						node, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-
-		while ((text.length < maxLength) && (node = result.iterateNext())) {
-			endIndex = Math.min(node.data.length, maxLength - text.length);
-			text += node.data.substring(0, endIndex);
+		while ((maxLength > 0) && (node = result.iterateNext())) {
+			text += node.data.substr(0, maxLength);
+			maxLength -= node.data.length;
 			selEndList.push(node);
 		}
-
 		return text;
 	},
 
@@ -776,9 +782,6 @@ var rcxMain = {
 	},
 
 	getTextFromRange: function(rangeParent, offset, selEndList, maxLength) {
-		var text = '';
-		var endIndex;
-
 		if (rangeParent.ownerDocument.evaluate('boolean(parent::rp or ancestor::rt)',
 			rangeParent, null, XPathResult.BOOLEAN_TYPE, null).booleanValue)
 			return '';
@@ -786,15 +789,16 @@ var rcxMain = {
 		if (rangeParent.nodeType != Node.TEXT_NODE)
 			return '';
 
-		endIndex = Math.min(rangeParent.data.length, offset + maxLength);
-		text += rangeParent.data.substring(offset, endIndex);
+		let text = rangeParent.data.substr(offset, maxLength);
 		selEndList.push(rangeParent);
 
 		var nextNode = rangeParent;
-		while (((nextNode = this.getNext(nextNode)) != null) &&
-			(this.inlineNames[nextNode.nodeName]) && (text.length < maxLength)) {
+		while ((text.length < maxLength) &&
+			((nextNode = this.getNext(nextNode)) != null) &&
+			(this.inlineNames[nextNode.nodeName])) {
 			text += this.getInlineText(nextNode, selEndList, maxLength - text.length);
 		}
+
 		return text;
 	},
 
@@ -835,7 +839,6 @@ var rcxMain = {
 	show: function(tdata) {
 		var rp = tdata.prevRangeNode;
 		var ro = tdata.prevRangeOfs + tdata.uofs;
-		var u;
 
 		tdata.uofsNext = 1;
 
@@ -844,13 +847,17 @@ var rcxMain = {
 			this.hidePopup();
 			return 0;
 		}
-
+		
 		if ((ro < 0) || (ro >= rp.data.length)) {
 			this.clearHi();
 			this.hidePopup();
 			return 0;
 		}
 
+/*
+		var u;
+
+!! -- no longer a problem? FF3(ok), FF4(ok), SM2(ok), TB3(ok)
 		// if we have '   XYZ', where whitespace is compressed, X never seems to get selected
 		while (((u = rp.data.charCodeAt(ro)) == 32) || (u == 9) || (u == 10)) {
 			++ro;
@@ -860,8 +867,10 @@ var rcxMain = {
 				return 0;
 			}
 		}
+*/
 
-		//
+		// @@@ check me
+		let u = rp.data.charCodeAt(ro);
 		if ((isNaN(u)) ||
 			((u != 0x25CB) &&
 			((u < 0x3001) || (u > 0x30FF)) &&
@@ -1117,11 +1126,34 @@ var rcxMain = {
 
 	lbToggle: function() {
 		let text = rcxConfig.selinlb ? this.getSelected(window.content).substr(0, 30) : '';
-		this.lbText = document.getElementById('rikaichan-lbar-text');
+		this.lbText = document.getElementById('rcx-lookupbar-text');
 
 		let e = document.getElementById('rikaichan-lbar');
 		if (e.hidden) {
+			// FF only
+			if ((rcxConfig._bottomlb == true) != rcxConfig.bottomlb) {
+				rcxConfig._bottomlb = rcxConfig.bottomlb;
+
+				if (rcxConfig.bottomlb) {
+					let bottom = document.getElementById('browser-bottombox');
+					if ((bottom) && (e.parentNode != bottom)) {
+						e.parentNode.removeChild(e);
+						e.setAttribute('ordinal', 0);
+						bottom.insertBefore(e, bottom.firstChild);
+					}
+				}
+				else {
+					let top = document.getElementById('navigator-toolbox');
+					if ((top) && (e.parentNode != top)) {
+						e.parentNode.removeChild(e);
+						e.setAttribute('ordinal', 1000);
+						top.appendChild(e);
+					}
+				}
+			}
+		
 			e.hidden = false;
+			this.lbText.focus();
 		}
 		else if (!this.lbText.getAttribute("focused")) {
 			this.lbText.focus();
@@ -1137,7 +1169,7 @@ var rcxMain = {
 	lbKeyPress: function(ev) {
 		switch (ev.keyCode) {
 		case 13:
-			this.lbSearch();
+			this.lookupSearch(this.lbText.value);
 			ev.stopPropagation();
 			break;
 		case 27:
@@ -1157,14 +1189,14 @@ var rcxMain = {
 			}
 		}
 
-		this.lbSearch();
+		this.lookupSearch(this.lbText.value);
 
 		this.lbText.select();
 		this.lbText.focus();
 	},
 
-	lbSearch: function() {
-		let s = this.lbText.value.replace(/^\s+|\s+$/g, '');
+	lookupSearch: function(text) {
+		let s = text.replace(/^\s+|\s+$/g, '');
 		if (!s.length) return;
 
 		if ((this.lbLast == s) && (this.isVisible())) {
@@ -1217,6 +1249,20 @@ var rcxMain = {
 			}
 
 			this.showPopup('<table class="q-tb"><tr><td class="q-w">' + html + '</td>' + kanji + '</tr></table>', null, null, true);
+		}
+	},
+
+	lookupBoxKey: function(ev) {
+		switch (ev.keyCode) {
+		case 13:
+			this.lookupSearch(ev.target.value);
+			ev.stopPropagation();
+			break;
+		case 27:
+			if (this.isVisible()) this.hidePopup();
+			ev.target.value = "";
+			ev.stopPropagation();
+			break;
 		}
 	},
 
@@ -1309,12 +1355,18 @@ var rcxConfig = {
 		let e = document.getElementById('rikaichan-status');
 		if (e) e.hidden = (rcxConfig.sticon == 0);
 
+		if ((rcxConfig._bottomlb == true) != rcxConfig.bottomlb) {
+			// switch it later, not at every change/startup
+			e = document.getElementById('rikaichan-lbar');
+			if (e) e.hidden = true;
+		}
+
 		rcxData.loadConfig();
 	}
 };
 
 
-/*
+/*					
 var rcxDebug = {
 	echo: function(text) {
 		Components.classes['@mozilla.org/consoleservice;1']
@@ -1362,6 +1414,5 @@ var rcxDebug = {
 	}
 };
 */
-
 
 rcxMain.init();
