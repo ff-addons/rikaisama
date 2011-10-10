@@ -46,3 +46,5 @@ pref('rikaichan.dpriority', '');
 pref('rikaichan.hidedef', false);
 pref('rikaichan.hidex', false);
 //	pref('rikaichan.sticky', false);
+
+pref('rikaichan.firsticon', true);

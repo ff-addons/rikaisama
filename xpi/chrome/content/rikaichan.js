@@ -37,24 +37,66 @@ var rcxMain = {
 	altView: 0,
 	enabled: 0,
 	sticky: false,
-	id: '{0AA9101C-D3C1-4129-A9B7-D778C6A17F82}',
 	version: null,
 
-	getCurrentBrowser: function() {
-		if (this.isTB) {
-			var b = document.getElementById('messagepane');
-			if (b) return b;
-			return document.getElementById('content-frame');	// compose
-		}
-		else {
-			return gBrowser.mCurrentBrowser;
-		}
+	getBrowserTB: function() {
+		if (rcxMain.tabMail) return rcxMain.tabMail.getBrowserForSelectedTab();
+		return document.getElementById('messagepane') || document.getElementById('content-frame');
+	},
+
+	getBrowserFF: function() {
+		return gBrowser.mCurrentBrowser;
 	},
 
 	global: function() {
 		return Components.classes["@mozilla.org/appshell/appShellService;1"]
 			.getService(Components.interfaces.nsIAppShellService)
 			.hiddenDOMWindow;
+	},
+
+	rcxObs: {
+		observe: function(subject, topic, data) {
+//			rcxDebug.echo('rcxObs: topic=' + topic + ' / data=' + data);
+
+			if (topic == 'rikaichan') {
+				if (data == 'getdic') {
+					rcxMain.showDownloadPage();
+					return;
+				}
+
+				if (data == 'dready') {
+					if (rcxMain.tabSelectPending) {
+						rcxMain.tabSelectPending = false;
+						rcxMain.onTabSelect();
+					}
+					return;
+				}
+
+				// enmode: 0=tab, 1=browser, 2=all, 3=always
+				if ((rcxConfig.enmode >= 2) && ((data == 'enable') || (data == 'disable'))) {
+					if (rcxMain.enabled != (data == 'enable')) {
+						if (rcxMain.enabled) rcxMain.disable(gBrowser.mCurrentBrowser, 0);
+							else rcxMain.enabled = 1;
+						rcxMain.onTabSelect();
+					}
+				}
+			}
+		},
+		register: function() {
+			Components.classes["@mozilla.org/observer-service;1"]
+				.getService(Components.interfaces.nsIObserverService)
+				.addObserver(rcxMain.rcxObs, 'rikaichan', false);
+		},
+		unregister: function() {
+			Components.classes['@mozilla.org/observer-service;1']
+				.getService(Components.interfaces.nsIObserverService)
+				.removeObserver(rcxMain.rcxObs, 'rikaichan');
+		},
+		notifyState: function(state) {
+			Components.classes['@mozilla.org/observer-service;1']
+				.getService(Components.interfaces.nsIObserverService)
+				.notifyObservers(null, 'rikaichan', state);
+		}
 	},
 
 	tbObs: {
@@ -78,79 +120,44 @@ var rcxMain = {
 		}
 	},
 
-	rcxObs: {
-		observe: function(subject, topic, data) {
-			if (topic == 'rikaichan') {
-//				rcxDebug.echo('observe: ' + data);	// @@@
+	tbTabMonitor: {
+		monitorName: 'rikaichan',
+		onTabSwitched: function(aTab, aOldTab) { rcxMain.onTabSelect() },
+		onTabTitleChanged: function(aTab) { },
+		onTabOpened: function(aTab, aIsFirstTab, aWasCurrentTab) { },
+		onTabClosing: function(aTab) { },
+		onTabPersist: function(aTab) { },
+		onTabRestored: function(aTab, aState, aIsFirstTab) { }
+	},
 
-				if (data == 'getdic') {
-					rcxMain.showDownloadPage();
-					return;
-				}
-				
-				if (data == 'dicready') {
-					if (rcxMain.tabSelectPending) {
-						rcxMain.tabSelectPending = false;
-						rcxMain.onTabSelect();
-					}
-					return;
-				}
+	init: function() {
+		window.addEventListener('load', function() { rcxMain._init() }, false);
+	},
 
-				// enmode: 0=tab, 1=browser, 2=all, 3=always
-				if ((rcxConfig.enmode >= 2) && ((data == 'enable') || (data == 'disable'))) {
-					if (rcxMain.enabled != (data == 'enable')) {
-						if (rcxMain.enabled) rcxMain.inlineDisable(gBrowser.mCurrentBrowser, 0);
-							else rcxMain.enabled = 1;
-						rcxMain.onTabSelect();
+	_init: function() {
+		window.addEventListener('unload', function() { rcxMain.onUnload() }, false);
+
+		if (true) {
+			let docID = document.documentElement.id;
+			this.isTB = ((docID == "messengerWindow") || (docID == "msgcomposeWindow"));
+
+			let mks = this.isTB ? (document.getElementById('mailKeys') || document.getElementById('editorKeys')) :
+						document.getElementById('mainKeyset') || document.getElementById('navKeys');
+			if (mks) {
+				let prefs = new rcxPrefs();
+				for (let [i, name] in ['toggle', 'lbar']) {
+					let s = prefs.getString(name + '.key');
+					if ((s.length) && (s != '(disabled)')) {
+						let key = document.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'key');
+						key.setAttribute('id', 'rikaichan-key-' + name);
+						if (s.length > 1) key.setAttribute('keycode', 'VK_' + s.replace(' ', '_').toUpperCase());	// "Page Up" -> "VK_PAGE_UP"
+							else key.setAttribute('key', s);
+						key.setAttribute('modifiers', prefs.getString(name + '.mod'));
+						key.setAttribute('command', 'rikaichan-' + name + '-cmd');
+						mks.appendChild(key);
 					}
 				}
 			}
-		},
-		register: function() {
-			Components.classes["@mozilla.org/observer-service;1"]
-				.getService(Components.interfaces.nsIObserverService)
-				.addObserver(rcxMain.rcxObs, 'rikaichan', false);
-		},
-		unregister: function() {
-			Components.classes['@mozilla.org/observer-service;1']
-				.getService(Components.interfaces.nsIObserverService)
-				.removeObserver(rcxMain.rcxObs, 'rikaichan');
-		},
-		notifyState: function(state) {
-//			rcxDebug.echo('notifyState: ' + state);	// @@@
-			Components.classes['@mozilla.org/observer-service;1']
-				.getService(Components.interfaces.nsIObserverService)
-				.notifyObservers(null, 'rikaichan', state);
-		}
-	},
-
-
-	init: function() {
-		window.addEventListener('load', function() { rcxMain.onLoad() }, false);
-	},
-
-	onLoad: function() {
-		window.addEventListener('unload', function() { rcxMain.onUnload() }, false);
-
-		var docID = document.documentElement.id;
-		this.isTB = ((docID == "messengerWindow") || (docID == "msgcomposeWindow"));
-		var mks = this.isTB ? (document.getElementById('mailKeys') || document.getElementById('editorKeys')) :
-					document.getElementById('mainKeyset') || document.getElementById('navKeys');
-		if (mks) {
-			var prefs = new rcxPrefs();
-			['toggle', 'lbar'].forEach(function(name) {
-				let s = prefs.getString(name + '.key');
-				if ((s.length) && (s != '(disabled)')) {
-					let key = document.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'key');
-					key.setAttribute('id', 'rikaichan-key-' + name);
-					if (s.length > 1) key.setAttribute('keycode', 'VK_' + s.replace(' ', '_').toUpperCase());	// "Page Up" -> "VK_PAGE_UP"
-						else key.setAttribute('key', s);
-					key.setAttribute('modifiers', prefs.getString(name + '.mod'));
-					key.setAttribute('command', 'rikaichan-' + name + '-cmd');
-					mks.appendChild(key);
-				}
-
-			});
 		}
 
 		this.rcxObs.register();
@@ -159,53 +166,61 @@ var rcxMain = {
 		rcxConfig.observer.start();
 
 		if (this.isTB) {
+			this.getBrowser = function() {
+				if (rcxMain.tabMail) return rcxMain.tabMail.getBrowserForSelectedTab();
+				return document.getElementById('messagepane') || document.getElementById('content-frame');
+			}
+
+			this.tabMail = document.getElementById('tabmail');
+			if (this.tabMail) {
+				this.tabMail.registerTabMonitor(this.tbTabMonitor);
+			}
+
 			this.tbObs.register();
 		}
 		else {
+			this.getBrowser = function() { return gBrowser.mCurrentBrowser; }
+
 			gBrowser.mTabContainer.addEventListener('select', this.onTabSelect, false);
 
 			// enmode: 0=tab, 1=browser, 2=all, 3=always
 			if (rcxConfig.enmode >= 2) {
-				if ((this.global().rikaichanActive) || (rcxConfig.enmode == 3)) {
+				if ((rcxConfig.enmode == 3) || (this.global().rikaichanActive)) {
 					this.enabled = 1;
 					this.onTabSelect();
 				}
 			}
-		}
-
-		try {
-			// ref: https://developer.mozilla.org/en/Addons/Add-on_Manager/AddonManager
-			Components.utils.import('resource://gre/modules/AddonManager.jsm');
-			AddonManager.getAddonByID(this.id, function(addon) {
-				rcxMain.version = addon.version;
-			});
-		}
-		catch (ex) {
+			
+			// add icon to the toolbar
 			try {
-				this.version = Components.classes['@mozilla.org/extensions/manager;1']
-					.getService(Components.interfaces.nsIExtensionManager)
-					.getItemForID(this.id).version;
+				let prefs = new rcxPrefs();
+				if (prefs.getBool('firsticon')) {
+					prefs.setBool('firsticon', false);
+
+					// ref: https://developer.mozilla.org/En/Code_snippets:Toolbar#Adding_button_by_default
+					let nb = document.getElementById('nav-bar');
+					nb.insertItem('rikaichan-toggle-button');
+					nb.setAttribute('currentset', nb.currentSet);
+					document.persist(nb.id, 'currentset');
+				}
 			}
-			catch (ex) {
-				this.version = null;
-			}
+			catch (ex) { }			
 		}
 
-		if (rcxConfig.checkversion) {
-			setTimeout(function() { rcxMain.checkVersion() }, 2000);
-		}
+		this.checkVersion();
 	},
 
-
-
 	onUnload: function() {
+		this.rcxObs.unregister();
 		rcxConfig.observer.stop();
 		if (this.isTB) {
+			if (this.tabMail) {
+				this.tabMail.unregisterTabMonitor(this.tbTabMonitor);
+			}
 			this.tbObs.unregister();
 		}
 		else {
 			gBrowser.mTabContainer.removeEventListener('select', this.onTabSelect, false);
-			this.rcxObs.unregister();
 		}
 	},
 
@@ -227,7 +242,7 @@ var rcxMain = {
 	},
 
 	showDownloadPage: function() {
-		var url = 'http://rikaichan.mozdev.org/getdic2.html?version=' + (this.version || '');
+		const url = 'http://rikaichan.mozdev.org/getdic2.html?version=' + (this.version || '');
 		try {
 			if (this.isTB) {
 				Components.classes['@mozilla.org/messenger;1'].createInstance()
@@ -235,8 +250,8 @@ var rcxMain = {
 					.launchExternalURL(url);
 			}
 			else {
-				var w = window.open(url, 'rikaichan');
-				if (w) w.focus();
+				let tab = gBrowser.addTab(url);
+				if (tab) tab.focus();
 			}
 		}
 		catch (ex) {
@@ -245,14 +260,35 @@ var rcxMain = {
 	},
 
 	checkVersion: function() {
-		let v = this.version;
-		if (v) {
-			let prefs = new rcxPrefs();
-			v = 'v' + v;
-			if (prefs.getString('version') != v) {
-				prefs.setString('version', v);
-				this.showDownloadPage();
+		let id = '{0AA9101C-D3C1-4129-A9B7-D778C6A17F82}';
+		try {
+			// ref: https://developer.mozilla.org/en/Addons/Add-on_Manager/AddonManager
+			Components.utils.import('resource://gre/modules/AddonManager.jsm');
+			AddonManager.getAddonByID(id, function(addon) {
+				rcxMain.version = addon.version;
+			});
+		}
+		catch (ex) {
+			try {
+				this.version = Components.classes['@mozilla.org/extensions/manager;1']
+					.getService(Components.interfaces.nsIExtensionManager)
+					.getItemForID(id).version;
 			}
+			catch (ex) {
+			}
+		}
+
+		if (rcxConfig.checkversion) {
+			setTimeout(function() {
+				if (rcxMain.version) {
+					let prefs = new rcxPrefs();
+					v = 'v' + rcxMain.version;
+					if (prefs.getString('version') != v) {
+						prefs.setString('version', v);
+						rcxMain.showDownloadPage();
+					}
+				}
+			}, 2000);
 		}
 	},
 
@@ -260,7 +296,6 @@ var rcxMain = {
 		// see rcxData.loadConfig
 		if ((rcxData.dicPath) && (!rcxData.dicPath.ready)) {
 			rcxMain.tabSelectPending = true;
-//			rcxDebug.echo('tabSelectPending = true');	// @@@
 		}
 		else {
 			rcxMain._onTabSelect();
@@ -268,34 +303,32 @@ var rcxMain = {
 	},
 
 	_onTabSelect: function() {
-		var bro = this.getCurrentBrowser();
+		var bro = this.getBrowser();
 
-		if ((rcxConfig.enmode > 0) && (this.enabled == 1) && (bro.rikaichan == null))
-			this.inlineEnable(bro, 0);
-
-		var b = document.getElementById('rikaichan-toggle-button');
-		if (b) b.setAttribute('rc_enabled', (bro.rikaichan != null));
-
-		var en = (bro.rikaichan != null);
-		b = document.getElementById('rikaichan-toggle-cmd');
-		if (b) b.setAttribute('checked', en);
-		// note: above doesn't work in TB 2.x
 		if (this.isTB) {
-			b = document.getElementById('rikaichan-toggle-cm');
-			if (b) b.setAttribute('checked', en);
-			b = document.getElementById('rikaichan-toggle-tm');
-			if (b) b.setAttribute('checked', en);
-			b = document.getElementById('rikaichan-toggle-sm');
-			if (b) b.setAttribute('checked', en);
+			if (this.enabled) this.enable(bro, 0);
+				else this.disable(bro);
+		}
+		else if ((rcxConfig.enmode > 0) && (this.enabled == 1) && (bro.rikaichan == null)) {
+			this.enable(bro, 0);
 		}
 
+		var en = (bro.rikaichan != null);
+
+		var b = document.getElementById('rikaichan-toggle-button');
+		if (b) b.setAttribute('rc_enabled', en);
+
+		b = document.getElementById('rikaichan-toggle-cmd');
+		if (b) b.setAttribute('checked', en);
+
 		b = document.getElementById('rikaichan-status');
-		if (b) b.setAttribute('rc_enabled', bro.rikaichan != null);
+		if (b) b.setAttribute('rc_enabled', en);
 	},
 
 	showPopup: function(text, elem, pos, lbPop) {
 		// outer-most document
-		const topdoc = content.document;
+		var content = this.isTB ? this.getBrowser().contentWindow : window.content;
+		var topdoc = content.document;
 
 		var x = 0, y = 0;
 		if (pos) {
@@ -321,7 +354,7 @@ var rcxMain = {
 			// if this is not set then Cyrillic text is displayed with Japanese
 			// font, if the web page uses a Japanese code page as opposed to Unicode.
 			// This makes it unreadable.
-			popup.setAttribute('lang', 'en');		// ??? find a test case
+			popup.setAttribute('lang', 'en');
 
 			popup.addEventListener('dblclick',
 				function (ev) {
@@ -385,7 +418,7 @@ var rcxMain = {
 			}
 			else {
 				// convert xy relative to outer-most document
-				var cb = this.getCurrentBrowser();
+				var cb = this.getBrowser();
 				var bo = cb.boxObject;
 				x -= bo.screenX;
 				y -= bo.screenY;
@@ -455,7 +488,8 @@ var rcxMain = {
 	},
 
 	hidePopup: function() {
-		var popup = window.content.document.getElementById('rikaichan-window');
+		var doc = this.isTB ? new XPCNativeWrapper(this.getBrowser().contentDocument) : window.content.document;
+		var popup = doc.getElementById('rikaichan-window');
 		if (popup) {
 			popup.style.display = 'none';
 			popup.innerHTML = '';
@@ -465,12 +499,13 @@ var rcxMain = {
 	},
 
 	isVisible: function() {
-		var popup = window.content.document.getElementById('rikaichan-window');
+		var doc = this.isTB ? this.getBrowser().contentDocument : window.content.document;
+		var popup = doc.getElementById('rikaichan-window');
 		return (popup) && (popup.style.display != 'none');
 	},
 
 	clearHi: function() {
-		var tdata = this.getCurrentBrowser().rikaichan;
+		var tdata = this.getBrowser().rikaichan;
 		if ((!tdata) || (!tdata.prevSelView)) return;
 		if (tdata.prevSelView.closed) {
 			tdata.prevSelView = null;
@@ -847,27 +882,12 @@ var rcxMain = {
 			this.hidePopup();
 			return 0;
 		}
-		
+
 		if ((ro < 0) || (ro >= rp.data.length)) {
 			this.clearHi();
 			this.hidePopup();
 			return 0;
 		}
-
-/*
-		var u;
-
-!! -- no longer a problem? FF3(ok), FF4(ok), SM2(ok), TB3(ok)
-		// if we have '   XYZ', where whitespace is compressed, X never seems to get selected
-		while (((u = rp.data.charCodeAt(ro)) == 32) || (u == 9) || (u == 10)) {
-			++ro;
-			if (ro >= rp.data.length) {
-				this.clearHi();
-				this.hidePopup();
-				return 0;
-			}
-		}
-*/
 
 		// @@@ check me
 		let u = rp.data.charCodeAt(ro);
@@ -942,7 +962,7 @@ var rcxMain = {
 		var ro = ev.rangeOffset;
 
 /*
-		var cb = this.getCurrentBrowser();
+		var cb = this.getBrowser();
 		var bbo = cb.boxObject;
 		var z = cb.markupDocumentViewer ? cb.markupDocumentViewer.fullZoom : 1;
 		var y = (ev.screenY - bbo.screenY);
@@ -1025,7 +1045,8 @@ var rcxMain = {
 	},
 
 	cursorInPopup: function(pos) {
-		var popup = content.document.getElementById('rikaichan-window');
+		var doc = this.isTB ? this.getBrowser().contentDocument : window.content.document;
+		var popup = doc.getElementById('rikaichan-window');
 		return (popup && (popup.style.display !== 'none') &&
 			(pos.pageX >= popup.offsetLeft) &&
 			(pos.pageX <= popup.offsetLeft + popup.offsetWidth) &&
@@ -1033,15 +1054,29 @@ var rcxMain = {
 			(pos.pageY <= popup.offsetTop + popup.offsetHeight));
 	},
 
-	inlineEnable: function(bro, mode) {
-		if (!this.initDictionary()) return;
-		if (bro.rikaichan == null) {
-			bro.rikaichan = {};
-			bro.addEventListener('mousemove', this.onMouseMove, false);
-			bro.addEventListener('mousedown', this.onMouseDown, false);
-			bro.addEventListener('keydown', this.onKeyDown, true);
-			bro.addEventListener('keyup', this.onKeyUp, true);
+	_enable: function(b) {
+		if ((b != null) && (b.rikaichan == null)) {
+			//	alert('enable ' + b.id);
+			b.rikaichan = {};
+			b.addEventListener('mousemove', this.onMouseMove, false);
+			b.addEventListener('mousedown', this.onMouseDown, false);
+			b.addEventListener('keydown', this.onKeyDown, true);
+			b.addEventListener('keyup', this.onKeyUp, true);
+			return true;
+		}
+		return false;
+	},
 
+	enable: function(b, mode) {
+		if (!this.initDictionary()) return;
+		var ok = this._enable(b, mode);
+
+		if (this.isTB) {
+			this._enable(document.getElementById('multimessage'));
+			this._enable(document.getElementById('messagepane'));
+		}
+
+		if (ok) {
 			if (mode == 1) {
 				if (rcxConfig.enmode > 0) {
 					this.enabled = 1;
@@ -1057,25 +1092,38 @@ var rcxMain = {
 		}
 	},
 
-	inlineDisable: function(bro, mode) {
-		bro.removeEventListener('mousemove', this.onMouseMove, false);
-		bro.removeEventListener('mousedown', this.onMouseDown, false);
-		bro.removeEventListener('keydown', this.onKeyDown, true);
-		bro.removeEventListener('keyup', this.onKeyUp, true);
+	_disable: function(b) {
+		if (b != null) {
+			//	alert('disable ' + b.id);
+			b.removeEventListener('mousemove', this.onMouseMove, false);
+			b.removeEventListener('mousedown', this.onMouseDown, false);
+			b.removeEventListener('keydown', this.onKeyDown, true);
+			b.removeEventListener('keyup', this.onKeyUp, true);
 
-		var e = bro.contentDocument.getElementById('rikaichan-css');
-		if (e) e.parentNode.removeChild(e);
-		e = bro.contentDocument.getElementById('rikaichan-window');
-		if (e) e.parentNode.removeChild(e);
+			var e = b.contentDocument.getElementById('rikaichan-css');
+			if (e) e.parentNode.removeChild(e);
 
-		this.clearHi();
-		delete bro.rikaichan;
+			e = b.contentDocument.getElementById('rikaichan-window');
+			if (e) e.parentNode.removeChild(e);
 
-		if ((!this.isTB) && (this.enabled)) {
+			delete b.rikaichan;
+			return true;
+		}
+		return false;
+	},
+
+	disable: function(b, mode) {
+		this._disable(b);
+		if (this.isTB) {
+			this.enabled = 0;
+			this._disable(document.getElementById('multimessage'));
+			this._disable(document.getElementById('messagepane'));
+		}
+		else if (this.enabled) {
 			this.enabled = 0;
 
 			for (var i = 0; i < gBrowser.browsers.length; ++i) {
-				this.inlineDisable(gBrowser.browsers[i], 0);
+				this._disable(gBrowser.browsers[i], 0);
 			}
 
 			if ((rcxConfig.enmode == 2) && (mode == 1)) {
@@ -1087,10 +1135,10 @@ var rcxMain = {
 		rcxData.done();
 	},
 
-	inlineToggle: function() {
-		var bro = this.getCurrentBrowser();
-		if (bro.rikaichan) this.inlineDisable(bro, 1);
-			else this.inlineEnable(bro, 1);
+	toggle: function() {
+		var b = this.getBrowser();
+		if (b.rikaichan) this.disable(b, 1);
+			else this.enable(b, 1);
 		this.onTabSelect();
 	},
 
@@ -1151,7 +1199,7 @@ var rcxMain = {
 					}
 				}
 			}
-		
+
 			e.hidden = false;
 			this.lbText.focus();
 		}
@@ -1267,7 +1315,7 @@ var rcxMain = {
 	},
 
 	statusClick: function(ev) {
-		if (ev.button != 2) rcxMain.inlineToggle();
+		if (ev.button != 2) rcxMain.toggle();
 	},
 
 	statusTimer: null,
@@ -1313,6 +1361,16 @@ var rcxConfig = {
 	load: function() {
 		let p = new rcxPrefs();
 
+		// fix 1.xx -> 2.xx
+		try {
+			if (p.branch.getPrefType('wpos') != p.branch.PREF_BOOL) {
+				p.branch.clearUserPref('wpos');
+			}
+		}
+		catch (ex) {
+		}
+
+
 		for (let i = rcxConfigList.length - 1; i >= 0; --i) {
 			let [type, name] = rcxConfigList[i];
 			switch (type) {
@@ -1343,7 +1401,7 @@ var rcxConfig = {
 
 		rcxConfig.css = (rcxConfig.css.indexOf('/') == -1) ? ('chrome://rikaichan/skin/popup-' + rcxConfig.css + '.css') : rcxConfig.css;
 		if (rcxMain.isTB) {
-			rcxConfig.enmode = 0;
+			rcxConfig.enmode = 1;
 		}
 		else {
 			for (let i = gBrowser.browsers.length - 1; i >= 0; --i) {
@@ -1365,8 +1423,7 @@ var rcxConfig = {
 	}
 };
 
-
-/*					
+/*
 var rcxDebug = {
 	echo: function(text) {
 		Components.classes['@mozilla.org/consoleservice;1']

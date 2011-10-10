@@ -35,7 +35,7 @@
 <script type="application/javascript;version=1.7" src="data.js" />
 
 <commandset id="mainCommandSet">
-	<command id="rikaichan-toggle-cmd" oncommand="rcxMain.inlineToggle()"/>
+	<command id="rikaichan-toggle-cmd" oncommand="rcxMain.toggle()"/>
 	<command id="rikaichan-lbar-cmd" oncommand="rcxMain.lbToggle()"/>
 	<command id="rikaichan-copy-cmd" oncommand="rcxMain.copyToClip()"/>
 	<command id="rikaichan-options-cmd" oncommand="rcxMain.configPage()"/>

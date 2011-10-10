@@ -534,7 +534,9 @@ var rcxData = {
 		i = kanji.charCodeAt(0);
 		if (i < 0x3000) return null;
 
-		if (!this.kanjiData) this.kanjiData = rcxFile.read('chrome://rikaichan/content/kanji.dat');
+		if (!this.kanjiData) {
+			this.kanjiData = rcxFile.read((typeof(rcxKanjiURI) == 'string') ? rcxKanjiURI : 'chrome://rikaichan/content/kanji.dat');
+		}
 
 		kde = this.find(this.kanjiData, kanji);
 		if (!kde) return null;
@@ -1035,7 +1037,7 @@ function RcxDic(dic)
 		if (this.rdb.indexExists(ix)) return;
 
 		if (!rcxData.indexCreateNotice) {
-			alert('The index for one or more dictionaries needs to be created. This may take a while on slower computers.');
+			alert('A dictionary index needs to be created. This may take a while on some systems. Click OK to start.');
 			rcxData.indexCreateNotice = true;
 		}
 

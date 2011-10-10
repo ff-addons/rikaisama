@@ -50,7 +50,7 @@ var rcxConfigList = [
 	[2, 'nopopkeys'],
 
 	// dictionary
-	[2, 'wpos'],
+	[2, 'wpos'],					// ! this was an integer in 1.xx: 0=hide, 1=show entry type
 	[2, 'wpop'],
 	[0, 'wmax'],
 	[0, 'namax'],
