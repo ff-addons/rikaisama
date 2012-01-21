@@ -37,7 +37,25 @@ var rcxMain = {
 	altView: 0,
 	enabled: 0,
 	sticky: false,
+	id: '{697F6AFE-5321-4DE1-BFE6-4471C3721BD4}',
 	version: null,
+  lastTdata: null,              // TData used for Sanseido mode and EPWING mode popup
+  sanseidoMode: false,          // Are we in Sanseido mode?
+  sanseidoReq: false,           // XML HTTP Request object for sanseido mode
+  superSticky: false,           // Are we in Super Sticky mode?
+  superStickyOkayToShow: false, // Okay to show the popup in Super Sticky mode?
+  superStickyOkayToHide: false, // Okay to hide the popup in Super Sticky mode?
+  epwingMode: false,            // Are we in EPWING mode?
+  epwingActive: false,          // Is the EPWING lookup in progress?
+  epwingTotalHits: 0,           // The total number of EPWING hits for the current word
+  epwingCurHit: 0,              // The current EPWING hit number (for showing hits one at a time)
+  epwingCurDic: "",             // The EPWING dictionary to use (path)
+  prevEpwingSearchTerm: "",     // The prevoius search term used with EPWING mode
+  epwingFallbackCount: 0,       // How many times have we attempted to fallback to another EPWING dictionary?
+  epwingStartDic: "",           // The dictionary used for the original EPWING lookup (before any fallbacks)
+  epwingDicList: [],            // The list of EPWING dictionaries
+  saveKana: false,              // When saving a word, make the $d token equal to the $r token
+  wordInAnkiDeck: false,        // Is the kanji form of the hilighted word in the user's Anki deck?
 
 	getBrowserTB: function() {
 		if (rcxMain.tabMail) return rcxMain.tabMail.getBrowserForSelectedTab();
@@ -52,6 +70,27 @@ var rcxMain = {
 		return Components.classes["@mozilla.org/appshell/appShellService;1"]
 			.getService(Components.interfaces.nsIAppShellService)
 			.hiddenDOMWindow;
+	},
+
+	tbObs: {
+		observe: function(subject, topic, data) {
+			if (topic == 'mail:composeOnSend') {
+				var e = window.content.document.getElementById('rikaichan-css');
+				if (e) e.parentNode.removeChild(e);
+				e = window.content.document.getElementById('rikaichan-window');
+				if (e) e.parentNode.removeChild(e);
+			}
+		},
+		register: function() {
+			Components.classes['@mozilla.org/observer-service;1']
+				.getService(Components.interfaces.nsIObserverService)
+				.addObserver(rcxMain.tbObs, 'mail:composeOnSend', false);
+		},
+		unregister: function() {
+			Components.classes['@mozilla.org/observer-service;1']
+				.getService(Components.interfaces.nsIObserverService)
+				.removeObserver(rcxMain.tbObs, 'mail:composeOnSend');
+		}
 	},
 
 	rcxObs: {
@@ -129,7 +168,7 @@ var rcxMain = {
 		onTabPersist: function(aTab) { },
 		onTabRestored: function(aTab, aState, aIsFirstTab) { }
 	},
-
+  
 	init: function() {
 		window.addEventListener('load', function() { rcxMain._init() }, false);
 	},
@@ -137,7 +176,7 @@ var rcxMain = {
 	_init: function() {
 		window.addEventListener('unload', function() { rcxMain.onUnload() }, false);
 
-		if (true) {
+    if (true) {
 			let docID = document.documentElement.id;
 			this.isTB = ((docID == "messengerWindow") || (docID == "msgcomposeWindow"));
 
@@ -190,9 +229,14 @@ var rcxMain = {
 					this.onTabSelect();
 				}
 			}
-			
+    
+    // Needed to write asyncronously to file in the sendToAnki routine
+    Components.utils.import("resource://gre/modules/FileUtils.jsm");
+    Components.utils.import("resource://gre/modules/NetUtil.jsm");
+
+
 			// add icon to the toolbar
-			try {
+    try {
 				let prefs = new rcxPrefs();
 				if (prefs.getBool('firsticon')) {
 					prefs.setBool('firsticon', false);
@@ -208,7 +252,38 @@ var rcxMain = {
 		}
 
 		this.checkVersion();
+    
+    // Enable Sanseido Mode at startup based on user preference
+    if (rcxConfig.startsanseido) 
+    {
+			rcxMain.sanseidoMode = true;
+		} 
+    
+    // Enable EPWING Mode at startup based on user preference
+    if (rcxConfig.startepwing) 
+    {
+			rcxMain.epwingMode = true;
+		} 
+    
+    // Enable Sticky Mode at startup based on user preference
+    if (rcxConfig.startsticky) 
+    {
+			rcxMain.sticky = true;
+		}
+    
+    // Enable Super Sticky Mode at startup based on user preference
+    if (rcxConfig.startsupersticky) 
+    {
+			rcxMain.superSticky = true;
+		}
+    
+    // Enable Lookup Bar at startup based on user preference
+    if (rcxConfig.startlookupbar) 
+    {
+			rcxMain.lbToggle();
+		}
 	},
+
 
 	onUnload: function() {
 		this.rcxObs.unregister();
@@ -259,8 +334,8 @@ var rcxMain = {
 		}
 	},
 
-	checkVersion: function() {
-		let id = '{0AA9101C-D3C1-4129-A9B7-D778C6A17F82}';
+  checkVersion: function() {
+		let id = '{697F6AFE-5321-4DE1-BFE6-4471C3721BD4}';
 		try {
 			// ref: https://developer.mozilla.org/en/Addons/Add-on_Manager/AddonManager
 			Components.utils.import('resource://gre/modules/AddonManager.jsm');
@@ -487,15 +562,28 @@ var rcxMain = {
 		popup.style.display = '';
 	},
 
-	hidePopup: function() {
-		var doc = this.isTB ? new XPCNativeWrapper(this.getBrowser().contentDocument) : window.content.document;
-		var popup = doc.getElementById('rikaichan-window');
-		if (popup) {
-			popup.style.display = 'none';
-			popup.innerHTML = '';
-		}
-		this.lbPop = 0;
-		this.title = null;
+	hidePopup: function() 
+  {
+    // Reset the EPWING hit number and hit totals
+    this.epwingTotalHits = 0;
+    this.epwingCurHit = 0;
+    
+    // Don't hide popup in superSticky unless given permissin to
+    if(!this.superSticky || this.superStickyOkayToHide)
+    {
+      this.superStickyOkayToHide = false;
+      
+		  var doc = this.isTB ? new XPCNativeWrapper(this.getBrowser().contentDocument) : window.content.document;
+		  var popup = doc.getElementById('rikaichan-window');
+      
+      if (popup) 
+      {
+        popup.style.display = 'none';
+        popup.innerHTML = '';
+      }
+      this.lbPop = 0;
+      this.title = null;
+    }
 	},
 
 	isVisible: function() {
@@ -531,8 +619,14 @@ var rcxMain = {
 		var i;
 		var f;
 		var e;
+		var s;
+		var w;
 
 		f = this.lastFound;
+		s = this.sentence;
+		sWBlank = this.sentenceWBlank;
+		w = this.word;
+		
 		if ((!f) || (f.length == 0)) return null;
 
 		if (clip) {
@@ -545,21 +639,13 @@ var rcxMain = {
 		}
 
 		if (!f.fromLB) mk = 1;
-
-		text = '';
-		for (i = 0; i < f.length; ++i) {
-			e = f[i];
-			if (e.kanji) {
-				if (mk-- <= 0) continue
-				text += rcxData.makeText(e, 1);
-			}
-			else {
-				if (me <= 0) continue;
-				text += rcxData.makeText(e, me);
-				me -= e.data.length;
-			}
-		}
-
+		
+		e = f[0];
+		text = rcxData.makeText(e, w, s, sWBlank, rcxMain.saveKana);
+    
+    // Result the save kana ($d=$r) flag
+    rcxMain.saveKana = false;
+		
 		if (rcxConfig.snlf == 1) text = text.replace(/\n/g, '\r\n');
 			else if (rcxConfig.snlf == 2) text = text.replace(/\n/g, '\r');
 
@@ -588,21 +674,1427 @@ var rcxMain = {
 				.getService(Components.interfaces.nsIClipboardHelper)
 				.copyString(text);
 			this.showPopup('Copied to clipboard.');
+		} else {
+			this.showPopup('Please select something to copy in Preferences.');
+			return;
 		}
 	},
 
+  
+  /* Is the last hilighted word in the user's Anki deck? */
+  isWordInAnkiDeck: function()
+  {
+    var word = '';
+    
+    // Does the user have the option disabled?
+    if(!rcxConfig.ankialreadyenable && (rcxConfig.ankialreadydeck != ""))
+    {
+      return false;
+    }
+    
+    try
+    {
+      // Get the last highlighted word
+      if(this.lastFound[0].data)
+      {
+        var entryData = this.lastFound[0].data[0][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
+        word = entryData[1];
+      }
+      else
+      {
+        return false;
+      }
+      
+      // Get file pointer to the Anki deck
+      ankiFile = Components.classes['@mozilla.org/file/local;1']
+       .createInstance(Components.interfaces.nsILocalFile);
+      ankiFile.initWithPath(rcxConfig.ankialreadydeck);
+
+      // Open the Anki deck (if the deck in already open in Anki, this will raise an exception)
+      var ankiDB = Components.classes['@mozilla.org/storage/service;1']
+       .getService(Components.interfaces.mozIStorageService)
+       .openDatabase(ankiFile);
+
+      // Get the ordinal associated with the field to look in
+      var stOrd = ankiDB.createStatement("SELECT ordinal FROM fieldModels WHERE name='" 
+                                         + rcxConfig.ankialreadyfield + "'");
+      stOrd.executeStep();
+      var ordinal = stOrd.row.ordinal;
+
+      stOrd.reset();
+      stOrd.finalize();  
+
+      // Determine if the word exists in the specified field to look in
+      var stVal = ankiDB.createStatement("SELECT value FROM fields WHERE ordinal='" 
+                                         + ordinal + "' AND value='" + word + "' LIMIT 1");
+      var exists = stVal.executeStep();
+
+      stVal.reset();
+      stVal.finalize();
+
+      ankiDB.close();
+
+      return exists
+    }
+    catch(ex)
+    {
+      return false;
+    }
+    
+    return false;
+
+  }, /* isWordInAnkiDeck */
+
+  
+  // Send the highlighted word to Anki's Real-Time Import plugin
+  sendToAnki: function()
+  {  
+    // Create message header
+    var header = 'add\t1' // command and version
+
+    // Get Anki field names to use
+    var fieldNames = rcxMain.trim(rcxConfig.rtifieldnamestext);
+    fieldNames = fieldNames.replace(/ /g, '\t')
+    
+    if (rcxConfig.saveformat.length == 0) 
+    {
+      this.showPopup('Please enter Anki field names in Preferences.');
+      return;
+    }
+    
+    // Get tags
+    var tags = rcxMain.trim(rcxConfig.atags);
+    
+    // Get the field contents
+    if (rcxConfig.saveformat.length == 0) 
+    {
+      this.showPopup('Please create a save format in Preferences.');
+      return;
+    }
+    
+    var fieldContents = this.savePrep(0);
+    
+    if(fieldContents == null)
+    {
+      return;
+    }
+    
+    var port = rcxConfig.rtiudpport;
+    
+    if(port == null)
+    {
+      return;
+    }
+    
+    // Create the text that will be saved to the file
+    fileText = header + '\n' + fieldNames + '\n' + tags + '\n' + fieldContents;
+    
+    // Create the file that Real-Time Import will read
+    var tempRtiFile = Components.classes["@mozilla.org/file/directory_service;1"]
+      .getService(Components.interfaces.nsIProperties)
+      .get("TmpD", Components.interfaces.nsIFile);
+    tempRtiFile.append("~rikai_anki_rti.txt");
+        
+    // Open a safe file output stream for writing
+    var ostream = FileUtils.openSafeFileOutputStream(tempRtiFile)
+    
+    // Convert the filename unicode string to an input stream
+    var converter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].
+    createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+    converter.charset = "UTF-8";
+    var istream = converter.convertToInputStream(fileText);
+  
+    // Asynchronously Write the file text to the file 
+    NetUtil.asyncCopy(istream, ostream, 
+      // This function will be called when the write to file is complete
+      function(status) 
+      {
+        if (!Components.isSuccessCode(status)) 
+        {
+          // Error writing file
+          rcxMain.showPopup('Error writing temp Real-Time Import file.');
+          return;
+        }
+        else
+        {         
+          // Get a string identifying the current OS
+          var osString = Components.classes["@mozilla.org/xre/app-info;1"]  
+                 .getService(Components.interfaces.nsIXULRuntime).OS; 
+                   
+          // Send the UDP message to Anki's Real-Time Import containing location of information to add
+          if(osString == "Linux" || osString == "Darwin")
+          {            
+            var udpSender = Components.classes["@mozilla.org/file/directory_service;1"]
+              .getService(Components.interfaces.nsIProperties)
+              .get("ProfD", Components.interfaces.nsILocalFile);    
+            udpSender.append("extensions");
+            udpSender.append(rcxMain.id); // GUID of extension
+            udpSender.append("udp");
+            udpSender.append("RealTimeImport_UDP_Client.py");
+            
+            udpSender.permissions = 0744;
+            
+            var udpSenderDriver = Components.classes["@mozilla.org/file/directory_service;1"]
+              .getService(Components.interfaces.nsIProperties)
+              .get("ProfD", Components.interfaces.nsILocalFile);    
+            udpSenderDriver.append("extensions");
+            udpSenderDriver.append(rcxMain.id); // GUID of extension
+            udpSenderDriver.append("udp");
+            udpSenderDriver.append("run_udp.sh");
+            
+            udpSenderDriver.permissions = 0744;
+            
+            if (udpSender.exists() && udpSenderDriver.exists()) 
+            {
+              var process = Components.classes['@mozilla.org/process/util;1']
+               .createInstance(Components.interfaces.nsIProcess);        
+              process.init(udpSenderDriver);
+              
+               // Set arguments        
+               var args = [udpSender.path, port, tempRtiFile.path];
+               
+               // Send UDP message
+               process.runAsync(args, args.length); 
+            } 
+          }
+          else // Windows
+          {
+            var udpSender = Components.classes["@mozilla.org/file/directory_service;1"]
+              .getService(Components.interfaces.nsIProperties)
+              .get("ProfD", Components.interfaces.nsILocalFile);    
+            udpSender.append("extensions");
+            udpSender.append(rcxMain.id); // GUID of extension
+            udpSender.append("udp");
+            udpSender.append("RealTimeImport_UDP_Client.exe");
+            
+            // Does the UDP Sender exist?
+            if (udpSender.exists()) 
+            {
+               var process = Components.classes['@mozilla.org/process/util;1']
+                .createInstance(Components.interfaces.nsIProcess);        
+               process.init(udpSender);
+                                               
+               // Set arguments        
+               var args = [port, tempRtiFile.path];
+
+               // Send UDP message
+               process.runAsync(args, args.length);  
+            }
+          }  
+        }
+      });
+      
+  }, /* sendToAnki */
+  
+  
+  // Populate the EPWING dictionary list with the user-entered EPWING dictionaries
+  populateEpwingDics: function()
+  {
+    var dicFound = false;
+        
+    // Reset the dictionary list
+    this.epwingDicList = [];
+    
+    //
+    // Add each dictionary to the list
+    //
+    
+    if(rcxConfig.epwingpath1 != "")
+    {
+      this.epwingDicList.push(rcxConfig.epwingpath1)
+    }
+    
+    if(rcxConfig.epwingpath2 != "")
+    {
+      this.epwingDicList.push(rcxConfig.epwingpath2)
+    }
+    
+    if(rcxConfig.epwingpath3 != "")
+    {
+      this.epwingDicList.push(rcxConfig.epwingpath3)
+    }
+    
+    if(rcxConfig.epwingpath4 != "")
+    {
+      this.epwingDicList.push(rcxConfig.epwingpath4)
+    }
+    
+    // Does the current dictionary exist in the new list?
+    for(i = 0; i < this.epwingDicList.length; i++)
+    {
+      if(this.epwingDicList[i] == this.epwingCurDic)
+      {
+        dicFound = true;
+        break;
+      }
+    }
+    
+    // If the current dictionary does not exist in the new list, use the first dictionary
+    if(!dicFound)
+    {
+       if(this.epwingDicList.length > 0)
+       {
+         this.epwingCurDic = this.epwingDicList[0];
+       }
+       else
+       {
+         this.epwingCurDic = "";
+       }
+    }
+        
+  }, /* populateEpwingDics */
+  
+  
+  // Get the index of the current dictionary (epwingCurDic) within the EPWING dictionary list (epwingDicList)
+  getEpwingDicIndex: function()
+  {
+    var pos = 0;
+    
+    this.populateEpwingDics();
+    
+    for(i = 0; i < this.epwingDicList.length; i++)
+    {
+      if(this.epwingDicList[i] == this.epwingCurDic)
+      {
+        pos = i;
+        break;
+      }
+    }
+    
+    return pos;
+    
+  }, /* getEpwingDicIndex */
+  
+  
+  // Sets the current EPWING dictionary (epwingCurDic) to the next available EPWING dictionary
+  nextEpwingDic: function()
+  {       
+    var dicPos = 0;
+  
+    // Populate epwingDicList
+    this.populateEpwingDics();
+        
+    if(this.epwingDicList.length > 0)
+    {
+      // Find the position of the current dictionary
+      for(i = 0; i < this.epwingDicList.length; i++)
+      {
+        if(this.epwingDicList[i] == this.epwingCurDic)
+        {
+          dicPos = i;
+          break;
+        }
+      }
+      
+      // Increment to the next dictionary
+      dicPos++;
+      
+      // Wrap?
+      if(dicPos >= this.epwingDicList.length)
+      {
+        dicPos = 0;
+      }
+      
+      // Set the current dictionary
+      this.epwingCurDic = this.epwingDicList[dicPos];
+    }
+
+  }, /* nextEpwingDic */
+
+
+  // Sets the current EPWING dictionary (epwingCurDic) to the previous available EPWING dictionary
+  prevEpwingDic: function()
+  { 
+    var dicPos = 0;
+    
+    // Populate epwingDicList
+    this.populateEpwingDics();
+        
+    if(this.epwingDicList.length > 0)
+    {
+      // Find the position of the current dictionary
+      for(i = 0; i < this.epwingDicList.length; i++)
+      {
+        if(this.epwingDicList[i] == this.epwingCurDic)
+        {
+          dicPos = i;
+          break;
+        }
+      }
+      
+      // Decrement to the next dictionary
+      dicPos--;
+      
+      // Wrap?
+      if(dicPos < 0)
+      {
+        dicPos = this.epwingDicList.length - 1;
+      }
+      
+      // Set the current dictionary
+      this.epwingCurDic = this.epwingDicList[dicPos];
+    }
+    
+  }, /* prevEpwingDic */
+  
+  
+  // If in Super Sticky mode, allow the popup to show just once
+  allowOneTimeSuperSticky: function()
+  {
+    if(this.superSticky)
+    {
+      this.superStickyOkayToShow = true;
+    }
+    
+  }, /* allowOneTimeSuperSticky */
+  
+  
+  // Toggle Super Sticky mode
+  toggleSuperStickyMode: function()
+  {
+    this.superSticky = !this.superSticky;
+    
+    if(this.superSticky)
+    {
+      this.status('Super Sticky Mode: ON');
+    }
+    else
+    {
+      this.status('Super Sticky Mode: OFF');
+    }
+    
+  }, /* toggleSuperStickyMode */
+  
+  
+  // Toggle EPWING mode
+  toggleEpwingMode: function()
+  {
+    this.epwingMode = !this.epwingMode;
+    
+    if(this.epwingMode)
+    {
+      this.status('EPWING Mode: ON');
+      
+      if(this.sanseidoMode)
+      {
+        this.sanseidoMode = false;
+      }
+    }
+    else
+    {
+      this.status('EPWING Mode: OFF');
+    }
+    
+  }, /* toggleEpwingMode */
+
+ 
+  // Toggle Sanseido mode
+  toggleSanseidoMode: function()
+  {
+    this.sanseidoMode = !this.sanseidoMode;
+    
+    if(this.sanseidoMode)
+    {
+      this.status('Sanseido Mode: ON');
+      
+      if(this.epwingMode)
+      {
+        this.epwingMode = false;
+      }
+    }
+    else
+    {
+      this.status('Sanseido Mode: OFF');
+    }
+    
+  }, /* toggleSanseidoMode */
+
+  
+  // Parse definition from Sanseido page and display it in a popup
+  parseAndDisplaySanseido: function(entryPageText)
+  {      
+    // Create DOM tree from entry page text
+    var domPars = rcxMain.htmlParser(entryPageText);
+    
+    // Get list of div elements    
+    var divList = domPars.getElementsByTagName("div");
+    
+    // Will be set if the entry page actually contains a definition
+    var entryFound = false;
+    
+    // Find the div that contains the definition
+    for(divIdx = 0; divIdx < divList.length; divIdx++)
+    {
+      // Did we reach the div the contains the definition?
+      if(divList[divIdx].className == "NetDicBody")
+      {
+        entryFound = true;
+
+        // rcxDebug.echo("Raw definition: " + divList[divIdx].innerHTML);
+      
+        // Will contains the final parsed definition text
+        var defText = "";
+        
+        // A list of all child notes in the div
+        var childList = divList[divIdx].childNodes;
+        
+        // Set when we need to end the parse
+        var defFinished = false;
+   
+        // Extract the definition from the div's child nodes
+        for(nodeIdx = 0; nodeIdx < childList.length && !defFinished; nodeIdx++)
+        {
+          // Is this a b element?
+          if(childList[nodeIdx].nodeName == "b")
+          {
+            // How many child nodes does this b element have?
+            if(childList[nodeIdx].childNodes.length == 1)
+            {            
+              // Check for definition number: [1], [2], ... and add to def 
+              var defNum = childList[nodeIdx].childNodes[0].nodeValue.match(/([[1234567890]+])/);
+   
+              if (defNum)
+              { 
+                defText += "<br />" + RegExp.$1;
+              }
+              else
+              {
+                // Check for sub-definition number: (1), (2), ... and add to def 
+                var subDefNum = childList[nodeIdx].childNodes[0].nodeValue.match(/(([1234567890]+))/);
+                
+                if (subDefNum)
+                { 
+                  defText += RegExp.$1;
+                }
+              }
+            }
+            else // This b element has more than one child node
+            {
+              // Check the b children for any spans. A span marks the start 
+              // of non-definition portion, so end the parse.
+              for(bIdx = 0; bIdx < childList[nodeIdx].childNodes.length; bIdx++)
+              {
+                if(childList[nodeIdx].childNodes[bIdx].nodeName == "span")
+                {
+                  defFinished = true;
+                }
+              }
+            }
+          }
+          
+          // Have we finished parsing the text?
+          if(defFinished)
+          {
+            break;
+          }
+          
+          // If the current element is text, add it to the definition
+          if((childList[nodeIdx].nodeName == "#text") 
+            && (rcxMain.trim(childList[nodeIdx].nodeValue) != ""))
+          {
+            defText += childList[nodeIdx].nodeValue;
+          }
+        }
+   
+        // rcxDebug.echo("defText: " + defText);
+        
+        var jdicCode = "";
+        
+        // Get the part-of-speech and other JDIC codes
+        rcxMain.lastFound[0].data[0][0].match(/\/(\(.+?\) ).+\//);
+        
+        if(RegExp.$1)
+        {
+          jdicCode = RegExp.$1;
+        }
+     
+        // Replace the definition with the one we parsed from sanseido
+        rcxMain.lastFound[0].data[0][0] = rcxMain.lastFound[0].data[0][0]
+          .replace(/\/.+\//g, "/" + jdicCode + defText + "/");
+ 
+        // Remove all words except for the one we just looked up
+        rcxMain.lastFound[0].data = [rcxMain.lastFound[0].data[0]];
+        
+        // Prevent the "..." from being displayed at the end of the popup text
+        rcxMain.lastFound[0].more = false;
+        
+        var alreadyInDeckStr = "";
+      
+        // Is the word in the user's vocubulary deck? If so, insert an asterisk.   
+        if(rcxMain.wordInAnkiDeck)
+        {
+          alreadyInDeckStr = "* ";
+        } 
+      
+        // Show the definition
+        rcxMain.showPopup(alreadyInDeckStr + rcxData.makeHtml(rcxMain.lastFound[0]), 
+          rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos);
+        
+        // Entry found, stop looking
+        break;
+      }
+    }
+    
+    // If the entry was not on sanseido, display message
+    if(!entryFound)
+    {
+      rcxMain.showPopup("Entry not found.", rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos);
+    }
+  }, /* parseAndDisplaySanseido */
+  
+ 
+  // Extract the first search term from the hilited word.
+  // Returns search term string or null on error.
+  extractSearchTerm: function()
+  {
+    // Get the currently hilited entry
+    var hilitedEntry = this.lastFound;
+ 
+    if ((!hilitedEntry) || (hilitedEntry.length == 0))
+    {
+      return null;
+    }
+    
+    var searchTerm = "";
+    
+    // Get the search term to use
+    if(hilitedEntry[0] && hilitedEntry[0].kanji && hilitedEntry[0].onkun)
+    { 
+      // A single kanji was selected
+      
+      searchTerm = hilitedEntry[0].kanji;
+    }
+    else if(hilitedEntry[0] && hilitedEntry[0].data[0])
+    { 
+      // An entire word was selected
+      
+      var entryData = hilitedEntry[0].data[0][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
+      
+      // Example of what data[0][0] looks like (linebreak added by me):
+      //   乃 [の] /(prt,uk) indicates possessive/verb and adjective nominalizer (nominaliser)/substituting 
+      //   for "ga" in subordinate phrases/indicates a confident conclusion/emotional emphasis (sentence end) (fem)/(P)/
+      
+      // Extract needed data from the hilited entry
+      //   entryData[0] = kanji/kana + kana + definition
+      //   entryData[1] = kanji (or kana if no kanji)
+      //   entryData[2] = kana (null if no kanji)
+      //   entryData[3] = definition     
+      
+      // If the highlighted word is kana, don't use the kanji.
+      // Example: if の is highlighted, use の rather than the kanji equivalent (乃)
+      if(entryData[2] && this.word == entryData[2])
+      {
+        searchTerm = entryData[2];
+      }
+      else
+      {
+        searchTerm = entryData[1];
+      }
+    }
+    else
+    {
+      return null;
+    }
+    
+    return searchTerm;
+    
+  }, /* extractSearchTerm */
+  
+  
+  // Perform cleanup and reset variables after performing an EPWING search
+  cleanupLookupEpwing: function() 
+  {
+    // Allow EPWING popups to occur again
+    this.epwingActive = false;
+    
+    this.epwingFallbackCount = 0;
+
+    // Reset to pre-fallback dictionary
+    this.epwingCurDic = this.epwingStartDic;
+    
+  }, /* cleanupLookupEpwing */
+  
+  
+  // Fetch entry from user-specified EPWING dictionary and display
+	lookupEpwing: function() 
+  {
+    // Is a word currently being looked up with EPWING?
+    if(this.epwingActive)
+    { 
+      return;
+    }
+
+    // Populate the EPWING dictionary list
+    rcxMain.populateEpwingDics();
+    
+    // Save the current dictionary so that we can restore it if we have to fallback to another EPWING dictionary
+    if(this.epwingFallbackCount == 0)
+    {
+      this.epwingStartDic = this.epwingCurDic;
+    }
+         
+    // Did the user enter an EPWING path in the EPWING tab?
+    try
+    {
+      var epwingDir = Components.classes["@mozilla.org/file/local;1"]
+          .createInstance(Components.interfaces.nsILocalFile);
+      epwingDir.initWithPath(this.epwingCurDic);  
+              
+      if(!epwingDir.exists())
+      {
+        rcxMain.showPopup('Please enter a valid EPWING path in the EPWING tab of the options dialog.');
+        return;
+      }
+    }
+    catch(ex)
+    {
+      rcxMain.showPopup('Please enter a valid EPWING path in the EPWING tab of the options dialog.');
+      return;
+    }
+    
+    // Prevent other EPWING lookups until this one is finished
+    this.epwingActive = true;
+    
+    // Get the first search term from the hilited word.
+    var searchTerm = this.extractSearchTerm();
+
+    if(!searchTerm)
+    {
+      rcxMain.cleanupLookupEpwing();
+      return;
+    }
+    
+    // Reset the EPWING hit number and hit totals if a new word is being searched for
+    if(searchTerm != this.prevEpwingSearchTerm)
+    {
+      this.epwingTotalHits = 0;
+      this.epwingCurHit = 0;
+      this.prevEpwingSearchTerm = searchTerm;
+    }
+    
+    // Create the file object that contains the location of the EPWING lookup tool
+    var eplkupTool = Components.classes["@mozilla.org/file/directory_service;1"]
+      .getService(Components.interfaces.nsIProperties)
+      .get("ProfD", Components.interfaces.nsILocalFile);    
+    eplkupTool.append("extensions");
+    eplkupTool.append(rcxMain.id); // GUID of extension
+    eplkupTool.append("epwing");
+    eplkupTool.append("eplkup.exe");
+    
+    // Does the EPWING lookup tool exist?
+    if (eplkupTool.exists()) 
+    { 
+      // Create a temporary directory to place the output of the EPWING tool
+      var tmpDir = Components.classes["@mozilla.org/file/directory_service;1"]
+        .getService(Components.interfaces.nsIProperties)
+        .get("TmpD", Components.interfaces.nsIFile);
+      tmpDir.append("rikaisan");
+        
+      // Create the input file to the EPWING lookup tool
+      var epwingInputFile = Components.classes["@mozilla.org/file/local;1"]
+        .createInstance(Components.interfaces.nsILocalFile);
+      epwingInputFile.initWithPath(tmpDir.path + "_epwing_in.txt");
+      
+      try
+      {
+        // Remove the input file if it exists
+        if(epwingInputFile.exists())
+        {
+          epwingInputFile.remove(false);
+        }
+
+        epwingInputFile.create(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 0644);
+      }
+      catch(ex)
+      {
+        rcxMain.cleanupLookupEpwing();
+        return;
+      }
+      
+      // Create the output file from the EPWING lookup tool
+      var epwingOutputFile = Components.classes["@mozilla.org/file/local;1"]
+        .createInstance(Components.interfaces.nsILocalFile);
+      epwingOutputFile.initWithPath(tmpDir.path + "_epwing_out.txt");
+
+      try
+      {
+        // Remove the output file if it exists
+        if(epwingOutputFile.exists())
+        {
+          epwingOutputFile.remove(false);
+        }
+
+        epwingOutputFile.create(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 0644);
+      }
+      catch(ex)
+      {
+        rcxMain.cleanupLookupEpwing();
+        return;
+      }
+      
+      // Open a safe file output stream for writing
+      var ostream = FileUtils.openSafeFileOutputStream(epwingInputFile)
+      
+      // Convert the filename unicode string to an input stream
+      var converter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].
+      createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+      converter.charset = "UTF-8";
+      var istream = converter.convertToInputStream(searchTerm);
+      
+      // Asynchronously write the search term to the file 
+      NetUtil.asyncCopy
+      (istream, ostream, 
+        // This function will be called when the write to file is complete
+        function(status) 
+        {
+          if (!Components.isSuccessCode(status)) 
+          {
+            //rcxMain.showPopup('Error writing EPWING input file.');
+            rcxMain.cleanupLookupEpwing();
+            return;
+          }
+          else
+          {
+            // Get a string identifying the current OS
+            var osString = Components.classes["@mozilla.org/xre/app-info;1"]  
+                   .getService(Components.interfaces.nsIXULRuntime).OS; 
+
+            if(osString == "Linux" || osString == "Darwin")
+            {   
+              // Create the file object that contains the location of the bash script that
+              //  will call the EPWING lookup tool with wine
+              var eplkupToolDriver = Components.classes["@mozilla.org/file/directory_service;1"]
+                .getService(Components.interfaces.nsIProperties)
+                .get("ProfD", Components.interfaces.nsILocalFile);    
+              eplkupToolDriver.append("extensions");
+              eplkupToolDriver.append(rcxMain.id); // GUID of extension
+              eplkupToolDriver.append("epwing");
+              eplkupToolDriver.append("run_eplkup.sh");
+              
+              eplkupToolDriver.permissions = 0744;
+      
+              // Create the process object that will use the EPWING lookup tool
+              var process = Components.classes['@mozilla.org/process/util;1']
+               .createInstance(Components.interfaces.nsIProcess);        
+              process.init(eplkupToolDriver); 
+              
+              var args = [eplkupTool.path, "--gaiji", 1, "--hit", rcxMain.epwingCurHit, "--html-sub", "--html-sup",  
+                "--no-header", "--show-count", rcxMain.epwingCurDic, epwingInputFile.path, epwingOutputFile.path];
+            }
+            else
+            {
+              // Create the process object that will use the EPWING lookup tool
+              var process = Components.classes['@mozilla.org/process/util;1']
+               .createInstance(Components.interfaces.nsIProcess);        
+              process.init(eplkupTool); 
+              
+              var args = ["--gaiji", 1, "--hit", rcxMain.epwingCurHit, "--html-sub", "--html-sup",  
+                "--no-header", "--show-count", rcxMain.epwingCurDic, epwingInputFile.path, epwingOutputFile.path];
+            }
+            
+            // Lookup the search term with the EPWING lookup tool
+            process.runAsync(args, args.length, 
+            {
+              observe: function(process, finishState, unused) 
+              {
+                // Did the lookup finish?
+                if (finishState == "process-finished") 
+                {
+                  // Read the output file that contains the lookup
+                  NetUtil.asyncFetch(epwingOutputFile, function(inputStream, status) 
+                  {
+                    var epwingText = "Entry not found.";
+                    var newLines = 0;
+                    var showDots = false;
+                    var firstNewlinePos = -1;
+                    
+                    if (Components.isSuccessCode(status)) 
+                    {
+                      try
+                      {
+                        epwingText = NetUtil.readInputStreamToString(inputStream, inputStream.available());
+                        
+                        // Convert the EPWING result text to UTF-8
+                        var EpwingTextConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].
+                        createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+                        EpwingTextConverter.charset = "UTF-8";
+                        epwingText = EpwingTextConverter.ConvertToUnicode(epwingText);
+                        
+                        //
+                        // Extract the HITS: info and the lookup text
+                        //
+                        var matchText = epwingText.match(/^{HITS: (\d*?)}([\s\S]*)$/);
+                        
+                        // Extract number of hits
+                        if(matchText[1])
+                        {
+                          rcxMain.epwingTotalHits = matchText[1];
+                        }
+                        
+                        // Extract lookup text
+                        if(matchText[2])
+                        {
+                          epwingText = matchText[2];
+                        }
+ 
+                        //
+                        // Get the conjugation
+                        //
+                        
+                        var conjugation = "";
+                         
+                        if (rcxConfig.epwingshowconjugation && rcxMain.lastFound[0].data && rcxMain.lastFound[0].data[0][1])
+                        {
+                          conjugation = '<span class="w-conj">(' + rcxMain.lastFound[0].data[0][1] + ')</span>';
+                        }
+                        
+                        //
+                        // Get the dictionary index that is currently being used
+                        //
+                        
+                        var which_dic = "";
+                        
+                        if(rcxConfig.epwingshowdicnum)
+                        {
+                          var dic_pos = rcxMain.getEpwingDicIndex() + 1;
+                          which_dic = '<span class="epwing-dic-name">' + dic_pos + '</span>';
+                        }
+                        
+                        // Trim whitespace
+                        epwingText = rcxMain.trimEnd(epwingText);
+                        
+                        // Replace carriage returns + linefeeds with linefeeds
+                        epwingText = epwingText.replace(/\r\n/g, '\n');
+                                        
+                        // Remove text that matches the user's regex
+                        if(rcxConfig.epwingremoveregex != '')
+                        {
+                          // Get the regex
+                          var userRegex = new RegExp(rcxConfig.epwingremoveregex, "g");
+                          
+                          // Use the regex
+                          var afterRegexEpwingText = epwingText.replace(userRegex, "");    
+                     
+                          //
+                          // Only apply the regex if it doesn't remove all of the text
+                          //
+
+                          var isBlank = afterRegexEpwingText.match(/^\s*$/);  
+                          
+                          if(!isBlank)
+                          {
+                            epwingText = afterRegexEpwingText;
+                          }
+                        }
+                        
+                        // Add the header line to the lookup: (cur_hit/total_hits) + conjugation + which_dic
+                        epwingText = "(" + (rcxMain.epwingCurHit + 1) + "/" + rcxMain.epwingTotalHits + ") " + conjugation + which_dic + epwingText;;
+                             
+                        // Limit text to the user-specified number of lines (not 
+                        // including lines generated from word wrap).
+                        // If 500 (max), don't even check.
+                        if(rcxConfig.epwingmaxlines != 500)
+                        {
+                          var epwingNumChars = epwingText.length;
+                          
+                          for(var i = 0; i < epwingNumChars; i++)
+                          {
+                            if(epwingText[i] == '\n')
+                            {
+                              newLines++;
+
+                              if(newLines == rcxConfig.epwingmaxlines)
+                              {
+                                epwingText = epwingText.substring(0, i);
+                                showDots = true;
+                                break;
+                              }
+                            }
+                          }
+                        }
+
+                        // Strip linefeeds or replace with "<br />"?
+                        if(rcxConfig.epwingstripnewlines)
+                        {
+                          epwingText = epwingText.replace(/\n/g, " ");
+                        }
+                        else
+                        {
+                          epwingText = epwingText.replace(/\n/g, "<br />");
+                        }                        
+                      }
+                      catch(ex)
+                      {
+                        // Probably here because eplkup output file was empty
+                        
+                        // How should we fallback?
+                        if(rcxConfig.epwingfallback == "none")
+                        {
+                          // Don't fallback, just display "Entry not found." text
+                        }
+                        else if(rcxConfig.epwingfallback == "jmdict")
+                        {
+                          // Fallback to the default non-EPWING dictionary that comes with rikaichan (JMDICT)
+                        
+                          rcxMain.cleanupLookupEpwing();
+                          rcxMain.showPopup(rcxData.makeHtml(rcxMain.lastFound[0]), rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos);
+                          return;
+                        }
+                        else 
+                        {
+                          // Fallback to the next available EPWING dictionary. If there aren't any, fallback to JMDICT.
+                        
+                          // Are we out of EPWING dictionaries to fallback to?
+                          if(rcxMain.epwingFallbackCount > rcxMain.epwingDicList.length)
+                          {
+                            // If so, fallback to JMDICT
+                            rcxMain.cleanupLookupEpwing();
+                            rcxMain.showPopup(rcxData.makeHtml(rcxMain.lastFound[0]), rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos);
+                            return;
+                          }       
+                          
+                          // Set a timer to call this function again with the next avialable dictionary
+                          window.setTimeout
+                          (
+                            function() 
+                            {
+                              // Allow this routine to be re-entered
+                              rcxMain.epwingActive = false;
+                              
+                              rcxMain.epwingFallbackCount++;
+                              rcxMain.nextEpwingDic();
+                              rcxMain.lookupEpwing();
+                            }, 10
+                          );
+
+                          return;
+                        }
+                      }
+                    }
+
+                    // Place the lookup text into rcxMain.lastFound so that the save and 
+                    // real-time import features work correctly.
+                    try
+                    {                      
+                      // The text to save (minus the header)
+                      var saveText = epwingText.replace(/^\(\d*?\/\d*?\).*?<br \/>/, '');
+ 
+                      rcxMain.lastFound[0].data[0][0] = rcxMain.lastFound[0].data[0][0]
+                        .replace(/\/.+\//g, "/" + saveText + "/");
+  
+                      // Remove all words except for the one we just looked up
+                      rcxMain.lastFound[0].data = [rcxMain.lastFound[0].data[0]];
+                    }
+                    catch(ex)
+                    {
+                      // Probably here because a single kanji was selected that isn't also a regular word.
+                    }
+
+                    // Show trailing dots if not all of the entry's lines could be displayed
+                    if(showDots)
+                    {
+                      epwingText += "<br />...";
+                    }
+                    
+                    // Is the word in the user's vocubulary deck? If so, insert an asterisk.
+                    if(rcxMain.wordInAnkiDeck)
+                    {
+                      epwingText = "* " + epwingText
+                    }
+                    
+                    // Show the EPWING text
+                    rcxMain.showPopup(epwingText, rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos); 
+
+                    rcxMain.cleanupLookupEpwing();                  
+                  });
+                } 
+                else 
+                {
+                  // Components.utils.reportError("Error invoking EPWING tool.");
+                  rcxMain.cleanupLookupEpwing();
+                  return;
+                }
+              }
+            });
+          }
+        }
+      );
+    }
+    else
+    {
+      rcxMain.cleanupLookupEpwing();
+      return;
+    }
+    
+  }, /* lookupEpwing */
+  
+
+  // Fetch entry page from sanseido, parse out definition and display
+	lookupSanseido: function() 
+  {
+    var searchTerm = this.extractSearchTerm();
+    
+    if(!searchTerm)
+    {
+      return;
+    }
+    
+    // Show the loading message to the screen while we fetch the entry page
+    rcxMain.showPopup("Loading...", this.lastTdata.prevTarget, this.lastTdata.pos);
+    
+    //
+    // Get entry page asynchronously
+    //
+    
+    rcxMain.sanseidoReq = new XMLHttpRequest();
+    rcxMain.sanseidoReq.open('GET', 'http://www.sanseido.net/User/Dic/Index.aspx?TWords=' 
+      + searchTerm + '&st=0&DailyJJ=checkbox', true);
+    
+    // This routine is called periodically with status updates as the entry page is being fetched
+    rcxMain.sanseidoReq.onreadystatechange = function (aEvt) 
+    {     
+      if(rcxMain.sanseidoReq.readyState == 4) 
+      {
+        if(rcxMain.sanseidoReq.status == 200)
+        {
+          // Parse definition from page and display it
+          rcxMain.parseAndDisplaySanseido(rcxMain.sanseidoReq.responseText);
+        }
+        else
+        {
+          // rcxDebug.echo("Error fetching sanseido entry!");
+        }
+      }
+    };
+    
+    // Fetch the entry page
+    rcxMain.sanseidoReq.send(null);
+    
+  }, /* lookupSanseido */
+  
+  
+  
+  // Trim whitespace from the beginning and end of text
+  trim: function(text) 
+  {
+    return text.replace(/^\s\s*/, "").replace(/\s\s*$/, "");
+    
+  }, /* trim */
+  
+
+  // Trim whitespace from the end of text
+  trimEnd: function(text) 
+  {
+    return text.replace(/\s\s*$/, "");
+    
+  }, /* trimEnd */
+  
+  
+  // Sanitize and create DOM tree from HTML input text
+  htmlParser: function(aHTMLString)
+  {   
+    var html = document.implementation.createDocument("http://www.w3.org/1999/xhtml", "html", null),
+      body = document.createElementNS("http://www.w3.org/1999/xhtml", "body");
+    html.documentElement.appendChild(body);
+ 
+    body.appendChild(Components.classes["@mozilla.org/feed-unescapehtml;1"]
+      .getService(Components.interfaces.nsIScriptableUnescapeHTML)
+      .parseFragment(aHTMLString, false, null, body));
+ 
+    return body;
+  }, /* htmlParser */
+  
+  
+  // Get the size of a file in bytes
+  getFileSize: function(path) 
+  {
+    var file =
+        Components.classes["@mozilla.org/file/local;1"].
+        createInstance(Components.interfaces.nsILocalFile);
+    file.initWithPath(path);
+    return file.fileSize;
+    
+  }, /* getFileSize */
+  
+  
+  // Download the JDIC audio and then play it with bassplayer (Windows) or mplayer (linux, Mac)
+  // Called by: playJDicAudio
+  // httpLoc   - (string) The URL of the MP3 to download
+  // saveAudio - (string) Name of save file (without path). If blank, audio will not be saved.
+  downloadAndPlayAudio: function(httpLoc, saveFile) 
+  {
+    try 
+    {
+      // Create URI that contains the url of the audio file to download
+      var audioUrl = Components.classes["@mozilla.org/network/io-service;1"]
+        .getService(Components.interfaces.nsIIOService)
+        .newURI(httpLoc, null, null);
+   
+      // Create a temporary mp3 file to save the download to
+      var tempAudioFile = Components.classes["@mozilla.org/file/directory_service;1"]
+        .getService(Components.interfaces.nsIProperties)
+        .get("TmpD", Components.interfaces.nsIFile);
+	    tempAudioFile.append("~rikai_audio.mp3");
+      
+      // If file doesn't exist, create it
+      if(!tempAudioFile.exists()) 
+      {
+        tempAudioFile.create(0x00, 0644);
+      }
+   
+      // Create the persist object that will download the audio file
+      var downloader = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
+        .createInstance(Components.interfaces.nsIWebBrowserPersist);
+   
+      // Create a listener to play the mp3 after download is complete
+      downloader.progressListener = 
+      {
+        onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) 
+        {
+          // Do nothing. This is only here so Firefox won't complain
+        },
+        onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) 
+        {
+          // Did the download complete?
+          if (aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP) 
+          {           
+            var audioFile = tempAudioFile.path;
+            var fileSize = rcxMain.getFileSize(audioFile);
+             
+            // Did you just download the "no audio" message, if so use a shorter "no audio" message instead
+            if(fileSize > 52000)
+            {
+              // Create the file object that contains the location of shorter "no audio" mp3 file
+              var noAudio = Components.classes["@mozilla.org/file/directory_service;1"]
+                .getService(Components.interfaces.nsIProperties)
+                .get("ProfD", Components.interfaces.nsILocalFile);    
+              noAudio.append("extensions");
+              noAudio.append(rcxMain.id); // GUID of extension
+              noAudio.append("audio");
+              noAudio.append("no_audio.mp3");
+            
+              audioFile = noAudio.path;
+            }
+               
+            // Should we save the audio to the user specified audio folder?
+            if(saveFile.length > 0)
+            {
+              // Create a file object for the file to copy
+              var audioCopyFile = Components.classes["@mozilla.org/file/local;1"]
+                  .createInstance(Components.interfaces.nsILocalFile);
+              audioCopyFile.initWithPath(audioFile);
+              
+              // Create a file object for the directory to copy to
+              var saveDir = Components.classes["@mozilla.org/file/local;1"]
+                  .createInstance(Components.interfaces.nsILocalFile);
+              saveDir.initWithPath(rcxConfig.audiodir);
+              
+              // Creat a file object for the desination file (for checking existance)
+              var destFile = Components.classes["@mozilla.org/file/local;1"]
+                  .createInstance(Components.interfaces.nsILocalFile);
+              destFile.initWithPath(rcxConfig.audiodir);
+              destFile.append(saveFile);
+              
+              // Delete the destination file if it already exists
+              if(destFile.exists())
+              {
+                destFile.remove(false);
+              }
+              
+              // Copy and rename the file
+              audioCopyFile.copyTo(saveDir, saveFile);
+            }
+            
+            // Get a string identifying the current OS
+            var osString = Components.classes["@mozilla.org/xre/app-info;1"]  
+                   .getService(Components.interfaces.nsIXULRuntime).OS; 
+                   
+            // Create the file object that contains the location of the audio player
+            if(osString == "Linux")
+            {
+              var audioPlayer = Components.classes["@mozilla.org/file/local;1"]
+                  .createInstance(Components.interfaces.nsILocalFile);
+              audioPlayer.initWithPath("/usr/bin/mplayer");
+            }
+            else if(osString == "Darwin") // Mac
+            {
+              var audioPlayer = Components.classes["@mozilla.org/file/local;1"]
+                  .createInstance(Components.interfaces.nsILocalFile);
+              audioPlayer.initWithPath("/usr/local/bin/mplayer");
+            }
+            else // Windows
+            {
+              var audioPlayer = Components.classes["@mozilla.org/file/directory_service;1"]
+                .getService(Components.interfaces.nsIProperties)
+                .get("ProfD", Components.interfaces.nsILocalFile);    
+              audioPlayer.append("extensions");
+              audioPlayer.append(rcxMain.id); // GUID of extension
+              audioPlayer.append("audio");
+              audioPlayer.append("bassplayer-win.exe");
+            }            
+            
+            // Does the audio player exist?
+            if (audioPlayer.exists()) 
+            {
+               // Create a the process object that will play the audio file
+               var process = Components.classes['@mozilla.org/process/util;1']
+                .createInstance(Components.interfaces.nsIProcess);        
+               process.init(audioPlayer);
+                                               
+                // Set audio player arguments        
+                if(osString == "Linux" || osString == "Darwin")
+                {
+                  var args = ["-volume", rcxConfig.volume, audioFile];
+                }
+                else
+                {
+                  var args = ["-vol", rcxConfig.volume, audioFile];
+                }
+            
+               // Play the audio
+               process.runAsync(args, args.length);  
+            }
+          }
+        }
+      }
+
+      const nsIWBP = Components.interfaces.nsIWebBrowserPersist;
+      const flags = nsIWBP.PERSIST_FLAGS_REPLACE_EXISTING_FILES;
+      downloader.persistFlags = flags | nsIWBP.PERSIST_FLAGS_FROM_CACHE;
+      
+      // Download the audio file and file to a temporary location
+      downloader.saveURI(audioUrl, null, null, null, null, tempAudioFile);
+    }
+    catch (e) 
+    {
+      //alert(e);
+    }
+    
+  }, /* downloadAndPlayAudio */
+  
+	
+  // Play the JDIC audio for the hilited word.
+  // saveAudio - (boolean) Save the audio in the user specified audio folder
+	playJDicAudio: function(saveAudio) 
+	{    
+    // Get the currently hilited entry
+    var hilitedEntry = this.lastFound;
+    
+    if ((!hilitedEntry) || (hilitedEntry.length == 0))
+    {
+      return 0;
+    }
+  
+    var kanjiText;
+    var kanaText;
+    
+    // Is a single kanji selected?
+    if(hilitedEntry[0] && hilitedEntry[0].kanji && hilitedEntry[0].onkun)
+    {
+      //rcxDebug.echo("hilitedEntry[0].kanji = \"" + hilitedEntry[0].kanji + "\"");    
+      //rcxDebug.echo("hilitedEntry[0].onkun = \"" + hilitedEntry[0].onkun + "\"");
+      
+      hilitedEntry[0].onkun.match(/^([^\u3001]*)/);     
+      
+      kanjiText = hilitedEntry[0].kanji;
+      kanaText = RegExp.$1;
+           
+      if(!kanjiText || !kanaText) 
+      {
+        return 0;
+      }
+
+      // For kanji readings, JDIC uses hiragana instead of katakana
+      kanaText = rcxData.convertKatakanaToHiragana(kanaText);
+      
+      if(!kanaText) 
+      {
+        return 0;
+      }
+    }
+    // Is an entire word selected?
+    else if(hilitedEntry[0] && hilitedEntry[0].data[0])
+    {     
+      // Extract needed data from the hilited entry
+      //   entryData[0] = kanji/kana + kana + definition
+      //   entryData[1] = kanji (or kana if no kanji)
+      //   entryData[2] = kana (null if no kanji)
+      //   entryData[3] = definition
+      var entryData = 
+        hilitedEntry[0].data[0][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
+      
+      if (!entryData)
+      { 
+        return 0;
+      }
+      
+      // Get just the kanji and kana
+      kanjiText = entryData[1];
+      kanaText = entryData[2];
+      
+      if(!kanjiText) 
+      {
+        return 0;
+      }
+      
+      if(!kanaText) 
+      {
+        kanaText = kanjiText;
+      }
+    }
+    else
+    {
+      return 0;
+    }
+    
+    //rcxDebug.echo("Kana =\"" + kanaText + "\"  Kanji = \"" + kanjiText + "\"");    
+        
+    // Form the URL
+    var jdicAudioUrlText = 
+      "http://assets.languagepod101.com/dictionary/japanese/audiomp3.php?kana=" 
+      + kanaText + "&kanji=" + kanjiText;
+      
+    //rcxDebug.echo(jdicAudioUrlText);
+    
+    // Encode link to ASCII character set
+    //encodedJdicAudioUrlText = encodeURI(jdicAudioUrlText);
+    
+    var saveFile = "";
+    
+    if(saveAudio)
+    {
+      saveFile = kanaText + ' - ' + kanjiText + '.mp3';
+    }
+    
+    this.downloadAndPlayAudio(jdicAudioUrlText, saveFile);
+    
+	}, /* playJDicAudio */
+		
+	
 	saveToFile: function() {
 		var text;
 		var i;
 		var lf, fos, os;
 
-		try {
-			if ((text = this.savePrep(0)) == null) return;
+		try 
+    {
+			if ((text = this.savePrep(0)) == null) 
+        return;
 
 			if (rcxConfig.sfile.length == 0) {
 				this.showPopup('Please set the filename in Preferences.');
 				return;
 			}
+
+			if (rcxConfig.saveformat.length == 0) {
+				this.showPopup('Please create a save format in Preferences.');
+				return;
+			}
+      
+      if (rcxConfig.audiodir.length != 0)
+      {
+        this.playJDicAudio(true);
+      }
 
 			lf = Components.classes['@mozilla.org/file/local;1']
 					.createInstance(Components.interfaces.nsILocalFile);
@@ -611,7 +2103,7 @@ var rcxMain = {
 
 			fos = Components.classes['@mozilla.org/network/file-output-stream;1']
 				.createInstance(Components.interfaces.nsIFileOutputStream);
-			fos.init(lf, 0x02 | 0x08 | 0x10, -1, 0);
+			fos.init(lf, 0x02 | 0x08 | 0x10, -1, 0);	//writing only, create file if none exists, pointer set to end of file for writing
 
 			os = Components.classes['@mozilla.org/intl/converter-output-stream;1']
 					.createInstance(Components.interfaces.nsIConverterOutputStream);
@@ -632,7 +2124,6 @@ var rcxMain = {
 		window.openDialog('chrome://rikaichan/content/options.xul', '', 'chrome,centerscreen');
 	},
 
-	//
 
 	keysDown: [],
 
@@ -647,12 +2138,15 @@ var rcxMain = {
 		if ((rcxConfig.nopopkeys) && (ev.keyCode != 16)) return;
 
 		var i;
-
-		switch (ev.keyCode) {
-		case 13:	// enter
+    
+		switch (ev.keyCode) 
+    {
+		case 13:	// ENTER - Switch dictionary
 			this.clearHi();
 			// continues...
-		case 16:	// shift
+		case 16:	// SHIFT - Switch dictionary
+      this.allowOneTimeSuperSticky();
+      
 			let tdata = ev.currentTarget.rikaichan;
 			if (tdata) {
 				rcxData.selectNext();	// @@@ hmm
@@ -660,29 +2154,57 @@ var rcxMain = {
 					else this.show(tdata);
 			}
 			break;
-		case 27:	// esc
+      
+		case 27:	// ESC - Remove popup
+    
+      // If in Super Sticky mode, allow the popup to hide
+      if(this.superSticky)
+      {
+        this.superStickyOkayToHide = true;
+      }
+      
 			this.hidePopup();
 			this.clearHi();
 			break;
-		case 65:	// a
+      
+		case parseInt(rcxConfig.kbalternateview): // a - Alternate popup location
+      this.allowOneTimeSuperSticky();
+    
 			this.altView = (this.altView + 1) % 3;
 			if (this.altView) this.status('Alternate View #' + this.altView);
 				else this.status('Normal View');
 			this.show(ev.currentTarget.rikaichan);
 			break;
-		case 67:	// c
+      
+		case parseInt(rcxConfig.kbcopytoclipboard):	// c - Copy to clipboard
 			this.copyToClip();
 			break;
-		case 68:	// d
+      
+		case parseInt(rcxConfig.kbhideshowdefinitions):	// d - Hide/show definitions
+      this.allowOneTimeSuperSticky();
+      
 			rcxConfig.hidedef = !rcxConfig.hidedef;
 			this.status((rcxConfig.hidedef ? 'Hide' : 'Show') + ' definition');
 			if (rcxConfig.hidedef) this.showPopup('Hiding definitions. Press "D" to show again.');
 				else this.show(ev.currentTarget.rikaichan);
 			break;
-		case 83:	// s
+      
+		case parseInt(rcxConfig.kbjdicaudio):	// f - JDIC Audio
+			this.playJDicAudio(false);
+			break;
+      
+		case parseInt(rcxConfig.kbsavetofile):	// s - Save to file
+      rcxMain.saveKana = false;
 			this.saveToFile();
 			break;
-		case 66:	// b
+      
+		case parseInt(rcxConfig.kbsavetofilekana):	// x - Save to file (kana version $d=$r)
+      rcxMain.saveKana = true;
+			this.saveToFile();
+			break;
+      
+		case parseInt(rcxConfig.kbpreviouscharacter):	// b - Previous character
+      this.allowOneTimeSuperSticky();
 			var ofs = ev.currentTarget.rikaichan.uofs;
 			for (i = 50; i > 0; --i) {
 				ev.currentTarget.rikaichan.uofs = --ofs;
@@ -692,26 +2214,126 @@ var rcxMain = {
 				}
 			}
 			break;
-		case 77:	// m
+      
+		case parseInt(rcxConfig.kbnextcharacter):	// m - Next character
+      this.allowOneTimeSuperSticky();
 			ev.currentTarget.rikaichan.uofsNext = 1;
-		case 78:	// n
+      
+		case parseInt(rcxConfig.kbnextword):	// n - Next word
+      this.allowOneTimeSuperSticky();
+      
 			for (i = 50; i > 0; --i) {
 				ev.currentTarget.rikaichan.uofs += ev.currentTarget.rikaichan.uofsNext;
 				rcxData.select(0);
 				if (this.show(ev.currentTarget.rikaichan) >= 0) break;
 			}
 			break;
-		case 75:	// k
+      
+		case parseInt(rcxConfig.kbstickypopup):	// k - Sticky popup behavior
 			this.sticky = !this.sticky;
 			this.status(this.sticky ? 'Sticky Popup' : 'Normal Popup');
 			break;
-		case 89:	// y
+      
+    case parseInt(rcxConfig.kbsanseidomode): // o - Sanseido mode
+      this.allowOneTimeSuperSticky();
+      this.toggleSanseidoMode();
+      this.show(ev.currentTarget.rikaichan);
+      break;
+      
+    case parseInt(rcxConfig.kbepwingmode): // p - EPWING mode
+      this.allowOneTimeSuperSticky();
+      this.toggleEpwingMode();
+      this.show(ev.currentTarget.rikaichan);
+      break;
+      
+    case parseInt(rcxConfig.kbrealtimeimport): // r - Anki Real-Time Import
+      rcxMain.saveKana = false;
+      this.sendToAnki();
+      break;
+      
+    case parseInt(rcxConfig.kbrealtimeimportkana): // t - Anki Real-Time Import (kana version $d=$r)
+      rcxMain.saveKana = true;
+      this.sendToAnki();
+      break;
+      
+    case parseInt(rcxConfig.kbsuperstickymode): // u - Super Sticky mode
+      this.toggleSuperStickyMode();
+      break;
+      
+		case parseInt(rcxConfig.kbmovepopupdown):	// y - Move popup location down
+      this.allowOneTimeSuperSticky();
+      
 			this.altView = 0;
 			ev.currentTarget.rikaichan.popY += 20;
 			this.show(ev.currentTarget.rikaichan);
 			break;
+      
+		case parseInt(rcxConfig.kbepwingnextdic):	// + - Goto next dictionary
+      var origDic = this.epwingCurDic;
+      
+      this.nextEpwingDic();
+      
+      if(origDic != this.epwingCurDic)
+      {
+        this.allowOneTimeSuperSticky();
+        
+        // Reset the EPWING hit number and hit totals
+        this.epwingTotalHits = 0;
+        this.epwingCurHit = 0;
+        
+        this.show(ev.currentTarget.rikaichan);
+      }
+			break;
+
+		case parseInt(rcxConfig.kbepwingprevdic):	// - - Goto previous dictionary
+      var origDic = this.epwingCurDic;
+      
+      this.prevEpwingDic();
+      
+      if(origDic != this.epwingCurDic)
+      {
+        this.allowOneTimeSuperSticky();
+       
+       // Reset the EPWING hit number and hit totals
+        this.epwingTotalHits = 0;
+        this.epwingCurHit = 0;
+    
+        this.show(ev.currentTarget.rikaichan);
+      }
+			break;
+      
+    case parseInt(rcxConfig.kbepwingpreventry): // [ - Move to previous hit (EPWING mode)
+      if(this.epwingTotalHits > 0)
+      {
+        this.allowOneTimeSuperSticky();
+      
+        this.epwingCurHit--;
+        
+        if(this.epwingCurHit < 0)
+        {
+          this.epwingCurHit = this.epwingTotalHits - 1;
+        }
+        
+        this.show(ev.currentTarget.rikaichan);
+      }
+      break;
+    
+    case parseInt(rcxConfig.kbepwingnextentry): // ] - Move to next hit (EPWING mode)
+    
+      if(this.epwingTotalHits > 0)
+      { 
+        this.allowOneTimeSuperSticky();
+      
+        this.epwingCurHit = (this.epwingCurHit + 1) % this.epwingTotalHits;
+        this.show(ev.currentTarget.rikaichan);
+      }
+      break;
+   
 		default:
-			if ((ev.keyCode >= 49) && (ev.keyCode <= 57)) {	// 1-9
+			if ((ev.keyCode >= 49) && (ev.keyCode <= 57)) // 1-9 - Switch dictionary
+      {
+        this.allowOneTimeSuperSticky();
+      
 				rcxData.select(ev.keyCode - 49);
 				this.show(ev.currentTarget.rikaichan);
 			}
@@ -730,10 +2352,61 @@ var rcxMain = {
 	onKeyUp: function(ev) {
 		if (rcxMain.keysDown[ev.keyCode]) rcxMain.keysDown[ev.keyCode] = 0;
 	},
+  
+    
+	onMouseUp: function(ev) 
+  {  
+    // Did a Ctrl-right click just occur in Super Sticky mode?
+    if(ev.ctrlKey && (ev.button == 2) && rcxMain.superSticky)
+    {
+      // Set a timer to remove the right-click context menu by creating a key press event 
+      // that simulates an ESC press. It won't work if we send the ESC press right away, 
+      // we have to wait a little while, hence the timer.
+        window.setTimeout
+        (
+          function() 
+          {
+            var evnt = document.createEvent("KeyboardEvent");
+            evnt.initKeyEvent("keypress", true, true, window, false, false, false, false, 27, 0);                
+            ev.target.dispatchEvent(evnt);
+          }, 15);
+    }
+  },
 
-
-	onMouseDown: function(ev) {
-		if (!rcxMain.cursorInPopup(ev)) rcxMain.hidePopup();
+  
+	onMouseDown: function(ev) 
+  {
+    // Did a Ctrl-click just occur in Super Sticky mode?
+    if(ev.ctrlKey && rcxMain.superSticky)
+    {
+      // Prevent the surrounding table element from hiliting when the user
+      // performs a ctrl-left click
+      if(ev.button == 0)
+      {
+        ev.preventDefault();
+      }
+     
+      let tdata = ev.currentTarget.rikaichan;
+     
+      rcxMain.superStickyOkayToShow = true;
+      
+      if(tdata) 
+      {
+        if (tdata.titleShown)
+        {
+          rcxMain.showTitle(tdata);
+        }
+        else 
+        {
+          rcxMain.show(tdata);
+        }
+      }
+    }
+    else if(!rcxMain.cursorInPopup(ev))
+    {
+      rcxMain.superStickyOkayToHide = true;
+      rcxMain.hidePopup();
+    }
 	},
 
 	unicodeInfo: function(c) {
@@ -836,7 +2509,78 @@ var rcxMain = {
 
 		return text;
 	},
+  
+  
+	getInlineTextPrev: function (node, selEndList, maxLength) 
+  {
+		if((node.nodeType == Node.TEXT_NODE) && (node.data.length == 0))
+    {    
+      return ''
+    }
 
+		let text = '';
+    
+		let result = node.ownerDocument.evaluate('descendant-or-self::text()[not(parent::rp) and not(ancestor::rt)]',
+						     node, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+        
+		while((text.length < maxLength) && (node = result.iterateNext())) 
+    {     
+      if(text.length + node.data.length >= maxLength)
+      {
+        text += node.data.substr(node.data.length - (maxLength - text.length), maxLength - text.length);
+      }
+      else
+      {
+			  text += node.data;
+      }
+
+			selEndList.push(node);
+		}
+    
+		return text;
+	},
+    
+    
+	getPrev: function(node) 
+  {
+		do 
+    {
+			if (node.previousSibling) 
+      {
+        return node.previousSibling;
+      }
+      
+			node = node.parentNode;
+		} 
+    while ((node) && (this.inlineNames[node.nodeName]));
+    
+		return null;
+	},
+  
+  
+	getTextFromRangePrev: function(rangeParent, offset, selEndList, maxLength) 
+  {
+		if (rangeParent.ownerDocument.evaluate('boolean(parent::rp or ancestor::rt)',
+			rangeParent, null, XPathResult.BOOLEAN_TYPE, null).booleanValue)
+    {
+			return '';
+    }
+      
+		let text = '';
+		var prevNode = rangeParent;
+    
+		while ((text.length < maxLength) &&
+			((prevNode = this.getPrev(prevNode)) != null) &&
+			(this.inlineNames[prevNode.nodeName])) 
+    {
+      textTemp = text;
+      text = this.getInlineTextPrev(prevNode, selEndList, maxLength - text.length) + textTemp;
+		}
+
+		return text;
+	},
+
+  
 	highlightMatch: function(doc, rp, ro, matchLen, selEndList, tdata) {
 		if (selEndList.length === 0) return;
 
@@ -872,8 +2616,10 @@ var rcxMain = {
 	},
 
 	show: function(tdata) {
-		var rp = tdata.prevRangeNode;
-		var ro = tdata.prevRangeOfs + tdata.uofs;
+		var rp = tdata.prevRangeNode; // The currently selected node
+		var ro = tdata.prevRangeOfs + tdata.uofs; // The position of the hilited text in the currently selected node
+		var i;
+		var j;
 
 		tdata.uofsNext = 1;
 
@@ -882,7 +2628,7 @@ var rcxMain = {
 			this.hidePopup();
 			return 0;
 		}
-
+		
 		if ((ro < 0) || (ro >= rp.data.length)) {
 			this.clearHi();
 			this.hidePopup();
@@ -904,7 +2650,91 @@ var rcxMain = {
 
 		//selection end data
 		var selEndList = [];
-		var text = this.getTextFromRange(rp, ro, selEndList, 13);
+    
+    // The text here will be used to lookup the word
+		var text = this.getTextFromRange(rp, ro, selEndList, 20);
+    
+    // The text from the currently selection node + 50 more characters from the next nodes    
+		var sentence = this.getTextFromRange(rp, 0, selEndList, rp.data.length + 50);
+    
+    // 50 characters from the previous nodes.
+    // The above sentence var will stop at first ruby tag encountered to the 
+    // left because it has a different node type. prevSentence will start where 
+    // the above sentence left off moving to the left and will capture the ruby tags.
+    var prevSentence = this.getTextFromRangePrev(rp, 0, selEndList, 50);
+    
+    // Combine the full sentence text, including stuff that will be chopped off later.
+    sentence = prevSentence + sentence;
+		
+		//this.word = text;
+		
+    //
+		// Find the sentence in the node
+    //
+    
+    // Get the position of the first selected character in the sentence variable
+		i = ro + prevSentence.length; 
+    
+		var sentenceStartPos;
+		var sentenceEndPos;
+		
+    // Find the last character of the sentence
+		while (i < sentence.length) 
+    {
+			if (sentence[i] == "。" || sentence[i] == "\n" || sentence[i] == "？" ||　sentence[i] == "！") 
+      {
+				sentenceEndPos = i;
+				break;
+			} 
+      else if (i == (sentence.length - 1))
+      {
+				sentenceEndPos = i;
+			}
+      
+			i++;
+		}
+    
+		i = ro + prevSentence.length;
+    
+    
+    // Find the first character of the sentence
+		while (i >= 0) 
+    {      
+			if (sentence[i] == "。" || sentence[i] == "\n" || sentence[i] == "？" ||　sentence[i] == "！") 
+      {
+				sentenceStartPos = i + 1;
+				break;
+			}
+      else if (i == 0)
+      {
+				sentenceStartPos = i;
+			}
+      
+			i--;
+		}
+		
+    // Extract the sentence
+		sentence = sentence.substring(sentenceStartPos, sentenceEndPos + 1);
+         
+    var startingWhitespaceMatch = sentence.match(/^\s+/);
+                
+    // Strip out control characters
+		sentence = sentence.replace(/[\n\r\t]/g, '');	
+    
+    var startOffset = 0;
+    
+   // Adjust offset of selected word according to the number of 
+   // whitespace chars at the beginning of the sentence
+   if(startingWhitespaceMatch)
+   {
+     startOffset -= startingWhitespaceMatch[0].length;
+   }
+       
+    // Trim
+    sentence = rcxMain.trim(sentence);
+    		
+		this.sentence = sentence;
+		
 		if (text.length == 0) {
 			this.clearHi();
 			this.hidePopup();
@@ -918,7 +2748,18 @@ var rcxMain = {
 			return 0;
 		}
 		this.lastFound = [e];
+		 
+    // Find the highlighted word, rather than the edict lookup
+		this.word = text.substring(0, e.matchLen);
 
+		var wordPosInSentence = ro + prevSentence.length - sentenceStartPos + startOffset;
+		
+    // Add blanks in place of the hilighted word for use with the save feature
+		sentenceWBlank = sentence.substring(0, wordPosInSentence) + "___" 
+					+ sentence.substring(wordPosInSentence + e.matchLen, sentence.length);
+		
+		this.sentenceWBlank = sentenceWBlank;
+		
 		if (!e.matchLen) e.matchLen = 1;
 		tdata.uofsNext = e.matchLen;
 		tdata.uofs = (ro - tdata.prevRangeOfs);
@@ -936,7 +2777,48 @@ var rcxMain = {
 		}
 
 		tdata.titleShown = false;
-		this.showPopup(rcxData.makeHtml(e), tdata.prevTarget, tdata.pos);
+    
+    // Save the tdata so that the sanseido routines can use it
+    this.lastTdata = tdata;
+    
+    // Determine if the word is in the user's anki deck
+    this.wordInAnkiDeck = this.isWordInAnkiDeck();
+
+    // If not in Super Sticky mode or the user manually requested a popup
+    if(!this.superSticky || this.superStickyOkayToShow)
+    {
+      // Clear the one-time okay-to-show flag
+      this.superStickyOkayToShow = false;
+    
+      // If we are in sanseido mode and the normal non-names, non-kanji dictionary is selected
+      if(this.sanseidoMode 
+        && (rcxData.dicList[rcxData.selected].name.indexOf("Names") == -1)
+        && (rcxData.dicList[rcxData.selected].name.indexOf("Kanji") == -1))
+      {
+        this.lookupSanseido();
+      }
+      // If we are in EPWING mode and the normal non-names, non-kanji dictionary is selected
+      else if(this.epwingMode 
+        && (rcxData.dicList[rcxData.selected].name.indexOf("Names") == -1)
+        && (rcxData.dicList[rcxData.selected].name.indexOf("Kanji") == -1))
+      {
+        this.lookupEpwing();
+      }
+      // Normal popup
+      else
+      {
+        var alreadyInDeckStr = "";
+        
+        // Is the word in the user's vocubulary deck? If so, insert an asterisk.   
+        if(this.wordInAnkiDeck)
+        {
+          alreadyInDeckStr = "* ";
+        }
+        
+        this.showPopup(alreadyInDeckStr + rcxData.makeHtml(e), tdata.prevTarget, tdata.pos);
+      }
+    }
+    
 		return 1;
 	},
 
@@ -952,7 +2834,14 @@ var rcxMain = {
 
 		this.lastFound = [e];
 		tdata.titleShown = true;
-		this.showPopup(rcxData.makeHtml(e), tdata.prevTarget, tdata.pos);
+    
+    if(!this.superSticky || this.superStickyOkayToShow)
+    {
+      // Clear the one-time okay-to-show flag
+      this.superStickyOkayToShow = false;
+      
+		  this.showPopup(rcxData.makeHtml(e), tdata.prevTarget, tdata.pos);
+    }
 	},
 
 	onMouseMove: function(ev) { rcxMain._onMouseMove(ev); },
@@ -1009,7 +2898,7 @@ var rcxMain = {
 			return;
 		}
 
-		if (rcxConfig.title) {
+		if ((!this.superSticky || this.superStickyOkayToShow) && rcxConfig.title) {
 			if ((typeof(ev.target.title) == 'string') && (ev.target.title.length)) {
 				tdata.title = ev.target.title;
 			}
@@ -1053,20 +2942,21 @@ var rcxMain = {
 			(pos.pageY >= popup.offsetTop) &&
 			(pos.pageY <= popup.offsetTop + popup.offsetHeight));
 	},
-
+ 
 	_enable: function(b) {
 		if ((b != null) && (b.rikaichan == null)) {
 			//	alert('enable ' + b.id);
 			b.rikaichan = {};
 			b.addEventListener('mousemove', this.onMouseMove, false);
 			b.addEventListener('mousedown', this.onMouseDown, false);
+      b.addEventListener('mouseup', this.onMouseUp, false);
 			b.addEventListener('keydown', this.onKeyDown, true);
 			b.addEventListener('keyup', this.onKeyUp, true);
 			return true;
 		}
 		return false;
 	},
-
+  
 	enable: function(b, mode) {
 		if (!this.initDictionary()) return;
 		var ok = this._enable(b, mode);
@@ -1085,18 +2975,61 @@ var rcxMain = {
 						this.rcxObs.notifyState('enable');
 					}
 				}
+         // Show the minihelp?
+				if(rcxConfig.minihelp)
+        {
+          var keycode2Key = 
+          {
+            "65" : "A", "66" : "B", "67" : "C", "68" : "D", "69" : "E", "70" : "F", "71" : "G", "72" : "H", "73" : "I", "74" : "J",
+            "75" : "K", "76" : "L", "77" : "M", "78" : "N", "79" : "O", "80" : "P", "81" : "Q", "82" : "R", "83" : "S", "84" : "T",
+            "85" : "U", "86" : "V", "87" : "W", "88" : "X", "89" : "Y", "90" : "Z", "192" : "` ~", "48" : "0", "109" : "- _", "107" : "= +",
+            "219" : "[ {", "221" : "] }", "220" : "\ |", "59" : ", :", "222" : "' &quot;", "188" : ", &lt;", "190" : ". &gt;", "191" : "/ ?",
+            "112" : "F1", "113" : "F2", "114" : "F3", "115" : "F4", "116" : "F5", "117" : "F6", "118" : "F7", "119" : "F8", "120" : "F9",
+            "121" : "F10", "122" : "F11", "123" : "F12", "32" : "SPACE", "8" : "BACKSPACE", "45" : "INSERT", "46" : "DELETE", "36" : "HOME",
+            "35" : "END", "33" : "PAGE UP", "34" : "PAGE DOWN", "37" : "LEFT", "39" : "RIGHT", "38" : "UP", "40" : "DOWN", "96" : "KEYPAD 0",
+            "97" : "KEYPAD 1", "98" : "KEYPAD 2", "99" : "KEYPAD 3", "100" : "KEYPAD 4", "101" : "KEYPAD 5", "102" : "KEYPAD 6",
+            "103" : "KEYPAD 7", "104" : "KEYPAD 8", "105" : "KEYPAD 9", "111" : "KEYPAD /", "106" : "KEYPAD *", "110" : "KEYPAD ."
+          };
+        
+          var minihelpText = rcxFile.read('chrome://rikaichan/locale/minihelp.htm');
+          
+          minihelpText = minihelpText.replace(/@AlternatePopupLocation/   , keycode2Key[rcxConfig.kbalternateview]);
+          minihelpText = minihelpText.replace(/@StickyPopupBehavior/      , keycode2Key[rcxConfig.kbstickypopup]);
+          minihelpText = minihelpText.replace(/@MovePopupLocationDown/    , keycode2Key[rcxConfig.kbmovepopupdown]);
+          minihelpText = minihelpText.replace(/@CopyToClipboard/          , keycode2Key[rcxConfig.kbcopytoclipboard]);
+          minihelpText = minihelpText.replace(/@SaveToFile/               , keycode2Key[rcxConfig.kbsavetofile]);
+          minihelpText = minihelpText.replace(/@SaveToFileKana/           , keycode2Key[rcxConfig.kbsavetofilekana]);
+          minihelpText = minihelpText.replace(/@HideShowDefinitions/      , keycode2Key[rcxConfig.kbhideshowdefinitions]);
+          minihelpText = minihelpText.replace(/@PreviousCharacter/        , keycode2Key[rcxConfig.kbpreviouscharacter]);
+          minihelpText = minihelpText.replace(/@NextCharacter/            , keycode2Key[rcxConfig.kbnextcharacter]);
+          minihelpText = minihelpText.replace(/@NextWord/                 , keycode2Key[rcxConfig.kbnextword]);
+          minihelpText = minihelpText.replace(/@JDICAudio/                , keycode2Key[rcxConfig.kbjdicaudio]);
+          minihelpText = minihelpText.replace(/@SanseidoMode/             , keycode2Key[rcxConfig.kbsanseidomode]);
+          minihelpText = minihelpText.replace(/@EPWINGMode/               , keycode2Key[rcxConfig.kbepwingmode]);
+          minihelpText = minihelpText.replace(/@AnkiRealTimeImport/       , keycode2Key[rcxConfig.kbrealtimeimport]);
+          minihelpText = minihelpText.replace(/@AnkiRealTimeImportKana/   , keycode2Key[rcxConfig.kbrealtimeimportkana]);
+          minihelpText = minihelpText.replace(/@SuperStickyMode/          , keycode2Key[rcxConfig.kbsuperstickymode]);
+          minihelpText = minihelpText.replace(/@NextEPWINGDictionary/     , keycode2Key[rcxConfig.kbepwingnextdic]);
+          minihelpText = minihelpText.replace(/@PreviousEPWINGDictionary/ , keycode2Key[rcxConfig.kbepwingprevdic]);
+          minihelpText = minihelpText.replace(/@NextEPWINGEntry/          , keycode2Key[rcxConfig.kbepwingnextentry]);
+          minihelpText = minihelpText.replace(/@PreviousEPWINGEntry/      , keycode2Key[rcxConfig.kbepwingpreventry]);
 
-				if (rcxConfig.minihelp) this.showPopup(rcxFile.read('chrome://rikaichan/locale/minihelp.htm'));
-					else this.showPopup('Rikaichan Enabled');
+          this.showPopup(minihelpText);
+        }
+        else
+        {
+					this.showPopup('Rikaichan Enabled');
+        }
 			}
 		}
 	},
-
-	_disable: function(b) {
+  
+  _disable: function(b) {
 		if (b != null) {
 			//	alert('disable ' + b.id);
 			b.removeEventListener('mousemove', this.onMouseMove, false);
 			b.removeEventListener('mousedown', this.onMouseDown, false);
+      b.removeEventListener('mouseup', this.onMouseUp, false);
 			b.removeEventListener('keydown', this.onKeyDown, true);
 			b.removeEventListener('keyup', this.onKeyUp, true);
 
@@ -1111,7 +3044,7 @@ var rcxMain = {
 		}
 		return false;
 	},
-
+  
 	disable: function(b, mode) {
 		this._disable(b);
 		if (this.isTB) {
@@ -1199,7 +3132,7 @@ var rcxMain = {
 					}
 				}
 			}
-
+		
 			e.hidden = false;
 			this.lbText.focus();
 		}
@@ -1295,8 +3228,16 @@ var rcxMain = {
 					}
 				}
 			}
-
-			this.showPopup('<table class="q-tb"><tr><td class="q-w">' + html + '</td>' + kanji + '</tr></table>', null, null, true);
+            
+      var alreadyInDeckStr = "";
+      
+      // Is the word in the user's vocubulary deck? If so, insert an asterisk. 
+      if(this.isWordInAnkiDeck())
+      {
+        alreadyInDeckStr = "* ";
+      }
+      
+			this.showPopup('<table class="q-tb"><tr><td class="q-w">' + alreadyInDeckStr + html + '</td>' + kanji + '</tr></table>', null, null, true);
 		}
 	},
 
@@ -1369,8 +3310,7 @@ var rcxConfig = {
 		}
 		catch (ex) {
 		}
-
-
+    
 		for (let i = rcxConfigList.length - 1; i >= 0; --i) {
 			let [type, name] = rcxConfigList[i];
 			switch (type) {
@@ -1420,10 +3360,13 @@ var rcxConfig = {
 		}
 
 		rcxData.loadConfig();
+    
+    rcxMain.populateEpwingDics();
 	}
 };
 
-/*
+
+/*					
 var rcxDebug = {
 	echo: function(text) {
 		Components.classes['@mozilla.org/consoleservice;1']

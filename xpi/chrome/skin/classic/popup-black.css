@@ -218,3 +218,17 @@
 	padding: 0px 2px;
 	vertical-align: top;
 }
+
+/* EPWING */
+
+#rikaichan-window .epwing-dic-name 
+{
+	color: #A0A0A0;
+	font-size: 12px;
+  float: right;
+}
+
+#rikaichan-window sup
+{
+  font-size: 10px;
+}

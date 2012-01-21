@@ -114,12 +114,15 @@ var rcxOptions = {
 		if ((window.arguments) && (window.arguments.length) && (window.arguments[0] == 'dic')) {
 			document.getElementById('rcp-tabbox').selectedIndex = 3;
 		}
+		
 	},
 
 	onOK: function() {
 		// type="number" min="3" max="100" <-- can use, but limited to FX3+, TB?, SM?
+    if (!this.checkRange('rcp-volume', 'Volume', 0, 100)) return false;
 		if (!this.checkRange('rcp-wmax', 'Maximum Entries To Display', 3, 100)) return false;
 		if (!this.checkRange('rcp-namax', 'Maximum Entries To Display', 3, 100)) return false;
+    if (!this.checkRange('rcp-rtiudpport', 'UDP Port', 49152, 65535)) return false;
 
 		let pb = new rcxPrefs();
 
@@ -193,7 +196,22 @@ var rcxOptions = {
 		if ((r == nsIFilePicker.returnOK) || (r == nsIFilePicker.returnReplace))
 			document.getElementById(id).value = fp.file.path;
 	},
+  
+  browseDir: function(id) 
+  {
+		const nsIFilePicker = Components.interfaces.nsIFilePicker;
+		let fp = Components.classes['@mozilla.org/filepicker;1'].createInstance(nsIFilePicker);
 
+		fp.init(window, 'Browse', nsIFilePicker.modeGetFolder);
+		fp.appendFilters(nsIFilePicker.filterAll | nsIFilePicker.filterText);
+		fp.defaultString = document.getElementById(id).value;
+
+		let r = fp.show();
+    
+		if ((r == nsIFilePicker.returnOK) || (r == nsIFilePicker.returnReplace))
+			document.getElementById(id).value = fp.file.path;
+	},
+	
 	movePriority: function(dir) {
 		let list = document.getElementById('rcp-priority');
 

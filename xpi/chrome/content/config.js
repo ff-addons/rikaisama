@@ -39,7 +39,15 @@ var rcxConfigList = [
 	[2, 'resizedoc'],
 	[2, 'sticon'],
 	[2, 'minihelp'],
-
+	[0, 'volume'],
+  
+  // startup
+	[2, 'startlookupbar'],
+	[2, 'startepwing'],
+	[2, 'startsanseido'],
+	[2, 'startsticky'],
+	[2, 'startsupersticky'],
+  
 	// menus
 	[2, 'tmtoggle'],
 	[2, 'tmlbar'],
@@ -48,6 +56,26 @@ var rcxConfigList = [
 
 	// keyboard
 	[2, 'nopopkeys'],
+	[1, 'kbalternateview'],
+	[1, 'kbstickypopup'],
+	[1, 'kbmovepopupdown'],
+	[1, 'kbcopytoclipboard'],
+	[1, 'kbsavetofile'],
+	[1, 'kbsavetofilekana'],
+	[1, 'kbhideshowdefinitions'],
+	[1, 'kbpreviouscharacter'],
+	[1, 'kbnextcharacter'],
+	[1, 'kbnextword'],
+	[1, 'kbjdicaudio'],
+	[1, 'kbsanseidomode'],
+	[1, 'kbepwingmode'],
+	[1, 'kbrealtimeimport'],
+	[1, 'kbrealtimeimportkana'],
+	[1, 'kbsuperstickymode'],
+	[1, 'kbepwingnextdic'],
+	[1, 'kbepwingprevdic'],
+	[1, 'kbepwingnextentry'],
+	[1, 'kbepwingpreventry'],
 
 	// dictionary
 	[2, 'wpos'],					// ! this was an integer in 1.xx: 0=hide, 1=show entry type
@@ -58,9 +86,22 @@ var rcxConfigList = [
 	
 	// kanji
 	[1, 'kindex'],
-
+  
+	// epwing
+	[1, 'epwingpath1'],
+	[1, 'epwingpath2'],
+	[1, 'epwingpath3'],
+	[1, 'epwingpath4'],
+	[1, 'epwingfallback'],
+	[0, 'epwingmaxlines'],
+	[2, 'epwingshowconjugation'],
+	[2, 'epwingshowdicnum'],
+	[2, 'epwingstripnewlines'],
+	[1, 'epwingremoveregex'],
+  
 	// clipboard / save file
 	[1, 'sfile'],
+	[1, 'audiodir'],
 	[1, 'sfcs'],
 	[0, 'smaxfe'],
 	[0, 'smaxfk'],
@@ -68,11 +109,20 @@ var rcxConfigList = [
 	[0, 'smaxck'],
 	[0, 'snlf'],
 	[1, 'ssep'],
-	
+	[1, 'atags'],
+	[1, 'saveformat'],
+
+  // Anki
+	[1, 'rtifieldnamestext'],
+	[0, 'rtiudpport'],
+	[2, 'ankialreadyenable'],
+	[1, 'ankialreadydeck'],
+	[1, 'ankialreadyfield'],
+  
 	// not in GUI
 	[0, 'popdelay'],
 	[2, 'hidedef'],
-	[2, 'checkversion']
+	[2, 'checkversion'],
 //	[2, 'sticky']
 ];
 

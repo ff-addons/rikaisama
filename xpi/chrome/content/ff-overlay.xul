@@ -67,9 +67,9 @@
 		<toolbarbutton id="rikaichan-lbar-close" tooltiptext="&rikaichan.lbar.close.tip;"
 			oncommand="rcxMain.lbHide();" />
 
-		<toolbaritem id="rcx-lookupbar-texttbi" title="Rikaichan Lookup">
+		<toolbaritem id="rcx-lookupbar-texttbi" title="Rikaisama Lookup">
 			<hbox id="rcx-lookupbar-hbox" align="center" persist="width">
-				<textbox id="rcx-lookupbar-text" emptytext="rikaichan" flex="1"
+				<textbox id="rcx-lookupbar-text" emptytext="rikaisama" flex="1"
 					onkeypress="rcxMain.lbKeyPress(event);" />
 			</hbox>
 			<splitter id="rcx-lookupbar-split" tooltiptext="Resize" resizeafter="grow">
@@ -102,9 +102,9 @@
 		label="&rikaichan.toolbar.lbar;" tooltiptext="&rikaichan.toolbar.lbar.tip;"
 		command="rikaichan-lbar-cmd" />
 
-	<toolbaritem id="rcx-lookupbox" title="Rikaichan Lookup">
+	<toolbaritem id="rcx-lookupbox" title="Rikaisama Lookup">
 		<hbox id="rcx-lookupbox-hbox" align="center" persist="width">
-			<textbox id="rcx-lookupbox-text" emptytext="rikaichan" flex="1"
+			<textbox id="rcx-lookupbox-text" emptytext="rikaisama" flex="1"
 				onkeypress="rcxMain.lookupBoxKey(event);" />
 		</hbox>
 		<splitter id="rcx-lookupbox-split" tooltiptext="Resize" resizeafter="grow">
