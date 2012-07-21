@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------
---  Copyright (C) 2011 Christopher Brochtrup
+--  Copyright (C) 2011-2012 Christopher Brochtrup
 --
 --  This file is part of eplkup.
 --

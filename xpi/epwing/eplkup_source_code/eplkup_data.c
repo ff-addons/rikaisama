@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------
---  Copyright (C) 2011 Christopher Brochtrup
+--  Copyright (C) 2011-2012 Christopher Brochtrup
 --
 --  This file is part of eplkup.
 --
@@ -33,3 +33,4 @@ extern int hit_to_output                = -1;
 extern int max_hits_to_output           = MAX_HITS;
 extern int print_hit_number             = 0;
 extern int gaiji_option                 = 0;
+extern int print_title                  = 0;

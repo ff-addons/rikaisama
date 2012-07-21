@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------
---  Copyright (C) 2011 Christopher Brochtrup
+--  Copyright (C) 2011-2012 Christopher Brochtrup
 --
 --  This file is part of eplkup.
 --
@@ -148,7 +148,7 @@ void get_gaiji_table(const char *dic_name, char width, Gaiji_table_type **gaiji_
   {
     if(width == 'n')
     {
-      *gaiji_table = NULL;
+      *gaiji_table = gaiji_table_narrow_meikyojj;
       *max_elem = NUM_NARROW_MEIKYOJJ_ITEMS;
     }
     else
@@ -166,7 +166,7 @@ void get_gaiji_table(const char *dic_name, char width, Gaiji_table_type **gaiji_
     }
     else
     {
-      *gaiji_table = NULL;
+      *gaiji_table = gaiji_table_wide_daijisen;
       *max_elem = NUM_WIDE_DAIJISEN_ITEMS;
     }
   }
@@ -290,8 +290,6 @@ char * get_gaiji_replacement_text(char *dest, const char *dic_name, char width, 
 } /* get_gaiji_replacement_text */
 
 
-
-
 /*------------------------------------------------------------------------
 -- Name: replace_gaiji_with_utf8
 --
@@ -300,7 +298,6 @@ char * get_gaiji_replacement_text(char *dest, const char *dic_name, char width, 
 --
 --   The gaiji in the source string should be replresented as follows:
 --   {#[w or n][hex_gaiji_code]x4} (use this printf format: {#n%04X} or {#w%04X})
---
 --
 -- Parameters:
 --   (OUT) dest - Storage for the replaced text.

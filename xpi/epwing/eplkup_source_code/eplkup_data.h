@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------
---  Copyright (C) 2011 Christopher Brochtrup
+--  Copyright (C) 2011-2012 Christopher Brochtrup
 --
 --  This file is part of eplkup.
 --
@@ -88,6 +88,9 @@ extern int print_hit_number;
 
 /* Gaiji replacement option: GAIJI_OPTION_DEFAULT or GAIJI_OPTION_HTML_IMG */
 extern int gaiji_option;
+
+/* Print the title of the subbook? */
+extern int print_title;
 
 
 #endif /* EPLKUP_DATA_H */

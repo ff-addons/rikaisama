@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------
---  Copyright (C) 2011 Christopher Brochtrup
+--  Copyright (C) 2011-2012 Christopher Brochtrup
 --
 --  This file is part of eplkup.
 --
@@ -98,11 +98,12 @@ EB_Error_Code hook_set_begin_in_color_jpeg(EB_Book *book, EB_Appendix *appendix,
   return 0;
 }
 
-/* In wadai5, seems to think the beginning of the line is a keyword. */
+/* The start of the keyword. 
+   In wadai5, seems to think the beginning of the line is a keyword. */
 EB_Error_Code hook_set_begin_keyword(EB_Book *book, EB_Appendix *appendix, void *container,
   EB_Hook_Code code, int argc, const unsigned int *argv)
 {
-  eb_write_text_string(book, "<begin_keyword>");
+  eb_write_text_string(book, "<KEYWORD>");
   return 0;
 }
 
@@ -138,11 +139,11 @@ EB_Error_Code hook_set_begin_no_newline(EB_Book *book, EB_Appendix *appendix, vo
   return 0;
 }
 
-/* A link */
+/* A link/reference */
 EB_Error_Code hook_set_begin_reference(EB_Book *book, EB_Appendix *appendix, void *container,
   EB_Hook_Code code, int argc, const unsigned int *argv)
 {
-  eb_write_text_string(book, "<begin_reference>");
+  eb_write_text_string(book, "<LINK>");
   return 0;
 }
 
@@ -202,7 +203,7 @@ EB_Error_Code hook_set_end_decoration(EB_Book *book, EB_Appendix *appendix, void
   return 0;
 }
 
-/* End of bold/ephasis text */
+/* End of bold/emphasis text */
 EB_Error_Code hook_set_end_emphasis(EB_Book *book, EB_Appendix *appendix, void *container,
   EB_Hook_Code code, int argc, const unsigned int *argv)
 {
@@ -226,11 +227,11 @@ EB_Error_Code hook_set_end_in_color_graphic(EB_Book *book, EB_Appendix *appendix
   return 0;
 }
 
-/*  */
+/* The end of the keyword */
 EB_Error_Code hook_set_end_keyword(EB_Book *book, EB_Appendix *appendix, void *container,
   EB_Hook_Code code, int argc, const unsigned int *argv)
 {
-  eb_write_text_string(book, "<end_keyword>");
+  eb_write_text_string(book, "</KEYWORD>");
   return 0;
 }
 
@@ -266,15 +267,15 @@ EB_Error_Code hook_set_end_no_newline(EB_Book *book, EB_Appendix *appendix, void
   return 0;
 }
 
-/*  */
+/* End link/reference */
 EB_Error_Code hook_set_end_reference(EB_Book *book, EB_Appendix *appendix, void *container,
   EB_Hook_Code code, int argc, const unsigned int *argv)
 {
-  eb_write_text_string(book, "<end_reference>");
+  eb_write_text_string(book, "</LINK>");
   return 0;
 }
 
-/*  */
+/* End subscript */
 EB_Error_Code hook_set_end_subscript(EB_Book *book, EB_Appendix *appendix, void *container,
   EB_Hook_Code code, int argc, const unsigned int *argv)
 {
@@ -282,7 +283,7 @@ EB_Error_Code hook_set_end_subscript(EB_Book *book, EB_Appendix *appendix, void 
   return 0;
 }
 
-/*  */
+/* End superscript */
 EB_Error_Code hook_set_end_superscript(EB_Book *book, EB_Appendix *appendix, void *container,
   EB_Hook_Code code, int argc, const unsigned int *argv)
 {
