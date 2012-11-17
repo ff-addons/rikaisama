@@ -124,6 +124,7 @@
 <!ENTITY ClipSave.AudioDir "Saved audio">
 <!ENTITY ClipSave.ToolTipAudioDir "The directory that will contain the saved pronunciation .mp3 files.">
 <!ENTITY ClipSave.Encoding "Encoding">
+<!ENTITY ClipSave.BomHeader "Add header to UTF-8">
 <!ENTITY ClipSave.AnkiTags "Tags">
 <!ENTITY ClipSave.ToolTipAnkiTags "The text to use for the Tags token below. Additionally, these tags will be used by the Anki Real-Time Import feature.">
 <!ENTITY ClipSave.AnkiTagsHelp "(separated by spaces)">

@@ -30,7 +30,7 @@
 #rikaichan-toggle-button {
 	list-style-image: url("chrome://rikaichan/skin/smile.png");
 }
-#rikaichan-toggle-button[rc_enabled=true] {
+#rikaichan-toggle-button[checked=true] {
 	list-style-image: url("chrome://rikaichan/skin/smile_star.png");
 }
 #rikaichan-lbar-button {
@@ -50,7 +50,7 @@
 #rikaichan-status {
 	list-style-image: url("chrome://rikaichan/skin/smile_grey.png");
 }
-#rikaichan-status[rc_enabled=true] {
+#rikaichan-status[rcx_enabled=true] {
 	list-style-image: url("chrome://rikaichan/skin/smile_star.png");
 }
 

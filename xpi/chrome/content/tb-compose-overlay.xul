@@ -2,7 +2,7 @@
 <!--
 
 	Rikaichan
-	Copyright (C) 2005-2011 Jonathan Zarate
+	Copyright (C) 2005-2012 Jonathan Zarate
 	http://www.polarcloud.com/
 
 
@@ -25,6 +25,14 @@
 	when modifying any of the files. - Jon
 
 -->
+
+<!--
+  Rikaisama
+  Author:  Christopher Brochtrup
+  Contact: cb4960@gmail.com
+  Website: http://rikaisama.sourceforge.net/
+-->
+
 <?xml-stylesheet href="chrome://rikaichan/skin/rikaichan.css" type="text/css"?>
 <!DOCTYPE overlay SYSTEM "chrome://rikaichan/locale/rikaichan.dtd">
 
@@ -88,16 +96,16 @@
 </window>
 
 <toolbarpalette id="MsgComposeToolbarPalette">
-	<toolbarbutton id="rikaichan-toggle-button" class="toolbarbutton-1"
+	<toolbarbutton id="rikaichan-toggle-button" class="toolbarbutton-1 chromeclass-toolbar-additional"
 		label="&rikaichan.toolbar.toggle;" tooltiptext="&rikaichan.toolbar.toggle.tip;"
 		command="rikaichan-toggle-cmd" />
-	<toolbarbutton id="rikaichan-lbar-button" class="toolbarbutton-1"
+	<toolbarbutton id="rikaichan-lbar-button" class="toolbarbutton-1 chromeclass-toolbar-additional"
 		label="&rikaichan.toolbar.lbar;" tooltiptext="&rikaichan.toolbar.lbar.tip;"
 		command="rikaichan-lbar-cmd" />
-	<toolbarbutton id="rikaichan-toggle-button-gs" class="toolbarbutton-1"
+	<toolbarbutton id="rikaichan-toggle-button-gs" class="toolbarbutton-1 chromeclass-toolbar-additional"
 		label="&rikaichan.toolbar.toggle;" tooltiptext="&rikaichan.toolbar.toggle.tip;"
 		command="rikaichan-toggle-cmd" />
-	<toolbarbutton id="rikaichan-lbar-button-gs" class="toolbarbutton-1"
+	<toolbarbutton id="rikaichan-lbar-button-gs" class="toolbarbutton-1 chromeclass-toolbar-additional"
 		label="&rikaichan.toolbar.lbar;" tooltiptext="&rikaichan.toolbar.lbar.tip;"
 		command="rikaichan-lbar-cmd" />
 

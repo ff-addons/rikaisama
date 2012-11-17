@@ -1,7 +1,7 @@
 /*
 
 	Rikaichan
-	Copyright (C) 2005-2011 Jonathan Zarate
+	Copyright (C) 2005-2012 Jonathan Zarate
 	http://www.polarcloud.com/
 
 	---
@@ -25,6 +25,13 @@
 	Please do not change or remove any of the copyrights or links to web pages
 	when modifying any of the files.
 
+*/
+
+/*
+  Rikaisama
+  Author:  Christopher Brochtrup
+  Contact: cb4960@gmail.com
+  Website: http://rikaisama.sourceforge.net/
 */
 
 // 0 = integer, 1 = string, 2 = checkbox/boolean
@@ -103,6 +110,7 @@ var rcxConfigList = [
 	[1, 'sfile'],
 	[1, 'audiodir'],
 	[1, 'sfcs'],
+	[2, 'ubom'],
 	[0, 'smaxfe'],
 	[0, 'smaxfk'],
 	[0, 'smaxce'],

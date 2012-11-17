@@ -2,7 +2,7 @@
 <!--
 
 	Rikaichan
-	Copyright (C) 2005-2011 Jonathan Zarate
+	Copyright (C) 2005-2012 Jonathan Zarate
 	http://www.polarcloud.com/
 
 
@@ -25,6 +25,14 @@
 	when modifying any of the files. - Jon
 
 -->
+
+<!--
+  Rikaisama
+  Author:  Christopher Brochtrup
+  Contact: cb4960@gmail.com
+  Website: http://rikaisama.sourceforge.net/
+-->
+
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 <!DOCTYPE overlay SYSTEM "chrome://rikaichan/locale/options.dtd">
 
@@ -498,7 +506,7 @@
 		</grid>    
 	</tabpanel>
   
-	<tabpanel><!-- Clipboard & Save File -->
+	<tabpanel><!-- Clipboard & Save -->
 		<grid>	
 			<columns><column/><column/></columns>
 			<rows>				
@@ -523,15 +531,20 @@
 					<hbox>
 						<menulist id="rcp-sfcs" flex="0">
 							<menupopup>
-							<menuitem label="UTF-8" value="utf-8"/>
-							<menuitem label="UTF-16" value="utf-16"/>
-							<menuitem label="Shift-JIS" value="shift-jis"/>
-							<menuitem label="EUC-JP" value="euc-jp"/>
+                <menuitem label="Unicode (UTF-8)" value="utf-8"/>
+                <menuitem label="Unicode (UTF-16)" value="utf-16"/>
+                <menuitem label="Shift-JIS" value="shift-jis"/>
+                <menuitem label="EUC-JP" value="euc-jp"/>
 							</menupopup>
 						</menulist>
-						<spacer/>
+            <hbox>
+              <checkbox label="&ClipSave.BomHeader;" id="rcp-ubom"/>
+              <spacer />
+            </hbox>
+						<spacer />
 					</hbox>
 				</row>
+
 				<row>
 					<label value="&ClipSave.LineEnding;" control="rcp-snlf"/>
 					<hbox>

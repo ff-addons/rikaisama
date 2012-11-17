@@ -1,7 +1,7 @@
 ﻿/*
 
 	Rikaichan
-	Copyright (C) 2005-2011 Jonathan Zarate
+	Copyright (C) 2005-2012 Jonathan Zarate
 	http://www.polarcloud.com/
 
 	---
@@ -25,6 +25,13 @@
 	Please do not change or remove any of the copyrights or links to web pages
 	when modifying any of the files.
 
+*/
+
+/*
+  Rikaisama
+  Author:  Christopher Brochtrup
+  Contact: cb4960@gmail.com
+  Website: http://rikaisama.sourceforge.net/
 */
 
 var rcxData = {
@@ -753,7 +760,7 @@ var rcxData = {
 
 			b.push('<div class="w-title">Names Dictionary</div><table class="w-na-tb"><tr><td>');
 			for (i = 0; i < entry.data.length; ++i) {
-				e = entry.data[i][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
+				e = entry.data[i][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/([\S\s]+)\//);
 				if (!e) continue;
 
 				if (s != e[3]) {
@@ -766,7 +773,7 @@ var rcxData = {
 
 				s = e[3];
 				if (rcxConfig.hidedef) t = '';
-					else t = '<span class="w-def">' + s.replace(/\//g, '; ') + '</span><br/>';
+					else t = '<span class="w-def">' + s.replace(/\//g, '; ').replace(/\n/g, '<br/>') + '</span><br/>';
 			}
 			c.push(t);
 			if (c.length > 4) {
@@ -801,7 +808,7 @@ var rcxData = {
 			var k;
 
 			for (i = 0; i < entry.data.length; ++i) {
-				e = entry.data[i][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
+				e = entry.data[i][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/([\S\s]+)\//);
 				if (!e) continue;
 
 				/*
@@ -809,7 +816,6 @@ var rcxData = {
 					e[2] = kana
 					e[3] = definition
 				*/
-
 				if (s != e[3]) {
 					b.push(t);
 					pK = k = '';
@@ -839,6 +845,7 @@ var rcxData = {
 					t = s.replace(/\//g, '; ');
 					if (!rcxConfig.wpos) t = t.replace(/^\([^)]+\)\s*/, '');
 					if (!rcxConfig.wpop) t = t.replace('; (P)', '');
+					t = t.replace(/\n/g, '<br/>');
 					t = '<br/><span class="w-def">' + t + '</span><br/>';
 				}
 			}
@@ -1019,25 +1026,6 @@ function RcxDb(name)
 				}
 
 				if (!f) throw 'Could not find or open ' + id + '/' + nm;
-
-/*
-				if (!f) {
-					f = Components.classes['@mozilla.org/file/directory_service;1']
-						.getService(Components.interfaces.nsIProperties)
-						.get('ProfD', Components.interfaces.nsIFile);
-					f.append('extensions');
-					f.append(id);
-					f.append(nm);
-					if (!f.exists()) {
-						f = Components.classes['@mozilla.org/file/directory_service;1']
-							.getService(Components.interfaces.nsIProperties)
-							.get('APlugns', Components.interfaces.nsIFile).parent;
-						f.append('extensions');
-						f.append(id);
-						f.append(nm);
-					}
-				}
-*/
 			}
 		}
 		else {
@@ -1048,7 +1036,7 @@ function RcxDb(name)
 
 		// The files may get installed as read-only, breaking
 		// index creation. Try changing the file permission.
-		if (!f.isWritable()) f.permissions |= 0600;
+		if (!f.isWritable()) f.permissions |= 0x180;	// 0x180=0600 strict mode doesn't like octals
 
 		this.db = Components.classes['@mozilla.org/storage/service;1']
 			.getService(Components.interfaces.mozIStorageService)

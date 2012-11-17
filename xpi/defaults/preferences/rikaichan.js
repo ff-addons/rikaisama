@@ -69,6 +69,7 @@ pref('rikaichan.epwingremoveregex', '');
 pref('rikaichan.sfile', '');
 pref('rikaichan.audiodir', '');
 pref('rikaichan.sfcs', 'utf-8');
+pref('rikaichan.ubom', true);
 pref('rikaichan.smaxfe', 1);
 pref('rikaichan.smaxfk', 1);
 pref('rikaichan.smaxce', 7);

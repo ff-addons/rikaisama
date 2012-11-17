@@ -1,7 +1,7 @@
 ﻿/*
 
 	Rikaichan
-	Copyright (C) 2005-2011 Jonathan Zarate
+	Copyright (C) 2005-2012 Jonathan Zarate
 	http://www.polarcloud.com/
 
 	---
@@ -33,6 +33,13 @@
 
 */
 
+/*
+  Rikaisama
+  Author:  Christopher Brochtrup
+  Contact: cb4960@gmail.com
+  Website: http://rikaisama.sourceforge.net/
+*/
+
 var rcxMain = {
 	altView: 0,
 	enabled: 0,
@@ -42,6 +49,7 @@ var rcxMain = {
   lastTdata: null,              // TData used for Sanseido mode and EPWING mode popup
   sanseidoMode: false,          // Are we in Sanseido mode?
   sanseidoReq: false,           // XML HTTP Request object for sanseido mode
+  sanseidoFallbackState: 0,     // 0 = Lookup with kanji form, 1 = Lookup with kana form
   superSticky: false,           // Are we in Super Sticky mode?
   superStickyOkayToShow: false, // Okay to show the popup in Super Sticky mode?
   superStickyOkayToHide: false, // Okay to hide the popup in Super Sticky mode?
@@ -236,7 +244,7 @@ var rcxMain = {
 
 
 			// add icon to the toolbar
-    try {
+			try {
 				let prefs = new rcxPrefs();
 				if (prefs.getBool('firsticon')) {
 					prefs.setBool('firsticon', false);
@@ -248,7 +256,7 @@ var rcxMain = {
 					document.persist(nb.id, 'currentset');
 				}
 			}
-			catch (ex) { }			
+			catch (ex) { }
 		}
 
 		this.checkVersion();
@@ -325,8 +333,7 @@ var rcxMain = {
 					.launchExternalURL(url);
 			}
 			else {
-				let tab = gBrowser.addTab(url);
-				if (tab) tab.focus();
+				gBrowser.selectedTab = gBrowser.addTab(url);
 			}
 		}
 		catch (ex) {
@@ -357,7 +364,7 @@ var rcxMain = {
 			setTimeout(function() {
 				if (rcxMain.version) {
 					let prefs = new rcxPrefs();
-					v = 'v' + rcxMain.version;
+					let v = 'v' + rcxMain.version;
 					if (prefs.getString('version') != v) {
 						prefs.setString('version', v);
 						rcxMain.showDownloadPage();
@@ -390,14 +397,24 @@ var rcxMain = {
 
 		var en = (bro.rikaichan != null);
 
-		var b = document.getElementById('rikaichan-toggle-button');
-		if (b) b.setAttribute('rc_enabled', en);
-
-		b = document.getElementById('rikaichan-toggle-cmd');
-		if (b) b.setAttribute('checked', en);
+		var b = document.getElementById('rikaichan-toggle-cmd');
+		if (b) {
+			// FF 14/15/+? weirdness:
+			//	attr false:   toolbar icon remains sunk (bad) / context/tools menu is unchecked (ok)
+			//	attr removed: toolbar icon is normal (ok) / context/tools menu remains checked (bad)
+			
+			b.setAttribute('checked', en);
+			
+			if (!en) {
+				b = document.getElementById('rikaichan-toggle-button');
+				if (b) b.removeAttribute('checked');
+				b = document.getElementById('rikaichan-toggle-button-gs');
+				if (b) b.removeAttribute('checked');
+			}
+		}
 
 		b = document.getElementById('rikaichan-status');
-		if (b) b.setAttribute('rc_enabled', en);
+		if (b) b.setAttribute('rcx_enabled', en);
 	},
 
 	showPopup: function(text, elem, pos, lbPop) {
@@ -1108,11 +1125,11 @@ var rcxMain = {
     }
     
   }, /* toggleSanseidoMode */
-
-  
+    
+    
   // Parse definition from Sanseido page and display it in a popup
   parseAndDisplaySanseido: function(entryPageText)
-  {      
+  {    
     // Create DOM tree from entry page text
     var domPars = rcxMain.htmlParser(entryPageText);
     
@@ -1132,10 +1149,10 @@ var rcxMain = {
 
         // rcxDebug.echo("Raw definition: " + divList[divIdx].innerHTML);
       
-        // Will contains the final parsed definition text
+        // Will contain the final parsed definition text
         var defText = "";
         
-        // A list of all child notes in the div
+        // A list of all child nodes in the div
         var childList = divList[divIdx].childNodes;
         
         // Set when we need to end the parse
@@ -1149,22 +1166,23 @@ var rcxMain = {
           {
             // How many child nodes does this b element have?
             if(childList[nodeIdx].childNodes.length == 1)
-            {            
-              // Check for definition number: [1], [2], ... and add to def 
-              var defNum = childList[nodeIdx].childNodes[0].nodeValue.match(/([[1234567890]+])/);
-   
+            {
+              // Check for definition number: ［１］, ［２］, ... and add to def 
+              var defNum = childList[nodeIdx].childNodes[0].nodeValue.match(/［([１２３４５６７８９０]+)］/);
+                            
               if (defNum)
               { 
                 defText += "<br />" + RegExp.$1;
               }
               else
               {
-                // Check for sub-definition number: (1), (2), ... and add to def 
-                var subDefNum = childList[nodeIdx].childNodes[0].nodeValue.match(/(([1234567890]+))/);
+                // Check for sub-definition number: （１）, （２）, ... and add to def 
+                var subDefNum = childList[nodeIdx].childNodes[0].nodeValue.match(/（([１２３４５６７８９０]+)）/);
                 
                 if (subDefNum)
                 { 
-                  defText += RegExp.$1;
+                  // Convert sub def number to circled number
+                  defText += this.convertIntegerToCircledNumStr(this.convertJapNumToInteger(RegExp.$1));
                 }
               }
             }
@@ -1196,7 +1214,16 @@ var rcxMain = {
           }
         }
    
-        // rcxDebug.echo("defText: " + defText);
+        // Components.utils.reportError("defText: '" + defText + "'");
+        
+        // If the definition is blank (search ばかり for example), fallback
+        if(defText.length == 0)
+        {
+          // Set to a state that will ensure fallback to default JMDICT popup
+          this.sanseidoFallbackState = 1; 
+          entryFound = false;
+          break;
+        }
         
         var jdicCode = "";
         
@@ -1235,17 +1262,36 @@ var rcxMain = {
       }
     }
     
-    // If the entry was not on sanseido, display message
+    // If the entry was not on sanseido, either try to lookup the kana form of the word
+    // or display default JMDICT popup
     if(!entryFound)
     {
-      rcxMain.showPopup("Entry not found.", rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos);
+      this.sanseidoFallbackState++;
+      
+      if(this.sanseidoFallbackState < 2)
+      { 
+        // Set a timer to lookup again using the kana form of the word instead
+        window.setTimeout
+        (
+          function() 
+          {
+            rcxMain.lookupSanseido();
+          }, 10
+        );
+      }
+      else
+      {
+        // Fallback to the default non-sanseido dictionary that comes with rikaichan (JMDICT)
+        rcxMain.showPopup(rcxData.makeHtml(rcxMain.lastFound[0]), rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos);
+      }
     }
   }, /* parseAndDisplaySanseido */
   
  
   // Extract the first search term from the hilited word.
   // Returns search term string or null on error.
-  extractSearchTerm: function()
+  // forceGetReading - true = force this routine to return the reading of the word
+  extractSearchTerm: function(forceGetReading)
   {
     // Get the currently hilited entry
     var hilitedEntry = this.lastFound;
@@ -1273,22 +1319,37 @@ var rcxMain = {
       // Example of what data[0][0] looks like (linebreak added by me):
       //   乃 [の] /(prt,uk) indicates possessive/verb and adjective nominalizer (nominaliser)/substituting 
       //   for "ga" in subordinate phrases/indicates a confident conclusion/emotional emphasis (sentence end) (fem)/(P)/
-      
+      //
       // Extract needed data from the hilited entry
       //   entryData[0] = kanji/kana + kana + definition
       //   entryData[1] = kanji (or kana if no kanji)
       //   entryData[2] = kana (null if no kanji)
       //   entryData[3] = definition     
       
-      // If the highlighted word is kana, don't use the kanji.
-      // Example: if の is highlighted, use の rather than the kanji equivalent (乃)
-      if(entryData[2] && this.word == entryData[2])
+      if(forceGetReading)
       {
-        searchTerm = entryData[2];
+        if(entryData[2])
+        {
+          searchTerm = entryData[2];
+        }
+        else
+        {
+          searchTerm = entryData[1];
+        }
       }
       else
       {
-        searchTerm = entryData[1];
+        // If the highlighted word is kana, don't use the kanji.
+        // Example1: if の is highlighted, use の rather than the kanji equivalent (乃)
+        // Example2: if された is highlighted, use される rather then 為れる        
+        if(entryData[2] && !this.containsKanji(this.word))
+        {
+          searchTerm = entryData[2];
+        }
+        else
+        {
+          searchTerm = entryData[1];
+        }
       }
     }
     else
@@ -1356,7 +1417,7 @@ var rcxMain = {
     this.epwingActive = true;
     
     // Get the first search term from the hilited word.
-    var searchTerm = this.extractSearchTerm();
+    var searchTerm = this.extractSearchTerm(false);
 
     if(!searchTerm)
     {
@@ -1732,13 +1793,29 @@ var rcxMain = {
   // Fetch entry page from sanseido, parse out definition and display
 	lookupSanseido: function() 
   {
-    var searchTerm = this.extractSearchTerm();
-    
+    // Determine if we should use the kanji form or kana form when looking up the word
+    if(this.sanseidoFallbackState == 0)
+    {
+      // Get this kanji form if it exists
+      var searchTerm = this.extractSearchTerm(false);
+    }
+    else if(this.sanseidoFallbackState == 1)
+    {
+      // Get the reading
+      var searchTerm = this.extractSearchTerm(true); 
+    }
+ 
     if(!searchTerm)
     {
       return;
     }
-    
+ 
+    // If the kanji form was requested but it returned the kana form anyway, then update the state
+    if((this.sanseidoFallbackState == 0) && !this.containsKanji(searchTerm))
+    {
+      this.sanseidoFallbackState = 1;
+    }
+     
     // Show the loading message to the screen while we fetch the entry page
     rcxMain.showPopup("Loading...", this.lastTdata.prevTarget, this.lastTdata.pos);
     
@@ -1773,6 +1850,75 @@ var rcxMain = {
   }, /* lookupSanseido */
   
   
+  // Convert an integer to a circled number string:
+  // 1 --> ①, 2 --> ②.
+  // Range: [0, 50].
+  // If out of range, will return num surrounded by parens:
+  // 51 --> (51)
+  convertIntegerToCircledNumStr: function(num)
+  {
+    var circledNumStr = "(" + num + ")";
+  
+    if (num == 0)
+    {
+      circledNumStr = "⓪";
+    }
+    else if ((num >= 1) && (num <= 20))
+    {
+      circledNumStr = String.fromCharCode(("①".charCodeAt(0) - 1) + num);
+    }
+    else if ((num >= 21) && (num <= 35))
+    {
+      circledNumStr = String.fromCharCode(("㉑".charCodeAt(0) - 1) + num);
+    }
+    else if ((num >= 36) && (num <= 50))
+    {
+      circledNumStr = String.fromCharCode(("㊱".charCodeAt(0) - 1) + num);
+    }
+  
+    return circledNumStr;
+    
+  }, /* convertIntegerToCircledNumStr */
+  
+  
+  // Converts a japanese number to an integer.
+  // ５ --> 5, １２ --> 12, etc.
+  convertJapNumToInteger: function(japNum)
+  {
+    var numStr = "";
+    
+    for (i = 0; i < japNum.length; i++)
+    {
+      c = japNum[i];
+  
+      if ((c >= "０") && (c <= "９"))
+      {
+        convertedNum = (c.charCodeAt(0) - "０".charCodeAt(0));
+        numStr += convertedNum;
+      }
+    }
+
+    return Number(numStr);
+    
+  }, /* convertJapNumToInteger */
+  
+  
+  // Does the provided text contain a kanji?
+  containsKanji: function(text) 
+  {
+    for (i = 0; i < text.length; i++) 
+    {
+      c = text[i];
+      
+      if((c >= '\u4E00') && (c <= '\u9FBF'))
+      {
+        return true;
+      }
+    }
+    
+    return false;
+  },
+
   
   // Trim whitespace from the beginning and end of text
   trim: function(text) 
@@ -2100,10 +2246,18 @@ var rcxMain = {
 					.createInstance(Components.interfaces.nsILocalFile);
 
 			lf.initWithPath(rcxConfig.sfile);
-
+			let exists = lf.exists();
+			
 			fos = Components.classes['@mozilla.org/network/file-output-stream;1']
 				.createInstance(Components.interfaces.nsIFileOutputStream);
 			fos.init(lf, 0x02 | 0x08 | 0x10, -1, 0);	//writing only, create file if none exists, pointer set to end of file for writing
+			
+			if ((!exists) && (rcxConfig.ubom) && (rcxConfig.sfcs == 'utf-8')) {
+				let bom = '\xEF\xBB\xBF';
+				fos.write(bom, bom.length);
+			}
+
+			// note: nsIConverterOutputStream always adds BOM for UTF-16
 
 			os = Components.classes['@mozilla.org/intl/converter-output-stream;1']
 					.createInstance(Components.interfaces.nsIConverterOutputStream);
@@ -2749,7 +2903,7 @@ var rcxMain = {
 		}
 		this.lastFound = [e];
 		 
-    // Find the highlighted word, rather than the edict lookup
+    // Find the highlighted word, rather than the JMDICT lookup
 		this.word = text.substring(0, e.matchLen);
 
 		var wordPosInSentence = ro + prevSentence.length - sentenceStartPos + startOffset;
@@ -2795,6 +2949,7 @@ var rcxMain = {
         && (rcxData.dicList[rcxData.selected].name.indexOf("Names") == -1)
         && (rcxData.dicList[rcxData.selected].name.indexOf("Kanji") == -1))
       {
+        this.sanseidoFallbackState = 0; // 0 = Lookup with kanji form (if applicable)
         this.lookupSanseido();
       }
       // If we are in EPWING mode and the normal non-names, non-kanji dictionary is selected
@@ -2821,6 +2976,7 @@ var rcxMain = {
     
 		return 1;
 	},
+  
 
 	showTitle: function(tdata) {
 		var e = rcxData.translate(tdata.title);
