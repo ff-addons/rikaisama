@@ -52,6 +52,7 @@ pref('rikaichan.wpos', true);
 pref('rikaichan.wpop', true);
 pref('rikaichan.wmax', 10);
 pref('rikaichan.namax', 20);
+pref('rikaichan.showpitchaccent', false);
 
 pref('rikaichan.kindex', 'COMP,H,L,E,DK,N,V,Y,P,IN,I,U');
 

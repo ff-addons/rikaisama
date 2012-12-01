@@ -58,7 +58,7 @@ var rcxMain = {
   epwingTotalHits: 0,           // The total number of EPWING hits for the current word
   epwingCurHit: 0,              // The current EPWING hit number (for showing hits one at a time)
   epwingCurDic: "",             // The EPWING dictionary to use (path)
-  prevEpwingSearchTerm: "",     // The prevoius search term used with EPWING mode
+  prevEpwingSearchTerm: "",     // The previous search term used with EPWING mode
   epwingFallbackCount: 0,       // How many times have we attempted to fallback to another EPWING dictionary?
   epwingStartDic: "",           // The dictionary used for the original EPWING lookup (before any fallbacks)
   epwingDicList: [],            // The list of EPWING dictionaries
@@ -696,6 +696,99 @@ var rcxMain = {
 			return;
 		}
 	},
+
+  
+  /* Get the pitch accent of the last hilighted word if present. If inExpression is not provided,
+     will get the pitch accent for the hilited word's expression and reading */
+  getPitchAccent: function(inExpression, inReading)
+  {
+    try
+    {
+      // Get the path of the pitch accent database
+      var pitchDbPath = Components.classes["@mozilla.org/file/directory_service;1"]
+      .getService(Components.interfaces.nsIProperties)
+      .get("ProfD", Components.interfaces.nsILocalFile);
+      pitchDbPath.append("extensions");
+      pitchDbPath.append(rcxMain.id); // GUID of extension
+      pitchDbPath.append("pitch");
+      pitchDbPath.append("pitch_accents.sqlite");
+
+      // Is the pitch accent database could not be found, return
+      if(!pitchDbPath.exists())
+      {
+        return "";
+      }
+
+      // Get file pointer to the pitch accent sqlite database
+      var pitchDbFile = Components.classes['@mozilla.org/file/local;1']
+       .createInstance(Components.interfaces.nsILocalFile);
+      pitchDbFile.initWithPath(pitchDbPath.path);
+
+      // Open the pitch accent database
+      var pitchDB = Components.classes['@mozilla.org/storage/service;1']
+       .getService(Components.interfaces.mozIStorageService)
+       .openDatabase(pitchDbFile);
+
+      // If the caller provided an expression/reading, use them, otherwise use the
+      // expression/reading of the hilited word
+      if(inExpression)
+      {
+        var expression = inExpression;
+        var reading = inReading;
+      }
+      else
+      {
+        var hilitedEntry = this.lastFound;
+
+        if ((!hilitedEntry) || (hilitedEntry.length == 0)
+          || !hilitedEntry[0] || !hilitedEntry[0].data[0])
+        {
+          return "";
+        }
+
+        var entryData = hilitedEntry[0].data[0][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
+
+        //   entryData[0] = kanji/kana + kana + definition
+        //   entryData[1] = kanji (or kana if no kanji)
+        //   entryData[2] = kana (null if no kanji)
+        //   entryData[3] = definition
+
+        var expression = entryData[1];
+        var reading = entryData[2];
+      }
+
+      // Form the SQL used to query the pitch accent
+      if(!reading)
+      {
+        var stPitch = pitchDB.createStatement("SELECT pitch FROM Dict WHERE expression='"
+          + expression + "'");
+      }
+      else
+      {
+        var stPitch = pitchDB.createStatement("SELECT pitch FROM Dict WHERE expression='"
+          + expression + "' AND reading='" + reading + "'");
+      }
+
+      stPitch.executeStep();
+
+      // Get the result of the query
+      var pitch = stPitch.row.pitch;
+
+      stPitch.reset();
+      stPitch.finalize();
+
+      pitchDB.close();
+
+      return pitch;
+    }
+    catch(ex)
+    {
+      return "";
+    }
+
+    return "";
+
+  }, /* getPitchAccent */
 
   
   /* Is the last hilighted word in the user's Anki deck? */
@@ -2934,7 +3027,7 @@ var rcxMain = {
     
     // Save the tdata so that the sanseido routines can use it
     this.lastTdata = tdata;
-    
+        
     // Determine if the word is in the user's anki deck
     this.wordInAnkiDeck = this.isWordInAnkiDeck();
 
@@ -3384,7 +3477,7 @@ var rcxMain = {
 					}
 				}
 			}
-            
+      
       var alreadyInDeckStr = "";
       
       // Is the word in the user's vocubulary deck? If so, insert an asterisk. 

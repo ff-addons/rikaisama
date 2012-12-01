@@ -320,6 +320,7 @@
 					</vbox>
 				</hbox>
 			</groupbox>
+      <checkbox label="&Dictionaries.ShowPitchAccent;" id="rcp-showpitchaccent" tooltiptext="&Dictionaries.ToolTipShowPitchAccent;"/>
 			<checkbox label="&Dictionaries.HideDefinitions;" id="rcp-hidedef"/>
 			<checkbox label="&Dictionaries.HideX;" id="rcp-hidex"/>
 			<checkbox label="&Dictionaries.ShowWordType;" id="rcp-wpos"/>

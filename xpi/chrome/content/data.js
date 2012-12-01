@@ -812,9 +812,10 @@ var rcxData = {
 				if (!e) continue;
 
 				/*
-					e[1] = kanji/kana
-					e[2] = kana
-					e[3] = definition
+          e[0] = kanji/kana + kana + definition
+          e[1] = kanji (or kana if no kanji)
+          e[2] = kana (null if no kanji)
+          e[3] = definition
 				*/
 				if (s != e[3]) {
 					b.push(t);
@@ -835,6 +836,17 @@ var rcxData = {
 				}
 				b.push(k);
 
+        // Add pitch accent right after the reading
+        if (rcxConfig.showpitchaccent)
+        {
+          var pitchAccent = rcxMain.getPitchAccent(e[1], e[2]);
+          
+          if(pitchAccent && (pitchAccent.length > 0))
+          {
+            b.push('<span class="w-conj"> ' + pitchAccent + '</span>');
+          }
+        }
+        
 				if (entry.data[i][1]) b.push(' <span class="w-conj">(' + entry.data[i][1] + ')</span>');
 
 				s = e[3];

@@ -70,6 +70,8 @@
 
 
 <!ENTITY Dictionaries.Priority "Priority">
+<!ENTITY Dictionaries.ShowPitchAccent "Show pitch accent">
+<!ENTITY Dictionaries.ToolTipShowPitchAccent "Display pitch accent number to the right of the reading.">
 <!ENTITY Dictionaries.HideDefinitions "Hide definitions">
 <!ENTITY Dictionaries.HideX "Hide (X)-rated entries">
 <!ENTITY Dictionaries.ShowWordType "Show word type indicators [example: (v1,n)]">
