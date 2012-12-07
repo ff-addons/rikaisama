@@ -71,6 +71,7 @@
 
 <!ENTITY Dictionaries.Priority "Priority">
 <!ENTITY Dictionaries.ShowPitchAccent "Show pitch accent">
+<!ENTITY Dictionaries.HidePitchAccentPOS "Hide pitch accent part-of-speech unless ',' or '|' is present">
 <!ENTITY Dictionaries.ToolTipShowPitchAccent "Display pitch accent number to the right of the reading.">
 <!ENTITY Dictionaries.HideDefinitions "Hide definitions">
 <!ENTITY Dictionaries.HideX "Hide (X)-rated entries">

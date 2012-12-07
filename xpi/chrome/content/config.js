@@ -91,6 +91,7 @@ var rcxConfigList = [
 	[0, 'namax'],
 	[2, 'hidex'],
 	[2, 'showpitchaccent'],
+	[2, 'hidepitchaccentpos'],
 	
 	// kanji
 	[1, 'kindex'],

@@ -773,6 +773,15 @@ var rcxMain = {
 
       // Get the result of the query
       var pitch = stPitch.row.pitch;
+      
+      // If user wants to hide the part-of-speech unless , or | is present
+      if(rcxConfig.hidepitchaccentpos)
+      {
+        if((pitch.indexOf(",") == -1) && (pitch.indexOf("|") == -1))
+        {
+          pitch = pitch.replace(/\(.*?\)/g, "")
+        }
+      }
 
       stPitch.reset();
       stPitch.finalize();
