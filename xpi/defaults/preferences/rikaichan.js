@@ -67,6 +67,7 @@ pref('rikaichan.epwingshowconjugation', true);
 pref('rikaichan.epwingshowdicnum', true);
 pref('rikaichan.epwingstripnewlines', false);
 pref('rikaichan.epwingremoveregex', '');
+pref('rikaichan.epwingaddcolorandpitch', false);
 
 pref('rikaichan.sfile', '');
 pref('rikaichan.audiodir', '');

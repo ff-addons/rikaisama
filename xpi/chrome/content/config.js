@@ -107,6 +107,7 @@ var rcxConfigList = [
 	[2, 'epwingshowdicnum'],
 	[2, 'epwingstripnewlines'],
 	[1, 'epwingremoveregex'],
+	[2, 'epwingaddcolorandpitch'],
   
 	// clipboard / save file
 	[1, 'sfile'],

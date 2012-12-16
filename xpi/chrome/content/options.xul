@@ -443,6 +443,8 @@
                   <textbox id="rcp-epwingremoveregex" size="60" maxlength="255" flex="1"/>
                 </hbox>
               </row>
+              
+              <checkbox label="&Epwing.AddColorAndPitch;" id="rcp-epwingaddcolorandpitch" tooltiptext="&Epwing.AddColorAndPitchHelp;"/>
             </rows>
           </grid>
         </groupbox>

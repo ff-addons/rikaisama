@@ -1,4 +1,4 @@
-<!ENTITY Tab.General "General">
+﻿<!ENTITY Tab.General "General">
 <!ENTITY Tab.Startup "Startup">
 <!ENTITY Tab.Menus "Menus">
 <!ENTITY Tab.Keyboard "Keyboard">
@@ -109,6 +109,8 @@
 <!ENTITY Epwing.AdvancedUsers "Advanced Users">
 <!ENTITY Epwing.RemoveRegex "Remove text matching the following RegEx">
 <!ENTITY Epwing.ToolTipRemoveRegex "You can use this to remove things like example sentences or other unnecessary text.">
+<!ENTITY Epwing.AddColorAndPitch "Attempt to color expression/reading and show pitch accent (see tooltip for supported dictionaries)">
+<!ENTITY Epwing.AddColorAndPitchHelp "Optimized for 『研究社　新和英大辞典　第５版』, but will also work with 『大辞泉』, 『広辞苑第六版』, and 『明鏡国語辞典』.">
 <!ENTITY Epwing.Keys "EPWING Keys">
 <!ENTITY Epwing.EpwingMode "EPWING mode">
 <!ENTITY Epwing.NextDic "Next dictionary">

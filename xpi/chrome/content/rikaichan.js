@@ -1750,8 +1750,90 @@ var rcxMain = {
                           }
                         }
                         
+                        //
+                        // Add color and pitch to the header line. 
+                        // Optimized for Ken5 but also works with Meikyo, Daijisen, and Kojien.
+                        //
+                        if(rcxConfig.epwingaddcolorandpitch)
+                        {
+                          var newLineIdx = epwingText.indexOf("\n", 1); // Start at 1 becuase 0 is a \n
+                          
+                          if(newLineIdx != -1)
+                          {
+                            // Extract the header line
+                            var headerLine = epwingText.substr(0, newLineIdx);
+                            headerLine = rcxMain.trim(headerLine)
+                                                       
+                            // Remove "ﾛｰﾏ" and onwards for Ken5
+                            headerLine = headerLine.replace(/ﾛｰﾏ.*/, '');
+                            
+                            // Get the reading. Example the "じんかん" from "じんかん<sup>１</sup>【人間】 "
+                            headerLine.match(/^(.*?)[<【〘\[]/);     
+                            var reading = RegExp.$1;
+                            
+                            // If no reading found it is because the header line did not contain a <, 【, etc.
+                            if(!reading)
+                            {
+                              reading = rcxMain.trim(headerLine);
+                            }
+                            
+                            // Get the expression. The "人間" from "じんかん<sup>１</sup>【人間】 "
+                            headerLine.match(/【(.*?)】/);     
+                            var expression = RegExp.$1;
+                            
+                            // Some dics like Meikyo contain alernate brackets for the expression
+                            if(!expression)
+                            {
+                              headerLine.match(/〘(.*?)〙 /);     
+                              var expression = RegExp.$1;
+                            }
+                                                       
+                            // Determine the expression and reading to use to get pitch
+                            if(!expression)
+                            {
+                              var pitchExpression = reading;
+                              var pitchReading = null;
+                            }
+                            else
+                            {
+                              var pitchExpression = expression;
+                              var pitchReading = reading;
+                              pitchReading = pitchReading.replace(/[\-‐・]/g, '');
+                            }
+                            
+                            // Remove characters found in some non-Ken5 dics
+                            pitchExpression = pitchExpression.replace(/[\-‐・▽▼△×《》]/g, '');
+                            pitchExpression = pitchExpression.replace(/<.*?>/g, '');
+                            pitchExpression = pitchExpression.replace(/\(.*?\)/g, '');
+                            pitchExpression = pitchExpression.replace(/\（.*?\）/g, '');
+                                                     
+                            // Get the pitch accent
+                            var pitch = rcxMain.getPitchAccent(pitchExpression, pitchReading)
+                            
+                            // Apply color and pitch
+                            if(headerLine[0] != '①') // This can happen in some non-Ken5 dictionaries
+                            {
+                              if(expression)
+                              {
+                                var newHeaderLine = "<span class='w-kanji'>" + expression + "</span>"
+                                  + "<span class='w-kana'>" + reading + "</span> "
+                                  + "<span class='w-conj'>" + pitch + "</span>";
+                              }
+                              else
+                              {
+                                var newHeaderLine = "<span class='w-kana'>" + reading + "</span> "
+                                 + "<span class='w-conj'>" + pitch + "</span>";
+                              }
+                              
+                              // Add in the new header line
+                              epwingText = "\n" + newHeaderLine + epwingText.substr(newLineIdx);
+                            }
+                          }
+                        }
+                        
                         // Add the header line to the lookup: (cur_hit/total_hits) + conjugation + which_dic
-                        epwingText = "(" + (rcxMain.epwingCurHit + 1) + "/" + rcxMain.epwingTotalHits + ") " + conjugation + which_dic + epwingText;;
+                        epwingText = "(" + (rcxMain.epwingCurHit + 1) + "/" + rcxMain.epwingTotalHits + ") "
+                          + conjugation + which_dic + epwingText;;
                              
                         // Limit text to the user-specified number of lines (not 
                         // including lines generated from word wrap).
