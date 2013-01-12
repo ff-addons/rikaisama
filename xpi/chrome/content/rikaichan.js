@@ -1667,6 +1667,7 @@ var rcxMain = {
                   NetUtil.asyncFetch(epwingOutputFile, function(inputStream, status) 
                   {
                     var epwingText = "Entry not found.";
+                    var saveText = "";
                     var newLines = 0;
                     var showDots = false;
                     var firstNewlinePos = -1;
@@ -1749,6 +1750,10 @@ var rcxMain = {
                             epwingText = afterRegexEpwingText;
                           }
                         }
+                        
+                        // We don't want to save the output of the following color and
+                        // pitch step, so store a copy
+                        saveText = epwingText;
                         
                         //
                         // Add color and pitch to the header line. 
@@ -1833,7 +1838,7 @@ var rcxMain = {
                         
                         // Add the header line to the lookup: (cur_hit/total_hits) + conjugation + which_dic
                         epwingText = "(" + (rcxMain.epwingCurHit + 1) + "/" + rcxMain.epwingTotalHits + ") "
-                          + conjugation + which_dic + epwingText;;
+                          + conjugation + which_dic + epwingText;
                              
                         // Limit text to the user-specified number of lines (not 
                         // including lines generated from word wrap).
@@ -1862,11 +1867,13 @@ var rcxMain = {
                         if(rcxConfig.epwingstripnewlines)
                         {
                           epwingText = epwingText.replace(/\n/g, " ");
+                          saveText = saveText.replace(/\n/g, " ");
                         }
                         else
                         {
                           epwingText = epwingText.replace(/\n/g, "<br />");
-                        }                        
+                          saveText = saveText.replace(/\n/g, "<br />");
+                        }
                       }
                       catch(ex)
                       {
@@ -1898,7 +1905,7 @@ var rcxMain = {
                             return;
                           }       
                           
-                          // Set a timer to call this function again with the next avialable dictionary
+                          // Set a timer to call this function again with the next available dictionary
                           window.setTimeout
                           (
                             function() 
@@ -1921,8 +1928,8 @@ var rcxMain = {
                     // real-time import features work correctly.
                     try
                     {                      
-                      // The text to save (minus the header)
-                      var saveText = epwingText.replace(/^\(\d*?\/\d*?\).*?<br \/>/, '');
+                      // Strip initial whitespace/line break
+                      saveText = saveText.replace(/^( |<br \/>)/, "");
  
                       rcxMain.lastFound[0].data[0][0] = rcxMain.lastFound[0].data[0][0]
                         .replace(/\/.+\//g, "/" + saveText + "/");
@@ -2266,13 +2273,13 @@ var rcxMain = {
             // Does the audio player exist?
             if (audioPlayer.exists()) 
             {
-               // Create a the process object that will play the audio file
+               // Create a process object that will play the audio file
                var process = Components.classes['@mozilla.org/process/util;1']
                 .createInstance(Components.interfaces.nsIProcess);        
                process.init(audioPlayer);
                                                
                 // Set audio player arguments        
-                if(osString == "Linux" || osString == "Darwin")
+                if((osString == "Linux") || (osString == "Darwin"))
                 {
                   var args = ["-volume", rcxConfig.volume, audioFile];
                 }
@@ -2292,8 +2299,8 @@ var rcxMain = {
       const flags = nsIWBP.PERSIST_FLAGS_REPLACE_EXISTING_FILES;
       downloader.persistFlags = flags | nsIWBP.PERSIST_FLAGS_FROM_CACHE;
       
-      // Download the audio file and file to a temporary location
-      downloader.saveURI(audioUrl, null, null, null, null, tempAudioFile);
+      // Download the audio file and save to a temporary location
+      downloader.saveURI(audioUrl, null, null, null, null, tempAudioFile, null);
     }
     catch (e) 
     {
