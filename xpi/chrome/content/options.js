@@ -126,6 +126,7 @@ var rcxOptions = {
 
 	onOK: function() {
 		// type="number" min="3" max="100" <-- can use, but limited to FX3+, TB?, SM?
+    if (!this.checkRange('rcp-opacity', 'Opacity', 60, 100)) return false;
     if (!this.checkRange('rcp-volume', 'Volume', 0, 100)) return false;
 		if (!this.checkRange('rcp-wmax', 'Maximum Entries To Display', 3, 100)) return false;
 		if (!this.checkRange('rcp-namax', 'Maximum Entries To Display', 3, 100)) return false;

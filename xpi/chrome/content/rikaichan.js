@@ -63,7 +63,8 @@ var rcxMain = {
   epwingStartDic: "",           // The dictionary used for the original EPWING lookup (before any fallbacks)
   epwingDicList: [],            // The list of EPWING dictionaries
   saveKana: false,              // When saving a word, make the $d token equal to the $r token
-  wordInAnkiDeck: false,        // Is the kanji form of the hilighted word in the user's Anki deck?
+  wordInAnkiDeck: false,        // Is the kanji form of the hilited word in the user's Anki deck?
+  autoPlayAudioTimer: null,     // Timer used for automatically playing audio when a word is hilited
 
 	getBrowserTB: function() {
 		if (rcxMain.tabMail) return rcxMain.tabMail.getBrowserForSelectedTab();
@@ -463,6 +464,17 @@ var rcxMain = {
 		}
 
 		popup.style.maxWidth = (lbPop ? '' : '600px');
+    
+    popup.style.opacity = rcxConfig.opacity / 100;
+    
+    if(rcxConfig.roundedcorners)
+    {
+      popup.style.borderRadius = '5px';
+    }
+    else
+    {
+      popup.style.borderRadius = '0px';
+    }
 
 		if (topdoc.contentType == 'text/plain') {
 			var df = document.createDocumentFragment();
@@ -1551,7 +1563,7 @@ var rcxMain = {
       var tmpDir = Components.classes["@mozilla.org/file/directory_service;1"]
         .getService(Components.interfaces.nsIProperties)
         .get("TmpD", Components.interfaces.nsIFile);
-      tmpDir.append("rikaisan");
+      tmpDir.append("rikaisama");
         
       // Create the input file to the EPWING lookup tool
       var epwingInputFile = Components.classes["@mozilla.org/file/local;1"]
@@ -1761,7 +1773,7 @@ var rcxMain = {
                         //
                         if(rcxConfig.epwingaddcolorandpitch)
                         {
-                          var newLineIdx = epwingText.indexOf("\n", 1); // Start at 1 becuase 0 is a \n
+                          var newLineIdx = epwingText.indexOf("\n", 1); // Start at 1 because 0 is a \n
                           
                           if(newLineIdx != -1)
                           {
@@ -1786,7 +1798,7 @@ var rcxMain = {
                             headerLine.match(/【(.*?)】/);     
                             var expression = RegExp.$1;
                             
-                            // Some dics like Meikyo contain alernate brackets for the expression
+                            // Some dics like Meikyo contain alternate brackets for the expression
                             if(!expression)
                             {
                               headerLine.match(/〘(.*?)〙 /);     
@@ -1948,7 +1960,7 @@ var rcxMain = {
                       epwingText += "<br />...";
                     }
                     
-                    // Is the word in the user's vocubulary deck? If so, insert an asterisk.
+                    // Is the word in the user's vocabulary deck? If so, insert an asterisk.
                     if(rcxMain.wordInAnkiDeck)
                     {
                       epwingText = "* " + epwingText
@@ -2072,7 +2084,7 @@ var rcxMain = {
   }, /* convertIntegerToCircledNumStr */
   
   
-  // Converts a japanese number to an integer.
+  // Converts a Japanese number to an integer.
   // ５ --> 5, １２ --> 12, etc.
   convertJapNumToInteger: function(japNum)
   {
@@ -2162,6 +2174,23 @@ var rcxMain = {
   {
     try 
     {
+      // Does the file already exist in the audio dir? If so, play it and don't download.
+      if((saveFile.length > 0) && rcxConfig.audiodir && (rcxConfig.audiodir.length > 0))
+      {        
+        // Create a file object for the destination file (for checking existence)
+        var destFile = Components.classes["@mozilla.org/file/local;1"]
+            .createInstance(Components.interfaces.nsILocalFile);
+        destFile.initWithPath(rcxConfig.audiodir);
+        destFile.append(saveFile);
+        
+        // If the destination already exists, play it and skip the download
+        if(destFile.exists())
+        {
+          rcxMain.playMp3(destFile.path);
+          return;
+        }
+      }
+            
       // Create URI that contains the url of the audio file to download
       var audioUrl = Components.classes["@mozilla.org/network/io-service;1"]
         .getService(Components.interfaces.nsIIOService)
@@ -2214,7 +2243,7 @@ var rcxMain = {
             }
                
             // Should we save the audio to the user specified audio folder?
-            if(saveFile.length > 0)
+            if((saveFile.length > 0) && rcxConfig.audiodir && (rcxConfig.audiodir.length > 0))
             {
               // Create a file object for the file to copy
               var audioCopyFile = Components.classes["@mozilla.org/file/local;1"]
@@ -2226,71 +2255,20 @@ var rcxMain = {
                   .createInstance(Components.interfaces.nsILocalFile);
               saveDir.initWithPath(rcxConfig.audiodir);
               
-              // Creat a file object for the desination file (for checking existance)
+              // Create a file object for the destination file (for checking existence)
               var destFile = Components.classes["@mozilla.org/file/local;1"]
                   .createInstance(Components.interfaces.nsILocalFile);
               destFile.initWithPath(rcxConfig.audiodir);
               destFile.append(saveFile);
               
-              // Delete the destination file if it already exists
-              if(destFile.exists())
+               // Copy and rename the file
+              if(!destFile.exists())
               {
-                destFile.remove(false);
+                audioCopyFile.copyTo(saveDir, saveFile);
               }
-              
-              // Copy and rename the file
-              audioCopyFile.copyTo(saveDir, saveFile);
             }
             
-            // Get a string identifying the current OS
-            var osString = Components.classes["@mozilla.org/xre/app-info;1"]  
-                   .getService(Components.interfaces.nsIXULRuntime).OS; 
-                   
-            // Create the file object that contains the location of the audio player
-            if(osString == "Linux")
-            {
-              var audioPlayer = Components.classes["@mozilla.org/file/local;1"]
-                  .createInstance(Components.interfaces.nsILocalFile);
-              audioPlayer.initWithPath("/usr/bin/mplayer");
-            }
-            else if(osString == "Darwin") // Mac
-            {
-              var audioPlayer = Components.classes["@mozilla.org/file/local;1"]
-                  .createInstance(Components.interfaces.nsILocalFile);
-              audioPlayer.initWithPath("/usr/local/bin/mplayer");
-            }
-            else // Windows
-            {
-              var audioPlayer = Components.classes["@mozilla.org/file/directory_service;1"]
-                .getService(Components.interfaces.nsIProperties)
-                .get("ProfD", Components.interfaces.nsILocalFile);    
-              audioPlayer.append("extensions");
-              audioPlayer.append(rcxMain.id); // GUID of extension
-              audioPlayer.append("audio");
-              audioPlayer.append("bassplayer-win.exe");
-            }            
-            
-            // Does the audio player exist?
-            if (audioPlayer.exists()) 
-            {
-               // Create a process object that will play the audio file
-               var process = Components.classes['@mozilla.org/process/util;1']
-                .createInstance(Components.interfaces.nsIProcess);        
-               process.init(audioPlayer);
-                                               
-                // Set audio player arguments        
-                if((osString == "Linux") || (osString == "Darwin"))
-                {
-                  var args = ["-volume", rcxConfig.volume, audioFile];
-                }
-                else
-                {
-                  var args = ["-vol", rcxConfig.volume, audioFile];
-                }
-            
-               // Play the audio
-               process.runAsync(args, args.length);  
-            }
+            rcxMain.playMp3(audioFile);
           }
         }
       }
@@ -2309,7 +2287,63 @@ var rcxMain = {
     
   }, /* downloadAndPlayAudio */
   
+  
+  // Play the provided mp3 file.
+  playMp3: function(mp3File) 
+  {   
+    // Get a string identifying the current OS
+    var osString = Components.classes["@mozilla.org/xre/app-info;1"]  
+           .getService(Components.interfaces.nsIXULRuntime).OS; 
+           
+    // Create the file object that contains the location of the audio player
+    if(osString == "Linux")
+    {
+      var audioPlayer = Components.classes["@mozilla.org/file/local;1"]
+          .createInstance(Components.interfaces.nsILocalFile);
+      audioPlayer.initWithPath("/usr/bin/mplayer");
+    }
+    else if(osString == "Darwin") // Mac
+    {
+      var audioPlayer = Components.classes["@mozilla.org/file/local;1"]
+          .createInstance(Components.interfaces.nsILocalFile);
+      audioPlayer.initWithPath("/usr/local/bin/mplayer");
+    }
+    else // Windows
+    {
+      var audioPlayer = Components.classes["@mozilla.org/file/directory_service;1"]
+        .getService(Components.interfaces.nsIProperties)
+        .get("ProfD", Components.interfaces.nsILocalFile);    
+      audioPlayer.append("extensions");
+      audioPlayer.append(rcxMain.id); // GUID of extension
+      audioPlayer.append("audio");
+      audioPlayer.append("bassplayer-win.exe");
+    }            
+    
+    // Does the audio player exist?
+    if (audioPlayer.exists()) 
+    {
+       // Create a process object that will play the audio file
+       var process = Components.classes['@mozilla.org/process/util;1']
+        .createInstance(Components.interfaces.nsIProcess);        
+       process.init(audioPlayer);
+                                       
+        // Set audio player arguments        
+        if((osString == "Linux") || (osString == "Darwin"))
+        {
+          var args = ["-volume", rcxConfig.volume, mp3File];
+        }
+        else
+        {
+          var args = ["-vol", rcxConfig.volume, mp3File];
+        }
+    
+       // Play the audio
+       process.runwAsync(args, args.length);  
+    }
+    
+  }, /* playMp3 */
 	
+  
   // Play the JDIC audio for the hilited word.
   // saveAudio - (boolean) Save the audio in the user specified audio folder
 	playJDicAudio: function(saveAudio) 
@@ -2397,8 +2431,8 @@ var rcxMain = {
     //encodedJdicAudioUrlText = encodeURI(jdicAudioUrlText);
     
     var saveFile = "";
-    
-    if(saveAudio)
+
+    if(saveAudio || rcxConfig.saveaudioonplay)
     {
       saveFile = kanaText + ' - ' + kanjiText + '.mp3';
     }
@@ -3128,6 +3162,19 @@ var rcxMain = {
         
     // Determine if the word is in the user's anki deck
     this.wordInAnkiDeck = this.isWordInAnkiDeck();
+    
+    // When auto play is enabled, the user must hilite a word for at least 500 ms before
+    // the audio will be played.
+    if(rcxConfig.autoplayaudio)
+    {
+      if(this.autoPlayAudioTimer)
+      {
+        clearTimeout(this.autoPlayAudioTimer);
+        this.autoPlayAudioTimer = null;
+      }
+      
+      this.autoPlayAudioTimer = setTimeout(function() { rcxMain.playJDicAudio(false) }, 500);
+    }
 
     // If not in Super Sticky mode or the user manually requested a popup
     if(!this.superSticky || this.superStickyOkayToShow)

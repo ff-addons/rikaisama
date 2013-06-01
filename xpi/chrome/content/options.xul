@@ -74,6 +74,13 @@
 						</menupopup>
 					</menulist>
 				</row>
+        <row>
+					<label value="&General.Opacity;" control="rcp-opacity" tooltiptext="&General.ToolTipOpacity;"/>
+          <hbox>
+            <textbox id="rcp-opacity" type="number" size="3" min="60" max="100"/>
+            <label value="" control="rcp-opacity"/>
+          </hbox>
+				</row>
 				<row id="rcp-enmode-box">
 					<label value="&General.EnableMode;" control="rcp-enmode"/>
 					<menulist id="rcp-enmode">
@@ -86,13 +93,14 @@
 					</menulist>
 				</row>
         <row>
-					<label value="&General.Volume;" control="rcp-volume" tooltiptext="&General.TooTipVolume;"/>
+					<label value="&General.Volume;" control="rcp-volume" tooltiptext="&General.ToolTipVolume;"/>
           <hbox>
             <textbox id="rcp-volume" type="number" size="3" min="0" max="100"/>
             <label value="" control="rcp-volume"/>
           </hbox>
 				</row>
 
+				<checkbox label="&General.AutoPlayAudio;" id="rcp-autoplayaudio" tooltiptext="&General.ToolTipAutoPlayAudio;"/>
 				<checkbox label="&General.HighlightText;" id="rcp-highlight"/>
 				<checkbox label="&General.TranAltTitle;" id="rcp-title"/>
 				<checkbox label="&General.SelectedInLookupBar;" id="rcp-selinlb"/>
@@ -100,6 +108,7 @@
 				<checkbox label="&General.EnlargeSmallDocuments;" id="rcp-resizedoc"/>
 				<checkbox label="&General.ShowIconInStatusbar;" id="rcp-sticon"/>
 				<checkbox label="&General.ShowMiniHelp;" id="rcp-minihelp"/>
+        <checkbox label="&General.RoundedCorners;" id="rcp-roundedcorners" tooltiptext="&General.ToolTipRoundedCorners;"/>
 			</rows>
 		</grid>
 	</tabpanel>
@@ -529,6 +538,11 @@
 						<button label="..." oncommand="rcxOptions.browseDir('rcp-audiodir')"/>
 					</hbox>
 				</row>
+        
+        <row>
+          <label value="" />
+          <checkbox label="&ClipSave.SaveAudioOnPlay;" id="rcp-saveaudioonplay" tooltiptext="&ClipSave.ToolTipSaveAudioOnPlay;"/>
+        </row>
 
 				<row>
 					<label value="&ClipSave.Encoding;" control="rcp-sfcs"/>

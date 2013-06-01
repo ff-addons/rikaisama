@@ -13,11 +13,17 @@
 <!ENTITY General.LightBlue "Light Blue">
 <!ENTITY General.Black "Black">
 <!ENTITY General.Yellow "Yellow">
+<!ENTITY General.Opacity "Popup opacity">
+<!ENTITY General.ToolTipOpacity "Range: [60-100], with 100 being completely opaque">
 <!ENTITY General.EnableMode "Enable mode">
 <!ENTITY General.CurrentTabOnly "Current tab only">
 <!ENTITY General.CurrentBrowserOnly "Current browser only">
 <!ENTITY General.AllBrowsers "All browsers">
 <!ENTITY General.AlwaysEnableAtStartup "Always enable at startup">
+<!ENTITY General.Volume "Audio volume">
+<!ENTITY General.ToolTipVolume "Range: [0-100], with 100 being the loudest.">
+<!ENTITY General.AutoPlayAudio "Play audio on hover">
+<!ENTITY General.ToolTipAutoPlayAudio "Automatically play audio for the highlighted word after it has been highlighted for at least 500 milliseconds.">
 <!ENTITY General.HighlightText "Highlight text">
 <!ENTITY General.TranAltTitle "Translate alt/title tags">
 <!ENTITY General.SelectedInLookupBar "Automatically use selected text in Lookupbar">
@@ -25,8 +31,8 @@
 <!ENTITY General.EnlargeSmallDocuments "Enlarge small documents">
 <!ENTITY General.ShowIconInStatusbar "Show icon in statusbar">
 <!ENTITY General.ShowMiniHelp "Show mini help">
-<!ENTITY General.Volume "Audio volume">
-<!ENTITY General.TooTipVolume "Range: [0-100], with 100 being the loudest.">
+<!ENTITY General.RoundedCorners "Rounded corners">
+<!ENTITY General.ToolTipRoundedCorners "Give the popup window rounded corners.">
 
 <!ENTITY Startup.LookupBar "Lookup Bar">
 <!ENTITY Startup.Epwing "EPWING Mode">
@@ -127,7 +133,9 @@
 <!ENTITY ClipSave.Filename "Filename">
 <!ENTITY ClipSave.ToolTipFilename "The text file that will contain the information for all saved words.">
 <!ENTITY ClipSave.AudioDir "Saved audio">
-<!ENTITY ClipSave.ToolTipAudioDir "The directory that will contain the saved pronunciation .mp3 files.">
+<!ENTITY ClipSave.ToolTipAudioDir "The directory that will contain the saved audio clips. If the audio clip is already found in this directory, then it will not need to be downloaded again thus decreasing playback delay.">
+<!ENTITY ClipSave.SaveAudioOnPlay "Save audio on play (instead of just when the save key is pressed)">
+<!ENTITY ClipSave.ToolTipSaveAudioOnPlay "You should enable this if you want to cache audio clips in the audio directory to avoid download delays. You should definitely enable this if you have the 'Play audio on hover' option selected.">
 <!ENTITY ClipSave.Encoding "Encoding">
 <!ENTITY ClipSave.BomHeader "Add header to UTF-8">
 <!ENTITY ClipSave.AnkiTags "Tags">

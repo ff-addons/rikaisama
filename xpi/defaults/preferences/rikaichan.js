@@ -7,6 +7,9 @@ pref('rikaichan.resizedoc', false);
 pref('rikaichan.sticon', true);
 pref('rikaichan.minihelp', true);
 pref('rikaichan.volume', 100);
+pref('rikaichan.autoplayaudio', false);
+pref('rikaichan.opacity', 100);
+pref('rikaichan.roundedcorners', true);
 
 pref('rikaichan.startlookupbar', false);
 pref('rikaichan.startepwing', false);
@@ -71,6 +74,7 @@ pref('rikaichan.epwingaddcolorandpitch', false);
 
 pref('rikaichan.sfile', '');
 pref('rikaichan.audiodir', '');
+pref('rikaichan.saveaudioonplay', false);
 pref('rikaichan.sfcs', 'utf-8');
 pref('rikaichan.ubom', true);
 pref('rikaichan.smaxfe', 1);

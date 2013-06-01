@@ -47,6 +47,9 @@ var rcxConfigList = [
 	[2, 'sticon'],
 	[2, 'minihelp'],
 	[0, 'volume'],
+	[2, 'autoplayaudio'],
+	[0, 'opacity'],
+	[2, 'roundedcorners'],
   
   // startup
 	[2, 'startlookupbar'],
@@ -112,6 +115,7 @@ var rcxConfigList = [
 	// clipboard / save file
 	[1, 'sfile'],
 	[1, 'audiodir'],
+	[2, 'saveaudioonplay'],
 	[1, 'sfcs'],
 	[2, 'ubom'],
 	[0, 'smaxfe'],
