@@ -597,7 +597,7 @@ var rcxMain = {
     this.epwingTotalHits = 0;
     this.epwingCurHit = 0;
     
-    // Don't hide popup in superSticky unless given permissin to
+    // Don't hide popup in superSticky unless given permission to
     if(!this.superSticky || this.superStickyOkayToHide)
     {
       this.superStickyOkayToHide = false;
@@ -609,7 +609,18 @@ var rcxMain = {
       {
         popup.style.display = 'none';
         popup.innerHTML = '';
+        
+        // Stop the current auto play timer
+        if(rcxConfig.autoplayaudio)
+        {
+          if(this.autoPlayAudioTimer)
+          {
+            clearTimeout(this.autoPlayAudioTimer);
+            this.autoPlayAudioTimer = null;
+          }
+        }
       }
+      
       this.lbPop = 0;
       this.title = null;
     }
@@ -2647,6 +2658,17 @@ var rcxMain = {
 			this.show(ev.currentTarget.rikaichan);
 			break;
       
+    case parseInt(rcxConfig.kbeditnotes): // j - Edit notes
+      var notes = prompt("Enter text to use with the Notes save token:", rcxConfig.savenotes);
+      
+      // If OK was pressed, save the notes
+      if(notes)
+      {
+        let prefs = new rcxPrefs();
+        prefs.setString('savenotes', notes);
+      }
+      break;
+      
 		case parseInt(rcxConfig.kbepwingnextdic):	// + - Goto next dictionary
       var origDic = this.epwingCurDic;
       
@@ -2707,7 +2729,7 @@ var rcxMain = {
         this.show(ev.currentTarget.rikaichan);
       }
       break;
-   
+      
 		default:
 			if ((ev.keyCode >= 49) && (ev.keyCode <= 57)) // 1-9 - Switch dictionary
       {
@@ -3133,7 +3155,7 @@ var rcxMain = {
 
 		var wordPosInSentence = ro + prevSentence.length - sentenceStartPos + startOffset;
 		
-    // Add blanks in place of the hilighted word for use with the save feature
+    // Add blanks in place of the hilited word for use with the save feature
 		sentenceWBlank = sentence.substring(0, wordPosInSentence) + "___" 
 					+ sentence.substring(wordPosInSentence + e.matchLen, sentence.length);
 		
@@ -3175,7 +3197,7 @@ var rcxMain = {
       
       this.autoPlayAudioTimer = setTimeout(function() { rcxMain.playJDicAudio(false) }, 500);
     }
-
+    
     // If not in Super Sticky mode or the user manually requested a popup
     if(!this.superSticky || this.superStickyOkayToShow)
     {
@@ -3202,7 +3224,7 @@ var rcxMain = {
       {
         var alreadyInDeckStr = "";
         
-        // Is the word in the user's vocubulary deck? If so, insert an asterisk.   
+        // Is the word in the user's vocabulary deck? If so, insert an asterisk.   
         if(this.wordInAnkiDeck)
         {
           alreadyInDeckStr = "* ";
@@ -3403,6 +3425,7 @@ var rcxMain = {
           minihelpText = minihelpText.replace(/@AnkiRealTimeImport/       , keycode2Key[rcxConfig.kbrealtimeimport]);
           minihelpText = minihelpText.replace(/@AnkiRealTimeImportKana/   , keycode2Key[rcxConfig.kbrealtimeimportkana]);
           minihelpText = minihelpText.replace(/@SuperStickyMode/          , keycode2Key[rcxConfig.kbsuperstickymode]);
+          minihelpText = minihelpText.replace(/@EditNotes/                , keycode2Key[rcxConfig.kbeditnotes]);
           minihelpText = minihelpText.replace(/@NextEPWINGDictionary/     , keycode2Key[rcxConfig.kbepwingnextdic]);
           minihelpText = minihelpText.replace(/@PreviousEPWINGDictionary/ , keycode2Key[rcxConfig.kbepwingprevdic]);
           minihelpText = minihelpText.replace(/@NextEPWINGEntry/          , keycode2Key[rcxConfig.kbepwingnextentry]);

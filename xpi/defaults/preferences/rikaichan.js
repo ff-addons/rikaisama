@@ -39,6 +39,7 @@ pref('rikaichan.kbepwingmode', '80');
 pref('rikaichan.kbrealtimeimport', '82');
 pref('rikaichan.kbrealtimeimportkana', '84');
 pref('rikaichan.kbsuperstickymode', '85');
+pref('rikaichan.kbeditnotes', '74');
 pref('rikaichan.kbepwingnextdic', '107');
 pref('rikaichan.kbepwingprevdic', '109');
 pref('rikaichan.kbepwingnextentry', '221');
@@ -84,6 +85,7 @@ pref('rikaichan.smaxck', 1);
 pref('rikaichan.snlf', 0);
 pref('rikaichan.ssep', 'Tab');
 pref('rikaichan.atags', '');
+pref('rikaichan.savenotes', '');
 pref('rikaichan.saveformat', '$d$t$r$t$n');
 
 pref('rikaichan.rtifieldnamestext', 'Expression Reading Meaning');

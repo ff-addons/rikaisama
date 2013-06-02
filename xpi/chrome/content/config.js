@@ -82,6 +82,7 @@ var rcxConfigList = [
 	[1, 'kbrealtimeimport'],
 	[1, 'kbrealtimeimportkana'],
 	[1, 'kbsuperstickymode'],
+	[1, 'kbeditnotes'],
 	[1, 'kbepwingnextdic'],
 	[1, 'kbepwingprevdic'],
 	[1, 'kbepwingnextentry'],
@@ -125,6 +126,7 @@ var rcxConfigList = [
 	[0, 'snlf'],
 	[1, 'ssep'],
 	[1, 'atags'],
+	[1, 'savenotes'],
 	[1, 'saveformat'],
 
   // Anki

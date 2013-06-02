@@ -949,16 +949,23 @@ var rcxData = {
       }
     }
     
-    saveText = saveText.replace(/\$g/g, ankiTags);              // Anki tags
+    // Get the page title
+    var pageTitle = window.document.title;
+    pageTitle = pageTitle.replace(/ \- Mozilla Firefox$/, '');	
+    
     saveText = saveText.replace(/\$a/g, audioFile);             // Audio file
     saveText = saveText.replace(/\$d/g, dictForm);              // Dictionary form
     saveText = saveText.replace(/\$h/g, word);                  // Highlighted Word
     saveText = saveText.replace(/\$r/g, reading);               // Reading (kana)
+    saveText = saveText.replace(/\$o/g, rcxConfig.savenotes);   // Notes
     saveText = saveText.replace(/\$s/g, sentence);              // Sentence
     saveText = saveText.replace(/\$b/g, sentenceWBlank);        // Sentence with blank
     saveText = saveText.replace(/\$u/g, content.location.href); // Source URL
     saveText = saveText.replace(/\$t/g, '\t');                  // Tab character
+    saveText = saveText.replace(/\$g/g, ankiTags);              // Anki tags
+    saveText = saveText.replace(/\$i/g, pageTitle);             // Page title
     saveText = saveText.replace(/\$n/g, tranlation);            // Translation/definition
+
     saveText += '\n';
         
     return saveText;

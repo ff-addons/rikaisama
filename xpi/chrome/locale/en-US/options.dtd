@@ -71,6 +71,7 @@
 <!ENTITY Keyboard.RealTimeImport "Anki Real-Time Import">
 <!ENTITY Keyboard.RealTimeImportKana "Anki Real-Time Import ($d=$r)">
 <!ENTITY Keyboard.SuperStickyMode "Super Sticky mode">
+<!ENTITY Keyboard.EditNotes "Edit notes">
 <!ENTITY Keyboard.EpwingMode "EPWING mode">
 <!ENTITY Keyboard.DisableTheseKeys "Disable these keys">
 
@@ -141,17 +142,19 @@
 <!ENTITY ClipSave.AnkiTags "Tags">
 <!ENTITY ClipSave.ToolTipAnkiTags "The text to use for the Tags token below. Additionally, these tags will be used by the Anki Real-Time Import feature.">
 <!ENTITY ClipSave.AnkiTagsHelp "(separated by spaces)">
+<!ENTITY ClipSave.SaveNotes "Notes">
+<!ENTITY ClipSave.ToolTipSaveNotes "The text used for the Notes token below.">
 <!ENTITY ClipSave.SaveFormat "Save format">
 <!ENTITY ClipSave.ToolTipSaveFormat "The save format consisting of one or more of the below tokens.">
 <!ENTITY ClipSave.FmtCaption "Available save format tokens">
 <!ENTITY ClipSave.FmtAudioFile "Audio file">
 <!ENTITY ClipSave.ToolTipFmtAudioFile "Name of pronunciation .mp3 file for the saved word. Format: 'kana - kanji.mp3'.">
-<!ENTITY ClipSave.FmtAnkiTags "Tags">
-<!ENTITY ClipSave.ToolTipFmtAnkiTags "The text from the 'Tags' text box above.">
 <!ENTITY ClipSave.FmtDictForm "Dictionary form">
 <!ENTITY ClipSave.ToolTipFmtDictForm "The dictionary/plain form of the saved word.">
 <!ENTITY ClipSave.FmtHighlighted "Highlighted word">
 <!ENTITY ClipSave.ToolTipFmtHighlighted "The highlighted word (including any conjugations).">
+<!ENTITY ClipSave.FmtNotes "Notes">
+<!ENTITY ClipSave.ToolTipFmtNotes "The text from the 'Notes' text box above.">
 <!ENTITY ClipSave.FmtReading "Reading">
 <!ENTITY ClipSave.ToolTipFmtReading "The kana reading of the saved word.">
 <!ENTITY ClipSave.FmtSentence "Sentence">
@@ -162,6 +165,10 @@
 <!ENTITY ClipSave.ToolTipFmtURL "The URL of the page that contains the saved word.">
 <!ENTITY ClipSave.FmtTab "Tab character">
 <!ENTITY ClipSave.ToolTipFmtTab "A normal tab character (\t) used for separating fields.">
+<!ENTITY ClipSave.FmtAnkiTags "Tags">
+<!ENTITY ClipSave.ToolTipFmtAnkiTags "The text from the 'Tags' text box above.">
+<!ENTITY ClipSave.FmtTitle "Title">
+<!ENTITY ClipSave.ToolTipTitle "The title of the page that contains the saved word.">
 <!ENTITY ClipSave.FmtTranslation "Translation">
 <!ENTITY ClipSave.ToolTipTranslation "The definition of the saved word.">
 

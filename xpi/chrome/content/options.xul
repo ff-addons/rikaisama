@@ -306,6 +306,13 @@
                   <label value=" " control="rcp-kbsuperstickymode"/>
                 </hbox>
 				  		</row>
+              <row>
+				  			<description value="&Keyboard.EditNotes;"/>
+                <hbox>
+                  <menulist id="rcp-kbeditnotes"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
+                  <label value=" " control="rcp-kbeditnotes"/>
+                </hbox>
+				  		</row>
 				  	</rows>
 				  </grid>
         </hbox>
@@ -586,6 +593,11 @@
         </row>
         
         <row>
+          <label value="&ClipSave.SaveNotes;" control="rcp-savenotes" tooltiptext="&ClipSave.ToolTipSaveNotes;"/>
+          <textbox id="rcp-savenotes"/>
+        </row>
+        
+        <row>
           <label value="&ClipSave.SaveFormat;" control="rcp-saveformat" tooltiptext="&ClipSave.ToolTipSaveFormat;"/>
 					<textbox id="rcp-saveformat"/>
         </row>
@@ -595,7 +607,7 @@
           <groupbox>
             <caption label="&ClipSave.FmtCaption;"/>
             <hbox>
-              <grid>
+              <grid> <!-- Column 1 -->
                 <columns>
                   <column/>
                   <column/>
@@ -614,22 +626,26 @@
                     <description value="$h"/>
                   </row>
                   <row>
-                    <description value="&ClipSave.FmtReading;" tooltiptext="&ClipSave.ToolTipFmtReading;"/>
-                    <description value="$r"/>
+                    <description value="&ClipSave.FmtNotes;" tooltiptext="&ClipSave.ToolTipFmtNotes;"/>
+                    <description value="$o"/>
                   </row>
                   <row>
-                    <description value="&ClipSave.FmtSentence;" tooltiptext="&ClipSave.ToolTipFmtSentence;"/>
-                    <description value="$s"/>
+                    <description value="&ClipSave.FmtReading;" tooltiptext="&ClipSave.ToolTipFmtReading;"/>
+                    <description value="$r"/>
                   </row>
                 </rows>
               </grid>
               <spacer style="width:2em"/>
-              <grid>
+              <grid> <!-- Column 2 -->
                 <columns>
                   <column/>
                   <column/>
                 </columns>
                 <rows>
+                  <row>
+                    <description value="&ClipSave.FmtSentence;" tooltiptext="&ClipSave.ToolTipFmtSentence;"/>
+                    <description value="$s"/>
+                  </row>
                   <row>
                     <description value="&ClipSave.FmtSentenceWithBlank;" tooltiptext="&ClipSave.ToolTipFmtSentenceWithBlank;"/>
                     <description value="$b"/>
@@ -645,6 +661,19 @@
                   <row>
                     <description value="&ClipSave.FmtAnkiTags;" tooltiptext="&ClipSave.ToolTipFmtAnkiTags;"/>
                     <description value="$g"/>
+                  </row>
+                </rows>
+              </grid>
+              <spacer style="width:2em"/>
+              <grid>  <!-- Column 3 -->
+                <columns>
+                  <column/>
+                  <column/>
+                </columns>
+                <rows>
+                  <row>
+                    <description value="&ClipSave.FmtTitle;" tooltiptext="&ClipSave.ToolTipTitle;"/>
+                    <description value="$i"/>
                   </row>
                   <row>
                     <description value="&ClipSave.FmtTranslation;" tooltiptext="&ClipSave.ToolTipTranslation;"/>
