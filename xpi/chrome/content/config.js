@@ -48,6 +48,7 @@ var rcxConfigList = [
 	[2, 'minihelp'],
 	[0, 'volume'],
 	[2, 'autoplayaudio'],
+	[2, 'enablenoaudioclip'],
 	[0, 'opacity'],
 	[2, 'roundedcorners'],
   
@@ -94,6 +95,7 @@ var rcxConfigList = [
 	[0, 'wmax'],
 	[0, 'namax'],
 	[2, 'hidex'],
+	[2, 'showfreq'],
 	[2, 'showpitchaccent'],
 	[2, 'hidepitchaccentpos'],
 	

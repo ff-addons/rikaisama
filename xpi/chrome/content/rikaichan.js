@@ -65,6 +65,7 @@ var rcxMain = {
   saveKana: false,              // When saving a word, make the $d token equal to the $r token
   wordInAnkiDeck: false,        // Is the kanji form of the hilited word in the user's Anki deck?
   autoPlayAudioTimer: null,     // Timer used for automatically playing audio when a word is hilited
+  noAudioFileHash: "",          // The hash of the no no_audio.mp3
 
 	getBrowserTB: function() {
 		if (rcxMain.tabMail) return rcxMain.tabMail.getBrowserForSelectedTab();
@@ -721,7 +722,114 @@ var rcxMain = {
 	},
 
   
-  /* Get the pitch accent of the last hilighted word if present. If inExpression is not provided,
+  /* Get the CSS style to use when drawing the provided frequency */
+  getFreqStyle: function(freqNum)
+  {
+    var freqStyle = 'w-freq-rare';
+                        
+    if (freqNum <= 5000)
+    {
+      freqStyle = "w-freq-very-common";
+    }
+    else if (freqNum <= 10000)
+    {
+      freqStyle = "w-freq-common";
+    }
+    else if (freqNum <= 20000)
+    {
+      freqStyle = "w-freq-uncommon";
+    }
+    
+    return freqStyle;
+    
+  }, /* getFreqStyle */
+  
+  
+  /* Get the frequency for the given expression. If expression is not given,
+     get the frequency for the last hilited word.
+     Note: frequency information comes from analysis of 5000+ novels (via 
+           Japanese Text Analysis Tool). */
+  getFreq: function(inExpression)
+  {
+    try
+    {    
+      // Get the path of the frequency database
+      var freqDbPath = Components.classes["@mozilla.org/file/directory_service;1"]
+      .getService(Components.interfaces.nsIProperties)
+      .get("ProfD", Components.interfaces.nsILocalFile);
+      freqDbPath.append("extensions");
+      freqDbPath.append(rcxMain.id); // GUID of extension
+      freqDbPath.append("freq");
+      freqDbPath.append("freq.sqlite");
+      
+      // Is the frequency database could not be found, return
+      if(!freqDbPath.exists())
+      {
+        return "";
+      }
+      
+      // Get file pointer to the frequency sqlite database
+      var freqDbFile = Components.classes['@mozilla.org/file/local;1']
+       .createInstance(Components.interfaces.nsILocalFile);
+      freqDbFile.initWithPath(freqDbPath.path);
+      
+      // Open the frequency database
+      var freqDB = Components.classes['@mozilla.org/storage/service;1']
+       .getService(Components.interfaces.mozIStorageService)
+       .openDatabase(freqDbFile);
+       
+      // If the caller provided an expression, use it, otherwise use the
+      // expression of the hilited word
+      if(inExpression)
+      {
+        var expression = inExpression;
+      }
+      else
+      {
+        var hilitedEntry = this.lastFound;
+
+        if ((!hilitedEntry) || (hilitedEntry.length == 0)
+          || !hilitedEntry[0] || !hilitedEntry[0].data[0])
+        {
+          return "";
+        }
+
+        var entryData = hilitedEntry[0].data[0][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
+
+        //   entryData[0] = kanji/kana + kana + definition
+        //   entryData[1] = kanji (or kana if no kanji)
+        //   entryData[2] = kana (null if no kanji)
+        //   entryData[3] = definition
+
+        var expression = entryData[1];
+      }
+      
+      var stFreq = freqDB.createStatement("SELECT freq FROM Dict WHERE expression='"
+          + expression + "'");
+      
+      stFreq.executeStep();
+      
+      // Get the result of the query
+      var freq = stFreq.row.freq;
+      
+      stFreq.reset();
+      stFreq.finalize();
+
+      freqDB.close();
+
+      return freq;
+    }
+    catch(ex)
+    {
+      return "";
+    }
+
+    return "";
+    
+  }, /* getFreq */
+  
+  
+  /* Get the pitch accent of the last hilited word if present. If inExpression is not provided,
      will get the pitch accent for the hilited word's expression and reading */
   getPitchAccent: function(inExpression, inReading)
   {
@@ -1778,6 +1886,10 @@ var rcxMain = {
                         // pitch step, so store a copy
                         saveText = epwingText;
                         
+                        
+                        // Expression parsed from entry if rcxConfig.epwingaddcolorandpitc is enabled
+                        var parsedExpression = "";
+                        
                         //
                         // Add color and pitch to the header line. 
                         // Optimized for Ken5 but also works with Meikyo, Daijisen, and Kojien.
@@ -1834,9 +1946,16 @@ var rcxMain = {
                             pitchExpression = pitchExpression.replace(/<.*?>/g, '');
                             pitchExpression = pitchExpression.replace(/\(.*?\)/g, '');
                             pitchExpression = pitchExpression.replace(/\（.*?\）/g, '');
+                            
+                            parsedExpression = pitchExpression;
                                                      
                             // Get the pitch accent
-                            var pitch = rcxMain.getPitchAccent(pitchExpression, pitchReading)
+                            var pitch = "";
+                            
+                            if(rcxConfig.showpitchaccent)
+                            {
+                              var pitch = rcxMain.getPitchAccent(pitchExpression, pitchReading)
+                            }
                             
                             // Apply color and pitch
                             if(headerLine[0] != '①') // This can happen in some non-Ken5 dictionaries
@@ -1852,16 +1971,40 @@ var rcxMain = {
                                 var newHeaderLine = "<span class='w-kana'>" + reading + "</span> "
                                  + "<span class='w-conj'>" + pitch + "</span>";
                               }
-                              
+                                                            
                               // Add in the new header line
                               epwingText = "\n" + newHeaderLine + epwingText.substr(newLineIdx);
                             }
                           }
-                        }
+                        } // End add EPWING color and pitch
                         
-                        // Add the header line to the lookup: (cur_hit/total_hits) + conjugation + which_dic
+                        //
+                        // Get the frequency  
+                        //
+                        var freqStr = "";
+                        
+                        if(rcxConfig.showfreq)
+                        {
+                          // Used the parsed expression if found
+                          if(parsedExpression != "")
+                          {
+                            var freq = rcxMain.getFreq(parsedExpression);
+                          }
+                          else // Otherwise use the search term used for finding the EPWING entries
+                          {
+                            var freq = rcxMain.getFreq(searchTerm);
+                          }
+                                                    
+                          if(freq && (freq.length > 0))
+                          {            
+                            var freqClass = rcxMain.getFreqStyle(freq);
+                            freqStr = ' <span class="' + freqClass + '">' + freq + '</span>';
+                          }
+                        }
+  
+                        // Add the header line to the lookup: (cur_hit/total_hits) (conjugation) freqStr   which_dic
                         epwingText = "(" + (rcxMain.epwingCurHit + 1) + "/" + rcxMain.epwingTotalHits + ") "
-                          + conjugation + which_dic + epwingText;
+                          + conjugation + freqStr + which_dic + epwingText;
                              
                         // Limit text to the user-specified number of lines (not 
                         // including lines generated from word wrap).
@@ -2165,7 +2308,7 @@ var rcxMain = {
   }, /* htmlParser */
   
   
-  // Get the size of a file in bytes
+  // Get the size of a file in bytes.
   getFileSize: function(path) 
   {
     var file =
@@ -2177,26 +2320,95 @@ var rcxMain = {
   }, /* getFileSize */
   
   
+  // Return the two-digit hexadecimal code for a byte.
+  toHexString: function(charCode)
+  {
+    return ("0" + charCode.toString(16)).slice(-2);
+    
+  }, /* toHexString */
+  
+  
+  // Return the MD5 hash of the provided nsILocalFile file as a string.
+  // https://developer.mozilla.org/en-US/docs/XPCOM_Interface_Reference/nsICryptoHash
+  getFileHash: function(file)
+  {
+    var istream = Components.classes["@mozilla.org/network/file-input-stream;1"]           
+      .createInstance(Components.interfaces.nsIFileInputStream);
+      
+    // Open for reading
+    istream.init(file, 0x01, 0444, 0);
+    
+    var ch = Components.classes["@mozilla.org/security/hash;1"]
+      .createInstance(Components.interfaces.nsICryptoHash);
+                       
+    // We want to use the MD5 algorithm
+    ch.init(ch.MD5);
+    
+    // This tells updateFromStream to read the entire file
+    const PR_UINT32_MAX = 0xffffffff;
+    ch.updateFromStream(istream, PR_UINT32_MAX);
+    
+    istream.close();
+    
+    // Pass false here to get binary data back
+    var hash = ch.finish(false);
+
+    // Convert the binary hash data to a hex string
+    var s = [rcxMain.toHexString(hash.charCodeAt(i)) for (i in hash)].join("");
+    
+    return s;
+    
+  }, /* getFileHash */
+  
+  
+  
   // Download the JDIC audio and then play it with bassplayer (Windows) or mplayer (linux, Mac)
   // Called by: playJDicAudio
   // httpLoc   - (string) The URL of the MP3 to download
   // saveAudio - (string) Name of save file (without path). If blank, audio will not be saved.
   downloadAndPlayAudio: function(httpLoc, saveFile) 
-  {
+  {  
     try 
     {
+     // Create the file object that contains the location of shorter "no audio" mp3 file
+     var noAudio = Components.classes["@mozilla.org/file/directory_service;1"]
+                .getService(Components.interfaces.nsIProperties)
+                .get("ProfD", Components.interfaces.nsILocalFile);    
+                noAudio.append("extensions");
+                noAudio.append(rcxMain.id); // GUID of extension
+                noAudio.append("audio");
+                noAudio.append("no_audio.mp3");
+              
       // Does the file already exist in the audio dir? If so, play it and don't download.
       if((saveFile.length > 0) && rcxConfig.audiodir && (rcxConfig.audiodir.length > 0))
       {        
         // Create a file object for the destination file (for checking existence)
         var destFile = Components.classes["@mozilla.org/file/local;1"]
-            .createInstance(Components.interfaces.nsILocalFile);
+          .createInstance(Components.interfaces.nsILocalFile);
         destFile.initWithPath(rcxConfig.audiodir);
         destFile.append(saveFile);
         
         // If the destination already exists, play it and skip the download
         if(destFile.exists())
         {
+          // If the 'no audio' clip has not been hashed yet
+          if(this.noAudioFileHash == "")
+          {
+            this.noAudioFileHash = rcxMain.getFileHash(noAudio);
+          }
+        
+          // If user doesn't want to hear the 'no audio' clip.
+          if(!rcxConfig.enablenoaudioclip)
+          {
+            // Hash the audio file and compare it against the hash of the 'no audio' clip
+            var hash = rcxMain.getFileHash(destFile);
+            
+            if(hash == this.noAudioFileHash)
+            {
+              return;
+            }
+          }
+        
           rcxMain.playMp3(destFile.path);
           return;
         }
@@ -2222,7 +2434,7 @@ var rcxMain = {
       // Create the persist object that will download the audio file
       var downloader = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
         .createInstance(Components.interfaces.nsIWebBrowserPersist);
-   
+      
       // Create a listener to play the mp3 after download is complete
       downloader.progressListener = 
       {
@@ -2237,19 +2449,18 @@ var rcxMain = {
           {           
             var audioFile = tempAudioFile.path;
             var fileSize = rcxMain.getFileSize(audioFile);
+            var playAudio = true;
              
             // Did you just download the "no audio" message, if so use a shorter "no audio" message instead
             if(fileSize > 52000)
             {
-              // Create the file object that contains the location of shorter "no audio" mp3 file
-              var noAudio = Components.classes["@mozilla.org/file/directory_service;1"]
-                .getService(Components.interfaces.nsIProperties)
-                .get("ProfD", Components.interfaces.nsILocalFile);    
-              noAudio.append("extensions");
-              noAudio.append(rcxMain.id); // GUID of extension
-              noAudio.append("audio");
-              noAudio.append("no_audio.mp3");
-            
+              if(!rcxConfig.enablenoaudioclip)
+              {
+                // Don't play the 'no audio' clip, but still allow it to be saved to the audio 
+                // directory for caching purposes
+                playAudio = false;
+              }
+                            
               audioFile = noAudio.path;
             }
                
@@ -2278,8 +2489,11 @@ var rcxMain = {
                 audioCopyFile.copyTo(saveDir, saveFile);
               }
             }
-            
-            rcxMain.playMp3(audioFile);
+                        
+            if(playAudio)
+            {
+              rcxMain.playMp3(audioFile);
+            }
           }
         }
       }

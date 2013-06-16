@@ -24,6 +24,8 @@
 <!ENTITY General.ToolTipVolume "Range: [0-100], with 100 being the loudest.">
 <!ENTITY General.AutoPlayAudio "Play audio on hover">
 <!ENTITY General.ToolTipAutoPlayAudio "Automatically play audio for the highlighted word after it has been highlighted for at least 500 milliseconds.">
+<!ENTITY General.EnableNoAudioClip "Enable the 'no audio' clip">
+<!ENTITY General.ToolTipEnableNoAudioClip "If the audio for the highlighted word was not found, play an audio clip that says 'no audio'.">
 <!ENTITY General.HighlightText "Highlight text">
 <!ENTITY General.TranAltTitle "Translate alt/title tags">
 <!ENTITY General.SelectedInLookupBar "Automatically use selected text in Lookupbar">
@@ -77,9 +79,24 @@
 
 
 <!ENTITY Dictionaries.Priority "Priority">
+<!ENTITY Dictionaries.ShowFreq "Show frequency information">
+<!ENTITY Dictionaries.ToolTipShowFreq1  "Show frequency of highlighted word in terms of the number">
+<!ENTITY Dictionaries.ToolTipShowFreq2  "of words that are more frequent than it + 1. ">
+<!ENTITY Dictionaries.ToolTipShowFreq3  "So if a word has a frequency of 1563, it means that 1562">
+<!ENTITY Dictionaries.ToolTipShowFreq4  "words are more frequent than it.">
+<!ENTITY Dictionaries.ToolTipShowFreq5  "Colors of the frequency numbers:">
+<!ENTITY Dictionaries.ToolTipShowFreq6  "　　●　Very common words are green-ish">
+<!ENTITY Dictionaries.ToolTipShowFreq7  "　　●　Common words are yellow-ish">
+<!ENTITY Dictionaries.ToolTipShowFreq8  "　　●　Uncommon words are orange-ish">
+<!ENTITY Dictionaries.ToolTipShowFreq9  "　　●　Rare words are pink-ish">
+<!ENTITY Dictionaries.ToolTipShowFreq10 "Frequencies are based on analysis of 5000+ novels.">
+<!ENTITY Dictionaries.ToolTipShowFreq11 "Naturally, frequency based on other mediums might vary.">
+<!ENTITY Dictionaries.ToolTipShowFreq12 "Not all words have frequency information.">
+<!ENTITY Dictionaries.ToolTipShowFreq13 "It is possible for multiple words to share the same frequency.">
+
 <!ENTITY Dictionaries.ShowPitchAccent "Show pitch accent">
-<!ENTITY Dictionaries.HidePitchAccentPOS "Hide pitch accent part-of-speech unless ',' or '|' is present">
 <!ENTITY Dictionaries.ToolTipShowPitchAccent "Display pitch accent number to the right of the reading.">
+<!ENTITY Dictionaries.HidePitchAccentPOS "Hide pitch accent part-of-speech unless ',' or '|' is present">
 <!ENTITY Dictionaries.HideDefinitions "Hide definitions">
 <!ENTITY Dictionaries.HideX "Hide (X)-rated entries">
 <!ENTITY Dictionaries.ShowWordType "Show word type indicators [example: (v1,n)]">
@@ -116,8 +133,15 @@
 <!ENTITY Epwing.AdvancedUsers "Advanced Users">
 <!ENTITY Epwing.RemoveRegex "Remove text matching the following RegEx">
 <!ENTITY Epwing.ToolTipRemoveRegex "You can use this to remove things like example sentences or other unnecessary text.">
-<!ENTITY Epwing.AddColorAndPitch "Attempt to color expression/reading and show pitch accent (see tooltip for supported dictionaries)">
-<!ENTITY Epwing.AddColorAndPitchHelp "Optimized for 『研究社　新和英大辞典　第５版』, but will also work with 『大辞泉』, 『広辞苑第六版』, and 『明鏡国語辞典』.">
+<!ENTITY Epwing.AddColorAndPitch "Parse entry to add color, show pitch and enhance frequency (see tooltip for dictionary support)">
+<!ENTITY Epwing.AddColorAndPitchHelp1 "This option is optimized for:">
+<!ENTITY Epwing.AddColorAndPitchHelp2 "　　●　『研究社　新和英大辞典　第５版』 (Kenkyusha Shin Waei Daijiten 5th Edition [J-E])">
+<!ENTITY Epwing.AddColorAndPitchHelp3 "But will also work with these dictionaries:">
+<!ENTITY Epwing.AddColorAndPitchHelp4 "　　●　『大辞泉』 (Daijisen [J-J])">
+<!ENTITY Epwing.AddColorAndPitchHelp5 "　　●　『広辞苑第六版』 (Kojien 6th Edition [J-J])">
+<!ENTITY Epwing.AddColorAndPitchHelp6 "　　●　『明鏡国語辞典』 (Meikyo Kokugojiten [J-J])">
+<!ENTITY Epwing.AddColorAndPitchHelp7 "If this option is unchecked, frequency can still be shown, but it will">
+<!ENTITY Epwing.AddColorAndPitchHelp8 "be based on the highlighted search term rather than the actual entry.">
 <!ENTITY Epwing.Keys "EPWING Keys">
 <!ENTITY Epwing.EpwingMode "EPWING mode">
 <!ENTITY Epwing.NextDic "Next dictionary">
@@ -190,7 +214,7 @@
 <!ENTITY Anki.AlreadyDeck "Vocubulary deck">
 <!ENTITY Anki.AlreadyDeckHelp "The full path to the Anki vocabulary deck. The deck should have a '.anki' extension.">
 <!ENTITY Anki.AlreadyField "Vocabulary field">
-<!ENTITY Anki.AlreadyFieldHelp "The field in your deck that contains the vocubulary. 'Expression' is common.">
+<!ENTITY Anki.AlreadyFieldHelp "The field in your deck that contains the vocabulary. 'Expression' is common.">
 
 
 

@@ -8,6 +8,7 @@ pref('rikaichan.sticon', true);
 pref('rikaichan.minihelp', true);
 pref('rikaichan.volume', 100);
 pref('rikaichan.autoplayaudio', false);
+pref('rikaichan.enablenoaudioclip', true);
 pref('rikaichan.opacity', 100);
 pref('rikaichan.roundedcorners', true);
 
@@ -56,6 +57,7 @@ pref('rikaichan.wpos', true);
 pref('rikaichan.wpop', true);
 pref('rikaichan.wmax', 10);
 pref('rikaichan.namax', 20);
+pref('rikaichan.showfreq', false);
 pref('rikaichan.showpitchaccent', false);
 pref('rikaichan.hidepitchaccentpos', true);
 

@@ -101,6 +101,7 @@
 				</row>
 
 				<checkbox label="&General.AutoPlayAudio;" id="rcp-autoplayaudio" tooltiptext="&General.ToolTipAutoPlayAudio;"/>
+				<checkbox label="&General.EnableNoAudioClip;" id="rcp-enablenoaudioclip" tooltiptext="&General.ToolTipEnableNoAudioClip;"/>
 				<checkbox label="&General.HighlightText;" id="rcp-highlight"/>
 				<checkbox label="&General.TranAltTitle;" id="rcp-title"/>
 				<checkbox label="&General.SelectedInLookupBar;" id="rcp-selinlb"/>
@@ -336,6 +337,28 @@
 					</vbox>
 				</hbox>
 			</groupbox>
+      
+      <tooltip id="FreqToolTip" orient="vertical">
+        <label value="&Dictionaries.ToolTipShowFreq1;"/>
+        <label value="&Dictionaries.ToolTipShowFreq2;"/>
+        <spacer style="height:1em"/>
+        <label value="&Dictionaries.ToolTipShowFreq3;"/>
+        <label value="&Dictionaries.ToolTipShowFreq4;"/>
+        <spacer style="height:1em"/>
+        <label value="&Dictionaries.ToolTipShowFreq5;"/>
+        <label value="&Dictionaries.ToolTipShowFreq6;"/>
+        <label value="&Dictionaries.ToolTipShowFreq7;"/>
+        <label value="&Dictionaries.ToolTipShowFreq8;"/>
+        <label value="&Dictionaries.ToolTipShowFreq9;"/>
+        <spacer style="height:1em"/>
+        <label value="&Dictionaries.ToolTipShowFreq10;"/>
+        <label value="&Dictionaries.ToolTipShowFreq11;"/>
+        <spacer style="height:1em"/>
+        <label value="&Dictionaries.ToolTipShowFreq12;"/>
+        <label value="&Dictionaries.ToolTipShowFreq13;"/>
+      </tooltip>
+              
+      <checkbox label="&Dictionaries.ShowFreq;" id="rcp-showfreq" tooltip="FreqToolTip"/>
       <checkbox label="&Dictionaries.ShowPitchAccent;" id="rcp-showpitchaccent" tooltiptext="&Dictionaries.ToolTipShowPitchAccent;"/>
       <checkbox label="&Dictionaries.HidePitchAccentPOS;" id="rcp-hidepitchaccentpos"/>
 			<checkbox label="&Dictionaries.HideDefinitions;" id="rcp-hidedef"/>
@@ -460,7 +483,20 @@
                 </hbox>
               </row>
               
-              <checkbox label="&Epwing.AddColorAndPitch;" id="rcp-epwingaddcolorandpitch" tooltiptext="&Epwing.AddColorAndPitchHelp;"/>
+              <tooltip id="AddColorAndPitchToolTip" orient="vertical">
+                <label value="&Epwing.AddColorAndPitchHelp1;"/>
+                <label value="&Epwing.AddColorAndPitchHelp2;"/>
+                <spacer style="height:1em"/>
+                <label value="&Epwing.AddColorAndPitchHelp3;"/>
+                <label value="&Epwing.AddColorAndPitchHelp4;"/>
+                <label value="&Epwing.AddColorAndPitchHelp5;"/>
+                <label value="&Epwing.AddColorAndPitchHelp6;"/>
+                <spacer style="height:1em"/>
+                <label value="&Epwing.AddColorAndPitchHelp7;"/>
+                <label value="&Epwing.AddColorAndPitchHelp8;"/>
+              </tooltip>
+
+              <checkbox label="&Epwing.AddColorAndPitch;" id="rcp-epwingaddcolorandpitch" tooltip="AddColorAndPitchToolTip"/>
             </rows>
           </grid>
         </groupbox>

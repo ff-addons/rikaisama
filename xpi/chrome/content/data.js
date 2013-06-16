@@ -817,6 +817,7 @@ var rcxData = {
           e[2] = kana (null if no kanji)
           e[3] = definition
 				*/
+                
 				if (s != e[3]) {
 					b.push(t);
 					pK = k = '';
@@ -846,19 +847,33 @@ var rcxData = {
             b.push('<span class="w-conj"> ' + pitchAccent + '</span>');
           }
         }
-        
+                
 				if (entry.data[i][1]) b.push(' <span class="w-conj">(' + entry.data[i][1] + ')</span>');
-
+        
+        // Add frequency after all readings and conjugations
+        var freqStr = "";
+        
+        if(rcxConfig.showfreq)
+        {
+          var freq = rcxMain.getFreq(e[1]);
+          
+          if(freq && (freq.length > 0))
+          {            
+            var freqClass = rcxMain.getFreqStyle(freq);
+            freqStr = ' <span class="' + freqClass + '">' + freq + '</span>';
+          }
+        }
+    
 				s = e[3];
 				if (rcxConfig.hidedef) {
-					t = '<br/>';
+					t = freqStr + '<br/>';
 				}
 				else {
 					t = s.replace(/\//g, '; ');
 					if (!rcxConfig.wpos) t = t.replace(/^\([^)]+\)\s*/, '');
 					if (!rcxConfig.wpop) t = t.replace('; (P)', '');
 					t = t.replace(/\n/g, '<br/>');
-					t = '<br/><span class="w-def">' + t + '</span><br/>';
+					t = freqStr + '<br/><span class="w-def">' + t + '</span><br/>';
 				}
 			}
 			b.push(t);
