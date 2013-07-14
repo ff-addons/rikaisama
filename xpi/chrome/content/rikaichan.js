@@ -3072,9 +3072,21 @@ var rcxMain = {
 		'RTC': true,
 		'RB': true,
 		'RT': true,
-		'RP': true
+		'RP': true,
+    
+    // User configurable elements
+    'DIV': false,
 	},
 
+  
+  // Configure this.inlineNames based on user settings.
+  configureInlineNames: function()
+  {
+    this.inlineNames["DIV"] = rcxConfig.mergedivs;
+
+  }, /* configureInlineNames */
+  
+  
 	// Gets text from a node and returns it
 	// node: a node
 	// selEnd: the selection end object will be changed as a side effect
@@ -3263,6 +3275,9 @@ var rcxMain = {
 			return -2;
 		}
 
+    // Configure this.inlineNames based on user settings
+    this.configureInlineNames();
+         
 		//selection end data
 		var selEndList = [];
     

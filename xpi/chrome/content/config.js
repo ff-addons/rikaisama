@@ -142,6 +142,7 @@ var rcxConfigList = [
 	[0, 'popdelay'],
 	[2, 'hidedef'],
 	[2, 'checkversion'],
+	[2, 'mergedivs'],
 //	[2, 'sticky']
 ];
 

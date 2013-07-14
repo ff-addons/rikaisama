@@ -107,3 +107,7 @@ pref('rikaichan.hidex', false);
 //	pref('rikaichan.sticky', false);
 
 pref('rikaichan.firsticon', true);
+
+// Let Rikaisama span DIV elements when performing a lookup.
+pref('rikaichan.mergedivs', false);
+
