@@ -51,7 +51,8 @@ var rcxConfigList = [
 	[2, 'enablenoaudioclip'],
 	[0, 'opacity'],
 	[2, 'roundedcorners'],
-  
+  [2, 'mergedivs'],
+    
   // startup
 	[2, 'startlookupbar'],
 	[2, 'startepwing'],
@@ -133,6 +134,7 @@ var rcxConfigList = [
 
   // Anki
 	[1, 'rtifieldnamestext'],
+	[2, 'rtisaveaudio'],
 	[0, 'rtiudpport'],
 	[2, 'ankialreadyenable'],
 	[1, 'ankialreadydeck'],
@@ -142,7 +144,6 @@ var rcxConfigList = [
 	[0, 'popdelay'],
 	[2, 'hidedef'],
 	[2, 'checkversion'],
-	[2, 'mergedivs'],
 //	[2, 'sticky']
 ];
 

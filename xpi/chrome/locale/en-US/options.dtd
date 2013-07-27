@@ -35,6 +35,7 @@
 <!ENTITY General.ShowMiniHelp "Show mini help">
 <!ENTITY General.RoundedCorners "Rounded corners">
 <!ENTITY General.ToolTipRoundedCorners "Give the popup window rounded corners.">
+<!ENTITY General.MergeDivs "Merge DIV elements (enable this if Rikaisama is only highlighting single characters in PDF files)">
 
 <!ENTITY Startup.LookupBar "Lookup Bar">
 <!ENTITY Startup.Epwing "EPWING Mode">
@@ -202,6 +203,7 @@
 <!ENTITY Anki.RTIFieldNames "Field names">
 <!ENTITY Anki.ToolTipRTIFieldNames "The field names from your Anki deck that map to each token in the 'Save format' text box on the 'Clipboard &amp; Save' tab">
 <!ENTITY Anki.RTIFieldNamesHelp "Separated by spaces. Should map to the save format in the 'Clipboard &amp; Save' tab.">
+<!ENTITY Anki.RTISaveAudio "Save audio when one of the Anki Real-Time Import keys is pressed">
 <!ENTITY Anki.RTIPort "UDP port">
 <!ENTITY Anki.ToolTipRTIPort "The UDP port that matches the UDP port of the Anki Real-Time Import plugin.">
 <!ENTITY Anki.RTIPortHelp "(advanced users only)">

@@ -66,6 +66,7 @@ var rcxMain = {
   wordInAnkiDeck: false,        // Is the kanji form of the hilited word in the user's Anki deck?
   autoPlayAudioTimer: null,     // Timer used for automatically playing audio when a word is hilited
   noAudioFileHash: "",          // The hash of the no no_audio.mp3
+  noAudioDic: null,             // Associative array containing words that have no audio clip. Key = "Reading - Expression.mp3", Value = true.
 
 	getBrowserTB: function() {
 		if (rcxMain.tabMail) return rcxMain.tabMail.getBrowserForSelectedTab();
@@ -240,7 +241,7 @@ var rcxMain = {
 				}
 			}
     
-    // Needed to write asyncronously to file in the sendToAnki routine
+    // Needed to write asynchronously to file in the sendToAnki routine
     Components.utils.import("resource://gre/modules/FileUtils.jsm");
     Components.utils.import("resource://gre/modules/NetUtil.jsm");
 
@@ -292,10 +293,129 @@ var rcxMain = {
     {
 			rcxMain.lbToggle();
 		}
+    
+    // If the no audio dictionary has not yet been initialized
+    if(!rcxMain.noAudioDic)
+    {
+      rcxMain.readNoAudioList();
+    }
 	},
 
+  
+  // Read in no_audio_list.txt and populate rcxMain.noAudioDic.
+  readNoAudioList: function() 
+  {
+   rcxMain.noAudioDic = {};
+    
+   // Get the path of the no audio list file
+   var noAudioListPath = Components.classes["@mozilla.org/file/directory_service;1"]
+           .getService(Components.interfaces.nsIProperties)
+           .get("ProfD", Components.interfaces.nsILocalFile);    
+   noAudioListPath.append("extensions");
+   noAudioListPath.append(rcxMain.id); // GUID of extension
+   noAudioListPath.append("audio");
+   noAudioListPath.append("no_audio_list.txt");
+        
+    // Get file pointer to the no audio list file
+    var noAudioListFile = Components.classes['@mozilla.org/file/local;1']
+     .createInstance(Components.interfaces.nsILocalFile);
+    noAudioListFile.initWithPath(noAudioListPath.path);
+    
+    
+    // Create file stream
+    var istream = Components.classes["@mozilla.org/network/file-input-stream;1"].
+              createInstance(Components.interfaces.nsIFileInputStream);
+    istream.init(noAudioListFile, 0x01, 0444, 0);
+    istream.QueryInterface(Components.interfaces.nsILineInputStream);
 
-	onUnload: function() {
+    
+    // Used to convert lines to UTF-8
+    var textConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].
+       createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+    
+    textConverter.charset = "UTF-8";
+   
+    var line = {};
+    var utf8Line = "";
+    var hasMore = false;
+    
+    // Read each entry into rcxMain.noAudioDic
+    // Note: Using synchronous operations, hopefully this won't be a problem.
+    do 
+    {
+      hasMore = istream.readLine(line);
+      
+      // Convert to UTF-8
+      utf8Line = rcxMain.trimEnd(textConverter.ConvertToUnicode(line.value)); 
+      
+      // Add the entry
+      if(utf8Line != "")
+      {
+        // Prevent duplicates
+        if(!rcxMain.noAudioDic[utf8Line])
+        {
+          rcxMain.noAudioDic[utf8Line] = true; // Note: the value is not used
+        }
+      }
+        
+    } while(hasMore);
+
+    istream.close();
+
+  }, /* readNoAudioList */
+  
+  
+  // Add entry to rcxMain.noAudioDic and append it to no_audio_list.txt
+  addNoAudioListEntry: function(entry)
+  {
+    // If entry is already added, exit
+    if(rcxMain.noAudioDic[entry])
+    {
+      return;
+    }
+  
+    // Add the entry to rcxMain.noAudioDic
+    rcxMain.noAudioDic[entry] = true;
+    
+    //
+    // Append the entry to no_audio_list.txt
+    // Note: Using synchronous operations, hopefully this won't be a problem.
+    //
+      
+    // Get the path of the no audio list file
+    var noAudioListPath = Components.classes["@mozilla.org/file/directory_service;1"]
+            .getService(Components.interfaces.nsIProperties)
+            .get("ProfD", Components.interfaces.nsILocalFile);    
+    noAudioListPath.append("extensions");
+    noAudioListPath.append(rcxMain.id); // GUID of extension
+    noAudioListPath.append("audio");
+    noAudioListPath.append("no_audio_list.txt");
+        
+    // Get file pointer to the no audio list file
+    var noAudioListFile = Components.classes['@mozilla.org/file/local;1']
+     .createInstance(Components.interfaces.nsILocalFile);
+    noAudioListFile.initWithPath(noAudioListPath.path);
+  
+    // Create file output stream
+    var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"].
+                     createInstance(Components.interfaces.nsIFileOutputStream);
+
+    foStream.init(noAudioListPath, 0x02 | 0x10, 0666, 0); // "0x02 | 0x10" means append
+
+    var utf8Converter = Components.classes["@mozilla.org/intl/converter-output-stream;1"].
+                          createInstance(Components.interfaces.nsIConverterOutputStream);
+
+    utf8Converter.init(foStream, "UTF-8", 0, 0);
+
+    // Append entry to file
+    utf8Converter.writeString(entry + "\n");
+   
+    utf8Converter.close(); // Closes foStream
+      
+  }, /* addNoAudioListEntry */
+  
+
+	onUnload: function() {  
 		this.rcxObs.unregister();
 		rcxConfig.observer.stop();
 		if (this.isTB) {
@@ -1020,6 +1140,12 @@ var rcxMain = {
     {
       this.showPopup('Please create a save format in Preferences.');
       return;
+    }
+    
+    // Save the audio clip if the audio directory was specified by the user
+    if (rcxConfig.rtisaveaudio && (rcxConfig.audiodir.length != 0))
+    {
+      this.playJDicAudio(true);
     }
     
     var fieldContents = this.savePrep(0);
@@ -2365,13 +2491,14 @@ var rcxMain = {
   // Download the JDIC audio and then play it with bassplayer (Windows) or mplayer (linux, Mac)
   // Called by: playJDicAudio
   // httpLoc   - (string) The URL of the MP3 to download
-  // saveAudio - (string) Name of save file (without path). If blank, audio will not be saved.
-  downloadAndPlayAudio: function(httpLoc, saveFile) 
+  // saveAudio - (string) Name of save file (without path).
+  // saveAudioClipToDisk - (bool) True = save the audio clip to the audio directory
+  downloadAndPlayAudio: function(httpLoc, saveFile, saveAudioClipToDisk) 
   {  
     try 
     {
-     // Create the file object that contains the location of shorter "no audio" mp3 file
-     var noAudio = Components.classes["@mozilla.org/file/directory_service;1"]
+      // Create the file object that contains the location of shorter "no audio" mp3 file
+      var noAudio = Components.classes["@mozilla.org/file/directory_service;1"]
                 .getService(Components.interfaces.nsIProperties)
                 .get("ProfD", Components.interfaces.nsILocalFile);    
                 noAudio.append("extensions");
@@ -2379,6 +2506,21 @@ var rcxMain = {
                 noAudio.append("audio");
                 noAudio.append("no_audio.mp3");
               
+              
+      // If saveFile is in the no audio dictionary
+      if((saveFile.length > 0) && rcxMain.noAudioDic[saveFile])
+      {
+        // If user wants to hear the "no audio" clip, play it
+        if(rcxConfig.enablenoaudioclip)
+        {
+          rcxMain.playMp3(noAudio.path);
+        }
+        
+        // Exit - There is nothing to save
+        return;
+      }     
+           
+           
       // Does the file already exist in the audio dir? If so, play it and don't download.
       if((saveFile.length > 0) && rcxConfig.audiodir && (rcxConfig.audiodir.length > 0))
       {        
@@ -2401,6 +2543,9 @@ var rcxMain = {
           if(!rcxConfig.enablenoaudioclip)
           {
             // Hash the audio file and compare it against the hash of the 'no audio' clip
+            // Note: As of v19.2, Rikaisama no longer saves the 'no audio' clips to the audio folder
+            //       for caching purposes. This code is left here in case the user still has these
+            //       clips in the audio folder from a previous version.
             var hash = rcxMain.getFileHash(destFile);
             
             if(hash == this.noAudioFileHash)
@@ -2408,12 +2553,13 @@ var rcxMain = {
               return;
             }
           }
-        
+                   
           rcxMain.playMp3(destFile.path);
           return;
         }
       }
-            
+      
+  
       // Create URI that contains the url of the audio file to download
       var audioUrl = Components.classes["@mozilla.org/network/io-service;1"]
         .getService(Components.interfaces.nsIIOService)
@@ -2449,23 +2595,22 @@ var rcxMain = {
           {           
             var audioFile = tempAudioFile.path;
             var fileSize = rcxMain.getFileSize(audioFile);
-            var playAudio = true;
              
-            // Did you just download the "no audio" message, if so use a shorter "no audio" message instead
+            // Did we just download the "no audio" clip? If so, use a shorter "no audio" clip instead
             if(fileSize > 52000)
             {
+              rcxMain.addNoAudioListEntry(saveFile);
+              
+              // If the user does not want to hear the "no audio" clip, exit
               if(!rcxConfig.enablenoaudioclip)
               {
-                // Don't play the 'no audio' clip, but still allow it to be saved to the audio 
-                // directory for caching purposes
-                playAudio = false;
+                return;
               }
                             
-              audioFile = noAudio.path;
+              audioFile = noAudio.path; // Set the audio to the "no audio" clip
             }
-               
             // Should we save the audio to the user specified audio folder?
-            if((saveFile.length > 0) && rcxConfig.audiodir && (rcxConfig.audiodir.length > 0))
+            else if(saveAudioClipToDisk && (saveFile.length > 0) && rcxConfig.audiodir && (rcxConfig.audiodir.length > 0))
             {
               // Create a file object for the file to copy
               var audioCopyFile = Components.classes["@mozilla.org/file/local;1"]
@@ -2490,10 +2635,7 @@ var rcxMain = {
               }
             }
                         
-            if(playAudio)
-            {
-              rcxMain.playMp3(audioFile);
-            }
+            rcxMain.playMp3(audioFile);
           }
         }
       }
@@ -2654,15 +2796,12 @@ var rcxMain = {
     
     // Encode link to ASCII character set
     //encodedJdicAudioUrlText = encodeURI(jdicAudioUrlText);
-    
-    var saveFile = "";
 
-    if(saveAudio || rcxConfig.saveaudioonplay)
-    {
-      saveFile = kanaText + ' - ' + kanjiText + '.mp3';
-    }
+    var saveFile = kanaText + ' - ' + kanjiText + '.mp3';
     
-    this.downloadAndPlayAudio(jdicAudioUrlText, saveFile);
+    var saveAudioClipToDisk = (saveAudio || rcxConfig.saveaudioonplay);
+    
+    this.downloadAndPlayAudio(jdicAudioUrlText, saveFile,  saveAudioClipToDisk);
     
 	}, /* playJDicAudio */
 		
@@ -2687,6 +2826,7 @@ var rcxMain = {
 				return;
 			}
       
+      // Save the audio clip if the audio directory was specified by the user
       if (rcxConfig.audiodir.length != 0)
       {
         this.playJDicAudio(true);

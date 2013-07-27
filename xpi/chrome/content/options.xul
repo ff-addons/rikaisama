@@ -110,6 +110,7 @@
 				<checkbox label="&General.ShowIconInStatusbar;" id="rcp-sticon"/>
 				<checkbox label="&General.ShowMiniHelp;" id="rcp-minihelp"/>
         <checkbox label="&General.RoundedCorners;" id="rcp-roundedcorners" tooltiptext="&General.ToolTipRoundedCorners;"/>
+        <checkbox label="&General.MergeDivs;" id="rcp-mergedivs"/>
 			</rows>
 		</grid>
 	</tabpanel>
@@ -751,6 +752,8 @@
                 <label value=""/>
                 <label value="&Anki.RTIFieldNamesHelp;"/>
               </row>
+              <spacer style="height:1em"/>
+              <checkbox label="&Anki.RTISaveAudio;" id="rcp-rtisaveaudio"/>
               <spacer style="height:1em"/>
               <row>
                 <label value="&Anki.RTIPort;" control="rcp-rtiudpport" tooltiptext="&Anki.ToolTipRTIPort;"/>

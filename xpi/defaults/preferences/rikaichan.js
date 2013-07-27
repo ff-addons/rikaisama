@@ -11,6 +11,7 @@ pref('rikaichan.autoplayaudio', false);
 pref('rikaichan.enablenoaudioclip', true);
 pref('rikaichan.opacity', 100);
 pref('rikaichan.roundedcorners', true);
+pref('rikaichan.mergedivs', false); // Let Rikaisama span DIV elements when performing a lookup.
 
 pref('rikaichan.startlookupbar', false);
 pref('rikaichan.startepwing', false);
@@ -91,6 +92,7 @@ pref('rikaichan.savenotes', '');
 pref('rikaichan.saveformat', '$d$t$r$t$n');
 
 pref('rikaichan.rtifieldnamestext', 'Expression Reading Meaning');
+pref('rikaichan.rtisaveaudio', false);
 pref('rikaichan.rtiudpport', 49600);
 pref('rikaichan.ankialreadyenable', false);
 pref('rikaichan.ankialreadydeck', '');
@@ -108,6 +110,5 @@ pref('rikaichan.hidex', false);
 
 pref('rikaichan.firsticon', true);
 
-// Let Rikaisama span DIV elements when performing a lookup.
-pref('rikaichan.mergedivs', false);
+
 
