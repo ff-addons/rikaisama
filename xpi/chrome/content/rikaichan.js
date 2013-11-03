@@ -63,10 +63,13 @@ var rcxMain = {
   epwingStartDic: "",           // The dictionary used for the original EPWING lookup (before any fallbacks)
   epwingDicList: [],            // The list of EPWING dictionaries
   saveKana: false,              // When saving a word, make the $d token equal to the $r token
-  wordInAnkiDeck: false,        // Is the kanji form of the hilited word in the user's Anki deck?
   autoPlayAudioTimer: null,     // Timer used for automatically playing audio when a word is hilited
   noAudioFileHash: "",          // The hash of the no no_audio.mp3
   noAudioDic: null,             // Associative array containing words that have no audio clip. Key = "Reading - Expression.mp3", Value = true.
+  knownWordsDic: null,          // Associative array containing the user's known words
+  todoWordsDic: null,           // Associative array containing the user's to-do words
+  prevKnownWordsFilePath: "",   // Previous path of the known words file. Used to determine in the use changed the path in the options.
+  prevTodoWordsFilePath: "",    // Previous path of the to-do words file. Used to determine in the use changed the path in the options.
 
 	getBrowserTB: function() {
 		if (rcxMain.tabMail) return rcxMain.tabMail.getBrowserForSelectedTab();
@@ -297,74 +300,109 @@ var rcxMain = {
     // If the no audio dictionary has not yet been initialized
     if(!rcxMain.noAudioDic)
     {
-      rcxMain.readNoAudioList();
+      // Get the path of the no audio list file
+      var noAudioListPath = Components.classes["@mozilla.org/file/directory_service;1"]
+        .getService(Components.interfaces.nsIProperties)
+        .get("ProfD", Components.interfaces.nsILocalFile);    
+      noAudioListPath.append("extensions");
+      noAudioListPath.append(rcxMain.id); // GUID of extension
+      noAudioListPath.append("audio");
+      noAudioListPath.append("no_audio_list.txt");
+
+      rcxMain.noAudioDic = {};
+      rcxMain.readWordList(noAudioListPath.path, rcxMain.noAudioDic, 1);
     }
 	},
 
   
-  // Read in no_audio_list.txt and populate rcxMain.noAudioDic.
-  readNoAudioList: function() 
-  {
-   rcxMain.noAudioDic = {};
+  // Read list of words in column wordColumn from file wordListFilePath into the outputDic associative array.
+  // The key of outputDic will be the word, and the value will always be true.
+  readWordList: function(wordListFilePath, outputDic, wordColumn) 
+  {   
+    // Check if the user entered a known words file
+    if(wordListFilePath.length == 0)
+    {
+      return;
+    }
     
-   // Get the path of the no audio list file
-   var noAudioListPath = Components.classes["@mozilla.org/file/directory_service;1"]
-           .getService(Components.interfaces.nsIProperties)
-           .get("ProfD", Components.interfaces.nsILocalFile);    
-   noAudioListPath.append("extensions");
-   noAudioListPath.append(rcxMain.id); // GUID of extension
-   noAudioListPath.append("audio");
-   noAudioListPath.append("no_audio_list.txt");
-        
-    // Get file pointer to the no audio list file
-    var noAudioListFile = Components.classes['@mozilla.org/file/local;1']
-     .createInstance(Components.interfaces.nsILocalFile);
-    noAudioListFile.initWithPath(noAudioListPath.path);
-    
-    
+    try
+    {
+      // Get file pointer to the word list file
+      var wordListFile = Components.classes['@mozilla.org/file/local;1']
+       .createInstance(Components.interfaces.nsILocalFile);
+      wordListFile.initWithPath(wordListFilePath);
+    }
+    catch(ex)
+    {
+      return;
+    }
+
+    // Make sure that the word list file exists
+    if (!wordListFile.exists())
+    {
+      return;
+    }
+
     // Create file stream
     var istream = Components.classes["@mozilla.org/network/file-input-stream;1"].
               createInstance(Components.interfaces.nsIFileInputStream);
-    istream.init(noAudioListFile, 0x01, 0444, 0);
+    istream.init(wordListFile, 0x01, 0444, 0);
     istream.QueryInterface(Components.interfaces.nsILineInputStream);
-
     
     // Used to convert lines to UTF-8
     var textConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].
        createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
     
     textConverter.charset = "UTF-8";
-   
+    
     var line = {};
     var utf8Line = "";
     var hasMore = false;
     
-    // Read each entry into rcxMain.noAudioDic
+    // Read each entry into outputDic
     // Note: Using synchronous operations, hopefully this won't be a problem.
     do 
     {
       hasMore = istream.readLine(line);
+            
+      // Convert line to UTF-8
+      utf8Line = textConverter.ConvertToUnicode(line.value); 
       
-      // Convert to UTF-8
-      utf8Line = rcxMain.trimEnd(textConverter.ConvertToUnicode(line.value)); 
+      // Make sure that the line isn't blank
+      if(utf8Line.length == 0)
+      {
+        continue;
+      }
       
-      // Add the entry
-      if(utf8Line != "")
+      // Split line by tabs
+      var lineFields = utf8Line.split("\t");
+      
+      // Make sure that line has enough columns
+      if(lineFields.length < wordColumn)
+      {
+        continue;
+      }
+      
+      // Get the word
+      var word = this.trim(lineFields[wordColumn - 1]);
+      
+      // Add the word to the provided associative array
+      if(word != "")
       {
         // Prevent duplicates
-        if(!rcxMain.noAudioDic[utf8Line])
+        if(!outputDic[word])
         {
-          rcxMain.noAudioDic[utf8Line] = true; // Note: the value is not used
+          outputDic[word] = true; // Note: the value is not used
         }
       }
         
     } while(hasMore);
 
     istream.close();
-
-  }, /* readNoAudioList */
   
-  
+  }, /* readWordList */
+ 
+ 
   // Add entry to rcxMain.noAudioDic and append it to no_audio_list.txt
   addNoAudioListEntry: function(entry)
   {
@@ -1050,71 +1088,92 @@ var rcxMain = {
 
   }, /* getPitchAccent */
 
-  
-  /* Is the last hilighted word in the user's Anki deck? */
-  isWordInAnkiDeck: function()
+
+  /*
+   Returns:
+     "*"    - If expression of last hilighted word is in the user's known words list.
+     "*t"   - If expression of last hilighted word is in the user's to-do words list.
+     "*_r"  - If reading of last hilighted word is in the user's known words list.
+     "*t_r" - If reading of last hilighted word is in the user's to-do words list.
+     ""     - If neither expression nor reading of last hilighted word was found.
+   */
+  getKnownWordIndicatorText: function()
   {
-    var word = '';
+    var outText = "";
+    var expression = "";
+    var reading = "";
     
-    // Does the user have the option disabled?
-    if(!rcxConfig.ankialreadyenable && (rcxConfig.ankialreadydeck != ""))
+    // Get the last highlighted word
+    if(this.lastFound[0].data)
     {
-      return false;
-    }
-    
-    try
-    {
-      // Get the last highlighted word
-      if(this.lastFound[0].data)
-      {
-        var entryData = this.lastFound[0].data[0][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
-        word = entryData[1];
-      }
-      else
-      {
-        return false;
-      }
+      // Extract needed data from the hilited entry
+      //   entryData[0] = kanji/kana + kana + definition
+      //   entryData[1] = kanji (or kana if no kanji)
+      //   entryData[2] = kana (null if no kanji)
+      //   entryData[3] = definition   
       
-      // Get file pointer to the Anki deck
-      ankiFile = Components.classes['@mozilla.org/file/local;1']
-       .createInstance(Components.interfaces.nsILocalFile);
-      ankiFile.initWithPath(rcxConfig.ankialreadydeck);
-
-      // Open the Anki deck (if the deck in already open in Anki, this will raise an exception)
-      var ankiDB = Components.classes['@mozilla.org/storage/service;1']
-       .getService(Components.interfaces.mozIStorageService)
-       .openDatabase(ankiFile);
-
-      // Get the ordinal associated with the field to look in
-      var stOrd = ankiDB.createStatement("SELECT ordinal FROM fieldModels WHERE name='" 
-                                         + rcxConfig.ankialreadyfield + "'");
-      stOrd.executeStep();
-      var ordinal = stOrd.row.ordinal;
-
-      stOrd.reset();
-      stOrd.finalize();  
-
-      // Determine if the word exists in the specified field to look in
-      var stVal = ankiDB.createStatement("SELECT value FROM fields WHERE ordinal='" 
-                                         + ordinal + "' AND value='" + word + "' LIMIT 1");
-      var exists = stVal.executeStep();
-
-      stVal.reset();
-      stVal.finalize();
-
-      ankiDB.close();
-
-      return exists
+      var entryData = this.lastFound[0].data[0][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
+      expression = entryData[1];
+      
+      if(entryData[2])
+      {
+        reading = entryData[2];
+      }
     }
-    catch(ex)
+    else
     {
-      return false;
+      return "";
+    }
+
+    // Reload the known words associative array if needed
+    if(!this.knownWordsDic || (this.prevKnownWordsFilePath != rcxConfig.vocabknownwordslistfile))
+    {
+      rcxMain.knownWordsDic = {};
+      rcxMain.readWordList(rcxConfig.vocabknownwordslistfile, rcxMain.knownWordsDic, rcxConfig.vocabknownwordslistcolumn);
+      this.prevKnownWordsFilePath = rcxConfig.vocabknownwordslistfile;
+    }
+
+    // Reload the to-do words associative array if needed
+    if(!this.todoWordsDic || (this.prevTodoWordsFilePath != rcxConfig.vocabtodowordslistfile))
+    {
+      rcxMain.todoWordsDic = {};
+      rcxMain.readWordList(rcxConfig.vocabtodowordslistfile, rcxMain.todoWordsDic, rcxConfig.vocabtodowordslistcolumn);
+      this.prevTodoWordsFilePath = rcxConfig.vocabtodowordslistfile;
+    }
+
+    //
+    // First try the expression
+    //
+        
+    if(this.knownWordsDic[expression])
+    {
+      outText = "* ";
+    }
+    else if(this.todoWordsDic[expression])
+    {
+      outText = "*t ";
     }
     
-    return false;
+    //
+    // If expression not found in either the known words or to-do lists, try the reading
+    // 
+    
+    if(outText.length == 0)
+    {
+      if(this.knownWordsDic[reading])
+      {
+        outText = "*_r ";
+      }
+      else if(this.todoWordsDic[reading])
+      {
+        outText = "*t_r ";
+      }
+    }
 
-  }, /* isWordInAnkiDeck */
-
+    return outText;
+    
+  }, /* getKnownWordIndicatorText */
+  
   
   // Send the highlighted word to Anki's Real-Time Import plugin
   sendToAnki: function()
@@ -1572,8 +1631,6 @@ var rcxMain = {
             defText += childList[nodeIdx].nodeValue;
           }
         }
-   
-        // Components.utils.reportError("defText: '" + defText + "'");
         
         // If the definition is blank (search ばかり for example), fallback
         if(defText.length == 0)
@@ -1604,16 +1661,8 @@ var rcxMain = {
         // Prevent the "..." from being displayed at the end of the popup text
         rcxMain.lastFound[0].more = false;
         
-        var alreadyInDeckStr = "";
-      
-        // Is the word in the user's vocubulary deck? If so, insert an asterisk.   
-        if(rcxMain.wordInAnkiDeck)
-        {
-          alreadyInDeckStr = "* ";
-        } 
-      
         // Show the definition
-        rcxMain.showPopup(alreadyInDeckStr + rcxData.makeHtml(rcxMain.lastFound[0]), 
+        rcxMain.showPopup(rcxMain.getKnownWordIndicatorText() + rcxData.makeHtml(rcxMain.lastFound[0]), 
           rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos);
         
         // Entry found, stop looking
@@ -2170,7 +2219,7 @@ var rcxMain = {
                       catch(ex)
                       {
                         // Probably here because eplkup output file was empty
-                        
+        
                         // How should we fallback?
                         if(rcxConfig.epwingfallback == "none")
                         {
@@ -2179,9 +2228,10 @@ var rcxMain = {
                         else if(rcxConfig.epwingfallback == "jmdict")
                         {
                           // Fallback to the default non-EPWING dictionary that comes with rikaichan (JMDICT)
-                        
+
                           rcxMain.cleanupLookupEpwing();
-                          rcxMain.showPopup(rcxData.makeHtml(rcxMain.lastFound[0]), rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos);
+                          rcxMain.showPopup(rcxMain.getKnownWordIndicatorText() + rcxData.makeHtml(rcxMain.lastFound[0]), 
+                            rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos);
                           return;
                         }
                         else 
@@ -2193,7 +2243,8 @@ var rcxMain = {
                           {
                             // If so, fallback to JMDICT
                             rcxMain.cleanupLookupEpwing();
-                            rcxMain.showPopup(rcxData.makeHtml(rcxMain.lastFound[0]), rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos);
+                            rcxMain.showPopup(rcxMain.getKnownWordIndicatorText() + rcxData.makeHtml(rcxMain.lastFound[0]), 
+                              rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos);
                             return;
                           }       
                           
@@ -2240,12 +2291,10 @@ var rcxMain = {
                       epwingText += "<br />...";
                     }
                     
-                    // Is the word in the user's vocabulary deck? If so, insert an asterisk.
-                    if(rcxMain.wordInAnkiDeck)
-                    {
-                      epwingText = "* " + epwingText
-                    }
                     
+                    // Add the known/to-do list indicator
+                    epwingText = rcxMain.getKnownWordIndicatorText() + epwingText;
+            
                     // Show the EPWING text
                     rcxMain.showPopup(epwingText, rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos); 
 
@@ -2864,7 +2913,8 @@ var rcxMain = {
 		}
 	},
 
-	configPage: function() {
+	configPage: function() 
+  {
 		window.openDialog('chrome://rikaichan/content/options.xul', '', 'chrome,centerscreen');
 	},
 
@@ -3550,10 +3600,7 @@ var rcxMain = {
     
     // Save the tdata so that the sanseido routines can use it
     this.lastTdata = tdata;
-        
-    // Determine if the word is in the user's anki deck
-    this.wordInAnkiDeck = this.isWordInAnkiDeck();
-    
+
     // When auto play is enabled, the user must hilite a word for at least 500 ms before
     // the audio will be played.
     if(rcxConfig.autoplayaudio)
@@ -3590,16 +3637,8 @@ var rcxMain = {
       }
       // Normal popup
       else
-      {
-        var alreadyInDeckStr = "";
-        
-        // Is the word in the user's vocabulary deck? If so, insert an asterisk.   
-        if(this.wordInAnkiDeck)
-        {
-          alreadyInDeckStr = "* ";
-        }
-        
-        this.showPopup(alreadyInDeckStr + rcxData.makeHtml(e), tdata.prevTarget, tdata.pos);
+      {        
+        this.showPopup(rcxMain.getKnownWordIndicatorText() + rcxData.makeHtml(e), tdata.prevTarget, tdata.pos);
       }
     }
     
@@ -3962,6 +4001,8 @@ var rcxMain = {
 		this.lbText.focus();
 	},
 
+  
+  // Perform lookup bar search
 	lookupSearch: function(text) {
 		let s = text.replace(/^\s+|\s+$/g, '');
 		if (!s.length) return;
@@ -4015,15 +4056,8 @@ var rcxMain = {
 				}
 			}
       
-      var alreadyInDeckStr = "";
-      
-      // Is the word in the user's vocubulary deck? If so, insert an asterisk. 
-      if(this.isWordInAnkiDeck())
-      {
-        alreadyInDeckStr = "* ";
-      }
-      
-			this.showPopup('<table class="q-tb"><tr><td class="q-w">' + alreadyInDeckStr + html + '</td>' + kanji + '</tr></table>', null, null, true);
+			this.showPopup('<table class="q-tb"><tr><td class="q-w">' + this.getKnownWordIndicatorText() 
+        + html + '</td>' + kanji + '</tr></table>', null, null, true);
 		}
 	},
 

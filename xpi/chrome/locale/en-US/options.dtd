@@ -6,6 +6,7 @@
 <!ENTITY Tab.KanjiDictionary "Kanji Dictionary">
 <!ENTITY Tab.Epwing "EPWING">
 <!ENTITY Tab.ClipboardAndSave "Clipboard &amp; Save">
+<!ENTITY Tab.Vocab "Vocab">
 <!ENTITY Tab.Anki "Anki">
 
 <!ENTITY General.ColorScheme "Color scheme">
@@ -132,7 +133,7 @@
 <!ENTITY Epwing.StripNewlines "Compact (strip carriage returns and line feeds)">
 <!ENTITY Epwing.ToolTipStripNewlines "This will make the popup look a little more like non-EPWING mode.">
 <!ENTITY Epwing.AdvancedUsers "Advanced Users">
-<!ENTITY Epwing.RemoveRegex "Remove text matching the following RegEx">
+<!ENTITY Epwing.RemoveRegex "Remove text matching the following RegEx:">
 <!ENTITY Epwing.ToolTipRemoveRegex "You can use this to remove things like example sentences or other unnecessary text.">
 <!ENTITY Epwing.AddColorAndPitch "Parse entry to add color, show pitch and enhance frequency (see tooltip for dictionary support)">
 <!ENTITY Epwing.AddColorAndPitchHelp1 "This option is optimized for:">
@@ -197,6 +198,18 @@
 <!ENTITY ClipSave.FmtTranslation "Translation">
 <!ENTITY ClipSave.ToolTipTranslation "The definition of the saved word.">
 
+<!ENTITY Vocab.KnownWordsCaption "Known Words">
+<!ENTITY Vocab.KnownWordsDesc1 "Place '*' or '*_r' next to words that you should already know.">
+<!ENTITY Vocab.KnownWordsDesc2 "'*' means word was found via it's expression. '*_r' means word was found via it's reading.">
+<!ENTITY Vocab.KnownWordsFile "Text file that contains the list of words that you should already know:">
+<!ENTITY Vocab.KnownWordsFileTooltip "One word per line. Lines may contain multiple tab-separated columns.">
+<!ENTITY Vocab.KnownWordsFileCol "If the file contains multiple columns, specify which column contains the word:">
+<!ENTITY Vocab.ToDoWordsCaption "To-Do Words">
+<!ENTITY Vocab.ToDoWordsDesc1 "Place '*t' or '*t_r' next to words that appear in your to-do list of vocabulary words.">
+<!ENTITY Vocab.ToDoWordsDesc2 "'*t' means word was found via it's expression. '*t_r' means word was found via it's reading.">
+<!ENTITY Vocab.ToDoWordsFile "Text file that contains your to-do list of vocabulary words:">
+<!ENTITY Vocab.ToDoWordsFileTooltip "One word per line. Lines may contain multiple tab-separated columns.">
+<!ENTITY Vocab.ToDoWordsFileCol "If the file contains multiple columns, specify which column contains the word:">
 
 <!ENTITY Anki.RTICaption "Anki Real-Time Import">
 <!ENTITY Anki.RTIHelp "Options related to Anki's Real-Time Import shared plugin.">
@@ -207,17 +220,4 @@
 <!ENTITY Anki.RTIPort "UDP port">
 <!ENTITY Anki.ToolTipRTIPort "The UDP port that matches the UDP port of the Anki Real-Time Import plugin.">
 <!ENTITY Anki.RTIPortHelp "(advanced users only)">
-<!ENTITY Anki.AlreadyCaption "Words that are Already in your Anki Vocabulary Deck">
-<!ENTITY Anki.AlreadyHelpLine1 "By analyzing your Anki vocabulary deck, Rikaisama can inform you if the highlighted word is already">
-<!ENTITY Anki.AlreadyHelpLine2 "in your deck.">
-<!ENTITY Anki.AlreadyHelpLine3 "Note: Rikaisama cannot open a deck that is already open in Anki. As a workaround, you can make a copy">
-<!ENTITY Anki.AlreadyHelpLine4 "of your deck and point Rikaisama to that instead.">
-<!ENTITY Anki.AlreadyEnable "Enable">
-<!ENTITY Anki.AlreadyDeck "Vocubulary deck">
-<!ENTITY Anki.AlreadyDeckHelp "The full path to the Anki vocabulary deck. The deck should have a '.anki' extension.">
-<!ENTITY Anki.AlreadyField "Vocabulary field">
-<!ENTITY Anki.AlreadyFieldHelp "The field in your deck that contains the vocabulary. 'Expression' is common.">
-
-
-
 

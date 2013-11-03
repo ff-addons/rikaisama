@@ -56,6 +56,7 @@
 	<tab label="&Tab.KanjiDictionary;"/>
 	<tab label="&Tab.Epwing;"/>
 	<tab label="&Tab.ClipboardAndSave;"/>
+	<tab label="&Tab.Vocab;"/>
 	<tab label="&Tab.Anki;"/>
 </tabs>
 <tabpanels>
@@ -127,7 +128,7 @@
 			</rows>
 		</grid>
 	</tabpanel>
-  
+
 	<tabpanel><!-- Menu -->
 		<vbox>
 			<groupbox style="padding-right:5em">
@@ -207,7 +208,7 @@
 				  		<row>
 				  			<description value="&Keyboard.CopyToClipboard;"/>
                 <hbox>
-                  <menulist id="rcp-kbcopytoclipboard"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>                
+                  <menulist id="rcp-kbcopytoclipboard"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
                   <label value=" " control="rcp-kbcopytoclipboard"/>
                 </hbox>
 				  		</row>
@@ -228,7 +229,7 @@
 				  		<row>
 				  			<description value="&Keyboard.HideShowDefinitions;"/>
                 <hbox>
-                  <menulist id="rcp-kbhideshowdefinitions"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>                
+                  <menulist id="rcp-kbhideshowdefinitions"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
                   <label value=" " control="rcp-kbhideshowdefinitions"/>
                 </hbox>
 				  		</row>
@@ -338,7 +339,7 @@
 					</vbox>
 				</hbox>
 			</groupbox>
-      
+
       <tooltip id="FreqToolTip" orient="vertical">
         <label value="&Dictionaries.ToolTipShowFreq1;"/>
         <label value="&Dictionaries.ToolTipShowFreq2;"/>
@@ -358,7 +359,7 @@
         <label value="&Dictionaries.ToolTipShowFreq12;"/>
         <label value="&Dictionaries.ToolTipShowFreq13;"/>
       </tooltip>
-              
+
       <checkbox label="&Dictionaries.ShowFreq;" id="rcp-showfreq" tooltip="FreqToolTip"/>
       <checkbox label="&Dictionaries.ShowPitchAccent;" id="rcp-showpitchaccent" tooltiptext="&Dictionaries.ToolTipShowPitchAccent;"/>
       <checkbox label="&Dictionaries.HidePitchAccentPOS;" id="rcp-hidepitchaccentpos"/>
@@ -403,87 +404,86 @@
 			<box flex="1"/>
 		</vbox>
 	</tabpanel>
-	
-  
+
+
 	<tabpanel><!-- EPWING -->
-		<grid>
-			<columns><column/><column/></columns>
-			<rows>
-      
-				<row>
-          <label value="&Epwing.EpwingPath1;" control="rcp-epwingpath1" tooltiptext="&Epwing.ToolTipEpwingPath1;"/>
-          <hbox>
-            <textbox id="rcp-epwingpath1" size="70" maxlength="255" flex="1"/>
-            <button label="..." oncommand="rcxOptions.browseDir('rcp-epwingpath1')"/>
-          </hbox>
-				</row>
-        
-				<row>
-          <label value="&Epwing.EpwingPath2;" control="rcp-epwingpath2" tooltiptext="&Epwing.ToolTipEpwingPath2;"/>
-          <hbox>
-            <textbox id="rcp-epwingpath2" size="70" maxlength="255" flex="1"/>
-            <button label="..." oncommand="rcxOptions.browseDir('rcp-epwingpath2')"/>
-          </hbox>
-				</row>
-        
-				<row>
-          <label value="&Epwing.EpwingPath3;" control="rcp-epwingpath3" tooltiptext="&Epwing.ToolTipEpwingPath3;"/>
-          <hbox>
-            <textbox id="rcp-epwingpath3" size="70" maxlength="255" flex="1"/>
-            <button label="..." oncommand="rcxOptions.browseDir('rcp-epwingpath3')"/>
-          </hbox>
-				</row>
-        
-				<row>
-          <label value="&Epwing.EpwingPath4;" control="rcp-epwingpath4" tooltiptext="&Epwing.ToolTipEpwingPath4;"/>
-          <hbox>
-            <textbox id="rcp-epwingpath4" size="70" maxlength="255" flex="1"/>
-            <button label="..." oncommand="rcxOptions.browseDir('rcp-epwingpath4')"/>
-          </hbox>
-				</row>
-        
-        <row>
-					<label value="&Epwing.DicFallback;" control="rcp-epwingfallback"  tooltiptext="&Epwing.ToolTipDicFallback;"/>
-          <hbox>
-            <menulist id="rcp-epwingfallback">
-              <menupopup>
-                <menuitem label="&Epwing.DicFallbackOptNone;" value="none"/>
-                <menuitem label="&Epwing.DicFallbackOptJMDICT;" value="jmdict"/>
-                <menuitem label="&Epwing.DicFallbackOptEpwing;" value="epwing"/>
-              </menupopup>
-            </menulist>
-            <label value=" " control="rcp-epwingfallback"/>
-          </hbox>
-				</row>
-        
-        <row>
-          <label value="&Epwing.MaxLines;" control="rcp-epwingmaxlines" tooltiptext="&Epwing.ToolTipMaxLines;"/>
-          <hbox>
-            <textbox id="rcp-epwingmaxlines" type="number" size="4" min="1" max="500" increment="1"/>
-            <label value="" control="rcp-epwingmaxlines"/>
-          </hbox>
-        </row>
-                
-        <checkbox label="&Epwing.ShowConjugation;" id="rcp-epwingshowconjugation" tooltiptext="&Epwing.ToolTipShowConjugation;"/>        
-        
-        <checkbox label="&Epwing.ShowDicNum;" id="rcp-epwingshowdicnum" tooltiptext="&Epwing.ToolTipShowDicNum;"/>        
-        
-        <checkbox label="&Epwing.StripNewlines;" id="rcp-epwingstripnewlines" tooltiptext="&Epwing.ToolTipStripNewlines;"/>
+    <vbox flex="1">
+      <grid>
+        <columns><column/><column flex="1"/></columns>
+        <rows>
 
-        <spacer style="height:1em"/>
+          <row>
+            <label value="&Epwing.EpwingPath1;" control="rcp-epwingpath1" tooltiptext="&Epwing.ToolTipEpwingPath1;"/>
+            <hbox>
+              <textbox id="rcp-epwingpath1" maxlength="255" flex="1"/>
+              <button label="..." oncommand="rcxOptions.browseDir('rcp-epwingpath1')"/>
+            </hbox>
+          </row>
 
-        <groupbox>
-          <caption label="&Epwing.AdvancedUsers;"/>
-          <grid>
-            <columns><column/><column/></columns>
+          <row>
+            <label value="&Epwing.EpwingPath2;" control="rcp-epwingpath2" tooltiptext="&Epwing.ToolTipEpwingPath2;"/>
+            <hbox>
+              <textbox id="rcp-epwingpath2" maxlength="255" flex="1"/>
+              <button label="..." oncommand="rcxOptions.browseDir('rcp-epwingpath2')"/>
+            </hbox>
+          </row>
+
+          <row>
+            <label value="&Epwing.EpwingPath3;" control="rcp-epwingpath3" tooltiptext="&Epwing.ToolTipEpwingPath3;"/>
+            <hbox>
+              <textbox id="rcp-epwingpath3" maxlength="255" flex="1"/>
+              <button label="..." oncommand="rcxOptions.browseDir('rcp-epwingpath3')"/>
+            </hbox>
+          </row>
+
+          <row>
+            <label value="&Epwing.EpwingPath4;" control="rcp-epwingpath4" tooltiptext="&Epwing.ToolTipEpwingPath4;"/>
+            <hbox>
+              <textbox id="rcp-epwingpath4" maxlength="255" flex="1"/>
+              <button label="..." oncommand="rcxOptions.browseDir('rcp-epwingpath4')"/>
+            </hbox>
+          </row>
+
+          <row>
+            <label value="&Epwing.DicFallback;" control="rcp-epwingfallback"  tooltiptext="&Epwing.ToolTipDicFallback;"/>
+            <hbox>
+              <menulist id="rcp-epwingfallback">
+                <menupopup>
+                  <menuitem label="&Epwing.DicFallbackOptNone;" value="none"/>
+                  <menuitem label="&Epwing.DicFallbackOptJMDICT;" value="jmdict"/>
+                  <menuitem label="&Epwing.DicFallbackOptEpwing;" value="epwing"/>
+                </menupopup>
+              </menulist>
+              <label value=" " control="rcp-epwingfallback"/>
+            </hbox>
+          </row>
+
+          <row>
+            <label value="&Epwing.MaxLines;" control="rcp-epwingmaxlines" tooltiptext="&Epwing.ToolTipMaxLines;"/>
+            <hbox>
+              <textbox id="rcp-epwingmaxlines" type="number" size="4" min="1" max="500" increment="1"/>
+              <label value="" control="rcp-epwingmaxlines"/>
+            </hbox>
+          </row>
+
+          <checkbox label="&Epwing.ShowConjugation;" id="rcp-epwingshowconjugation" tooltiptext="&Epwing.ToolTipShowConjugation;"/>
+
+          <checkbox label="&Epwing.ShowDicNum;" id="rcp-epwingshowdicnum" tooltiptext="&Epwing.ToolTipShowDicNum;"/>
+
+          <checkbox label="&Epwing.StripNewlines;" id="rcp-epwingstripnewlines" tooltiptext="&Epwing.ToolTipStripNewlines;"/>
+
+          <spacer style="height:1em"/>
+
+          <groupbox>
+            <caption label="&Epwing.AdvancedUsers;"/>
             <rows>
               <row>
-                <label value="&Epwing.RemoveRegex;" control="rcp-epwingremoveregex" tooltiptext="&Epwing.ToolTipRemoveRegex;"/>
-                <hbox>
-                  <textbox id="rcp-epwingremoveregex" size="60" maxlength="255" flex="1"/>
+                <hbox flex="1">
+                  <label value="&Epwing.RemoveRegex;" control="rcp-epwingremoveregex" tooltiptext="&Epwing.ToolTipRemoveRegex;"/>
+                  <textbox id="rcp-epwingremoveregex" maxlength="255" flex="1"/>
                 </hbox>
               </row>
-              
+
               <tooltip id="AddColorAndPitchToolTip" orient="vertical">
                 <label value="&Epwing.AddColorAndPitchHelp1;"/>
                 <label value="&Epwing.AddColorAndPitchHelp2;"/>
@@ -499,256 +499,325 @@
 
               <checkbox label="&Epwing.AddColorAndPitch;" id="rcp-epwingaddcolorandpitch" tooltip="AddColorAndPitchToolTip"/>
             </rows>
-          </grid>
-        </groupbox>
-        
-        <spacer style="height:1em"/>
 
-        <groupbox>
-          <caption label="&Epwing.Keys;"/>
-          <hbox>
-            <grid>
-              <columns><column/><column/></columns>
-              <rows>
-                <row>
-                  <description value="&Epwing.EpwingMode;"/>
-                  <hbox>
-                    <label value="See Keyboard tab"/>
-                    <label value=" "/>
-                  </hbox>
-                </row>
-                <row>
-                  <description value="&Epwing.NextDic;"/>
-                  <hbox>
-                    <menulist id="rcp-kbepwingnextdic"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
-                    <label value=" " control="rcp-kbepwingnextdic"/>
-                  </hbox>
-                </row>
-                <row>
-                  <description value="&Epwing.PrevDic;"/>
-                  <hbox>
-                    <menulist id="rcp-kbepwingprevdic"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
-                    <label value=" " control="rcp-kbepwingprevdic"/>
-                  </hbox>
-                </row>
-              </rows>
-            </grid>
-            <spacer style="width:1em"/>
-              <grid>
-                <columns>
-                  <column/>
-                  <column/>
-                </columns>
-              <rows>
-                <row>
-                  <description value="&Epwing.NextEntry;"/>
-                  <hbox>
-                    <menulist id="rcp-kbepwingnextentry"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
-                    <label value=" " control="rcp-kbepwingnextentry"/>
-                  </hbox>
-                </row>
-                <row>
-                  <description value="&Epwing.PrevEntry;"/>
-                  <hbox>
-                    <menulist id="rcp-kbepwingpreventry"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
-                    <label value=" " control="rcp-kbepwingpreventry"/>
-                  </hbox>
-                </row>	
-              </rows>
-            </grid>
-          </hbox>
-        </groupbox>
-      
-			</rows>
-		</grid>    
-	</tabpanel>
-  
-	<tabpanel><!-- Clipboard & Save -->
-		<grid>	
-			<columns><column/><column/></columns>
-			<rows>				
-				<row>
-					<label value="&ClipSave.Filename;" control="rcp-sfile" tooltiptext="&ClipSave.ToolTipFilename;"/>
-					<hbox>
-						<textbox id="rcp-sfile" size="78" maxlength="255" flex="1"/>
-						<button label="..." oncommand="rcxOptions.browseFile('rcp-sfile')"/>
-					</hbox>
-				</row>
-        
-				<row>
-					<label value="&ClipSave.AudioDir;" control="rcp-audiodir" tooltiptext="&ClipSave.ToolTipAudioDir;"/>
-					<hbox>
-						<textbox id="rcp-audiodir" size="78" maxlength="255" flex="1"/>
-						<button label="..." oncommand="rcxOptions.browseDir('rcp-audiodir')"/>
-					</hbox>
-				</row>
-        
-        <row>
-          <label value="" />
-          <checkbox label="&ClipSave.SaveAudioOnPlay;" id="rcp-saveaudioonplay" tooltiptext="&ClipSave.ToolTipSaveAudioOnPlay;"/>
-        </row>
+          </groupbox>
 
-				<row>
-					<label value="&ClipSave.Encoding;" control="rcp-sfcs"/>
-					<hbox>
-						<menulist id="rcp-sfcs" flex="0">
-							<menupopup>
-                <menuitem label="Unicode (UTF-8)" value="utf-8"/>
-                <menuitem label="Unicode (UTF-16)" value="utf-16"/>
-                <menuitem label="Shift-JIS" value="shift-jis"/>
-                <menuitem label="EUC-JP" value="euc-jp"/>
-							</menupopup>
-						</menulist>
-            <hbox>
-              <checkbox label="&ClipSave.BomHeader;" id="rcp-ubom"/>
-              <spacer />
-            </hbox>
-						<spacer />
-					</hbox>
-				</row>
+          <spacer style="height:1em"/>
 
-				<row>
-					<label value="&ClipSave.LineEnding;" control="rcp-snlf"/>
-					<hbox>
-						<menulist id="rcp-snlf">
-							<menupopup>
-							<menuitem label="Unix (\n)" value="0"/>
-							<menuitem label="DOS/Windows (\r\n)" value="1"/>
-							<menuitem label="Mac (\r)" value="2"/>
-							</menupopup>
-						</menulist>
-						<spacer flex="1"/>
-					</hbox>
-				</row>
-        
-        <row>
-          <label value="&ClipSave.AnkiTags;" control="rcp-atags" tooltiptext="&ClipSave.ToolTipAnkiTags;"/>
-          <hbox>
-            <textbox id="rcp-atags" size="50" maxlength="255"/>
-            <label value="&ClipSave.AnkiTagsHelp;" control="rcp-atags"/>
-          </hbox>
-        </row>
-        
-        <row>
-          <label value="&ClipSave.SaveNotes;" control="rcp-savenotes" tooltiptext="&ClipSave.ToolTipSaveNotes;"/>
-          <textbox id="rcp-savenotes"/>
-        </row>
-        
-        <row>
-          <label value="&ClipSave.SaveFormat;" control="rcp-saveformat" tooltiptext="&ClipSave.ToolTipSaveFormat;"/>
-					<textbox id="rcp-saveformat"/>
-        </row>
-        
-        <row>
-          <label value=""/>
           <groupbox>
-            <caption label="&ClipSave.FmtCaption;"/>
+            <caption label="&Epwing.Keys;"/>
             <hbox>
-              <grid> <!-- Column 1 -->
-                <columns>
-                  <column/>
-                  <column/>
-                </columns>
+              <grid>
+                <columns><column/><column/></columns>
                 <rows>
                   <row>
-                    <description value="&ClipSave.FmtAudioFile;" tooltiptext="&ClipSave.ToolTipFmtAudioFile;"/>
-                    <description value="$a"/>
+                    <description value="&Epwing.EpwingMode;"/>
+                    <hbox>
+                      <label value="See Keyboard tab"/>
+                      <label value=" "/>
+                    </hbox>
                   </row>
                   <row>
-                    <description value="&ClipSave.FmtDictForm;" tooltiptext="&ClipSave.ToolTipFmtDictForm;"/>
-                    <description value="$d"/>
+                    <description value="&Epwing.NextDic;"/>
+                    <hbox>
+                      <menulist id="rcp-kbepwingnextdic"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
+                      <label value=" " control="rcp-kbepwingnextdic"/>
+                    </hbox>
                   </row>
                   <row>
-                    <description value="&ClipSave.FmtHighlighted;" tooltiptext="&ClipSave.ToolTipFmtHighlighted;"/>
-                    <description value="$h"/>
-                  </row>
-                  <row>
-                    <description value="&ClipSave.FmtNotes;" tooltiptext="&ClipSave.ToolTipFmtNotes;"/>
-                    <description value="$o"/>
-                  </row>
-                  <row>
-                    <description value="&ClipSave.FmtReading;" tooltiptext="&ClipSave.ToolTipFmtReading;"/>
-                    <description value="$r"/>
+                    <description value="&Epwing.PrevDic;"/>
+                    <hbox>
+                      <menulist id="rcp-kbepwingprevdic"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
+                      <label value=" " control="rcp-kbepwingprevdic"/>
+                    </hbox>
                   </row>
                 </rows>
               </grid>
-              <spacer style="width:2em"/>
-              <grid> <!-- Column 2 -->
-                <columns>
-                  <column/>
-                  <column/>
-                </columns>
+              <spacer style="width:1em"/>
+                <grid>
+                  <columns>
+                    <column/>
+                    <column/>
+                  </columns>
                 <rows>
                   <row>
-                    <description value="&ClipSave.FmtSentence;" tooltiptext="&ClipSave.ToolTipFmtSentence;"/>
-                    <description value="$s"/>
+                    <description value="&Epwing.NextEntry;"/>
+                    <hbox>
+                      <menulist id="rcp-kbepwingnextentry"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
+                      <label value=" " control="rcp-kbepwingnextentry"/>
+                    </hbox>
                   </row>
                   <row>
-                    <description value="&ClipSave.FmtSentenceWithBlank;" tooltiptext="&ClipSave.ToolTipFmtSentenceWithBlank;"/>
-                    <description value="$b"/>
-                  </row>
-                  <row>
-                    <description value="&ClipSave.FmtURL;" tooltiptext="&ClipSave.ToolTipFmtURL;"/>
-                    <description value="$u"/>
-                  </row>
-                  <row>
-                    <description value="&ClipSave.FmtTab;" tooltiptext="&ClipSave.ToolTipFmtTab;"/>
-                    <description value="$t"/>
-                  </row>
-                  <row>
-                    <description value="&ClipSave.FmtAnkiTags;" tooltiptext="&ClipSave.ToolTipFmtAnkiTags;"/>
-                    <description value="$g"/>
-                  </row>
-                </rows>
-              </grid>
-              <spacer style="width:2em"/>
-              <grid>  <!-- Column 3 -->
-                <columns>
-                  <column/>
-                  <column/>
-                </columns>
-                <rows>
-                  <row>
-                    <description value="&ClipSave.FmtTitle;" tooltiptext="&ClipSave.ToolTipTitle;"/>
-                    <description value="$i"/>
-                  </row>
-                  <row>
-                    <description value="&ClipSave.FmtTranslation;" tooltiptext="&ClipSave.ToolTipTranslation;"/>
-                    <description value="$n"/>
+                    <description value="&Epwing.PrevEntry;"/>
+                    <hbox>
+                      <menulist id="rcp-kbepwingpreventry"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
+                      <label value=" " control="rcp-kbepwingpreventry"/>
+                    </hbox>
                   </row>
                 </rows>
               </grid>
             </hbox>
           </groupbox>
-        </row>
-			</rows>
-		</grid>	
+
+        </rows>
+      </grid>
+    </vbox>
 	</tabpanel>
-  
-   
-	<tabpanel><!-- Anki -->
-		<grid flex="1">	
-			<columns><column/><column/></columns>
-			<rows>	
+
+  <tabpanel><!-- Clipboard & Save -->
+    <vbox flex="1">
+      <grid>
+        <columns><column/><column flex="1"/></columns>
+        <rows>
+          <row>
+            <label value="&ClipSave.Filename;" control="rcp-sfile" tooltiptext="&ClipSave.ToolTipFilename;"/>
+            <hbox>
+              <textbox id="rcp-sfile" maxlength="255" flex="1"/>
+              <button label="..." oncommand="rcxOptions.browseFile('rcp-sfile')"/>
+            </hbox>
+          </row>
+
+          <row>
+            <label value="&ClipSave.AudioDir;" control="rcp-audiodir" tooltiptext="&ClipSave.ToolTipAudioDir;"/>
+            <hbox>
+              <textbox id="rcp-audiodir" maxlength="255" flex="1"/>
+              <button label="..." oncommand="rcxOptions.browseDir('rcp-audiodir')"/>
+            </hbox>
+          </row>
+
+          <row>
+            <label value="" />
+            <checkbox label="&ClipSave.SaveAudioOnPlay;" id="rcp-saveaudioonplay" tooltiptext="&ClipSave.ToolTipSaveAudioOnPlay;"/>
+          </row>
+
+          <row>
+            <label value="&ClipSave.Encoding;" control="rcp-sfcs"/>
+            <hbox>
+              <menulist id="rcp-sfcs" flex="0">
+                <menupopup>
+                  <menuitem label="Unicode (UTF-8)" value="utf-8"/>
+                  <menuitem label="Unicode (UTF-16)" value="utf-16"/>
+                  <menuitem label="Shift-JIS" value="shift-jis"/>
+                  <menuitem label="EUC-JP" value="euc-jp"/>
+                </menupopup>
+              </menulist>
+              <hbox>
+                <checkbox label="&ClipSave.BomHeader;" id="rcp-ubom"/>
+                <spacer />
+              </hbox>
+              <spacer />
+            </hbox>
+          </row>
+
+          <row>
+            <label value="&ClipSave.LineEnding;" control="rcp-snlf"/>
+            <hbox>
+              <menulist id="rcp-snlf">
+                <menupopup>
+                <menuitem label="Unix (\n)" value="0"/>
+                <menuitem label="DOS/Windows (\r\n)" value="1"/>
+                <menuitem label="Mac (\r)" value="2"/>
+                </menupopup>
+              </menulist>
+              <spacer flex="1"/>
+            </hbox>
+          </row>
+
+          <row>
+            <label value="&ClipSave.AnkiTags;" control="rcp-atags" tooltiptext="&ClipSave.ToolTipAnkiTags;"/>
+            <hbox>
+              <textbox id="rcp-atags" size="50" maxlength="255"/>
+              <label value="&ClipSave.AnkiTagsHelp;" control="rcp-atags"/>
+            </hbox>
+          </row>
+
+          <row>
+            <label value="&ClipSave.SaveNotes;" control="rcp-savenotes" tooltiptext="&ClipSave.ToolTipSaveNotes;"/>
+            <textbox id="rcp-savenotes"/>
+          </row>
+
+          <row>
+            <label value="&ClipSave.SaveFormat;" control="rcp-saveformat" tooltiptext="&ClipSave.ToolTipSaveFormat;"/>
+            <textbox id="rcp-saveformat"/>
+          </row>
+
+          <row>
+            <label value=""/>
+            <groupbox>
+              <caption label="&ClipSave.FmtCaption;"/>
+              <hbox>
+                <grid> <!-- Column 1 -->
+                  <columns>
+                    <column/>
+                    <column/>
+                  </columns>
+                  <rows>
+                    <row>
+                      <description value="&ClipSave.FmtAudioFile;" tooltiptext="&ClipSave.ToolTipFmtAudioFile;"/>
+                      <description value="$a"/>
+                    </row>
+                    <row>
+                      <description value="&ClipSave.FmtDictForm;" tooltiptext="&ClipSave.ToolTipFmtDictForm;"/>
+                      <description value="$d"/>
+                    </row>
+                    <row>
+                      <description value="&ClipSave.FmtHighlighted;" tooltiptext="&ClipSave.ToolTipFmtHighlighted;"/>
+                      <description value="$h"/>
+                    </row>
+                    <row>
+                      <description value="&ClipSave.FmtNotes;" tooltiptext="&ClipSave.ToolTipFmtNotes;"/>
+                      <description value="$o"/>
+                    </row>
+                    <row>
+                      <description value="&ClipSave.FmtReading;" tooltiptext="&ClipSave.ToolTipFmtReading;"/>
+                      <description value="$r"/>
+                    </row>
+                  </rows>
+                </grid>
+                <spacer style="width:2em"/>
+                <grid> <!-- Column 2 -->
+                  <columns>
+                    <column/>
+                    <column/>
+                  </columns>
+                  <rows>
+                    <row>
+                      <description value="&ClipSave.FmtSentence;" tooltiptext="&ClipSave.ToolTipFmtSentence;"/>
+                      <description value="$s"/>
+                    </row>
+                    <row>
+                      <description value="&ClipSave.FmtSentenceWithBlank;" tooltiptext="&ClipSave.ToolTipFmtSentenceWithBlank;"/>
+                      <description value="$b"/>
+                    </row>
+                    <row>
+                      <description value="&ClipSave.FmtURL;" tooltiptext="&ClipSave.ToolTipFmtURL;"/>
+                      <description value="$u"/>
+                    </row>
+                    <row>
+                      <description value="&ClipSave.FmtTab;" tooltiptext="&ClipSave.ToolTipFmtTab;"/>
+                      <description value="$t"/>
+                    </row>
+                    <row>
+                      <description value="&ClipSave.FmtAnkiTags;" tooltiptext="&ClipSave.ToolTipFmtAnkiTags;"/>
+                      <description value="$g"/>
+                    </row>
+                  </rows>
+                </grid>
+                <spacer style="width:2em"/>
+                <grid>  <!-- Column 3 -->
+                  <columns>
+                    <column/>
+                    <column/>
+                  </columns>
+                  <rows>
+                    <row>
+                      <description value="&ClipSave.FmtTitle;" tooltiptext="&ClipSave.ToolTipTitle;"/>
+                      <description value="$i"/>
+                    </row>
+                    <row>
+                      <description value="&ClipSave.FmtTranslation;" tooltiptext="&ClipSave.ToolTipTranslation;"/>
+                      <description value="$n"/>
+                    </row>
+                  </rows>
+                </grid>
+              </hbox>
+            </groupbox>
+          </row>
+        </rows>
+      </grid>
+    </vbox>
+  </tabpanel>
+
+  <tabpanel> <!-- Vocab -->
+    <vbox flex="1">
+      <rows>
+        <row>
+          <groupbox flex="1">
+            <caption label="&Vocab.KnownWordsCaption;"/>
+            <rows>
+              <row>
+                <label value="&Vocab.KnownWordsDesc1;"/>
+              </row>
+              <row>
+                <label value="&Vocab.KnownWordsDesc2;"/>
+              </row>
+              <spacer style="height:1em"/>
+              <row>
+                <label value="&Vocab.KnownWordsFile;" tooltiptext="&Vocab.KnownWordsFileTooltip;"/>
+              </row>
+              <row>
+                <hbox flex="1">
+                  <textbox id="rcp-vocabknownwordslistfile" maxlength="255" flex="1"/>
+                  <button label="..." oncommand="rcxOptions.browseFile('rcp-vocabknownwordslistfile')"/>
+                </hbox>
+              </row>
+              <row>
+                <hbox>
+                  <label value="&Vocab.KnownWordsFileCol;"/>
+                  <textbox id="rcp-vocabknownwordslistcolumn" type="number" size="4" min="1" max="99"/>
+                </hbox>
+              </row>
+            </rows>
+          </groupbox>
+        </row>
+
+        <spacer style="height:1em"/>
+
+        <row>
+          <groupbox flex="1">
+            <caption label="&Vocab.ToDoWordsCaption;"/>
+            <rows>
+              <row>
+                <label value="&Vocab.ToDoWordsDesc1;"/>
+              </row>
+              <row>
+                <label value="&Vocab.ToDoWordsDesc2;"/>
+              </row>
+              <spacer style="height:1em"/>
+              <row>
+                <label value="&Vocab.ToDoWordsFile;" tooltiptext="&Vocab.ToDoWordsFileTooltip;"/>
+              </row>
+              <row>
+                <hbox flex="1">
+                  <textbox id="rcp-vocabtodowordslistfile" maxlength="255" flex="1"/>
+                  <button label="..." oncommand="rcxOptions.browseFile('rcp-vocabtodowordslistfile')"/>
+                </hbox>
+              </row>
+              <row>
+                <hbox>
+                  <label value="&Vocab.ToDoWordsFileCol;"/>
+                  <textbox id="rcp-vocabtodowordslistcolumn" type="number" size="4" min="1" max="99"/>
+                </hbox>
+              </row>
+            </rows>
+          </groupbox>
+        </row>
+      </rows>
+    </vbox>
+  </tabpanel>
+
+  <tabpanel> <!-- Anki -->
+    <vbox flex="1">
+      <rows>
         <groupbox>
           <caption label="&Anki.RTICaption;"/>
           <rows>
-            <row>  
+            <row>
               <label value="&Anki.RTIHelp;"/>
             </row>
           </rows>
           <spacer style="height:1em"/>
-          <grid>	
+          <grid>
             <columns>
               <column/>
-              <column/>
+              <column flex="1"/>
             </columns>
             <rows>
-              <row>  
+              <row>
                 <label value="&Anki.RTIFieldNames;" control="rcp-rtifieldnamestext" tooltiptext="&Anki.ToolTipRTIFieldNames;"/>
-                <textbox id="rcp-rtifieldnamestext" size="30" maxlength="255"/>
+                <textbox id="rcp-rtifieldnamestext" maxlength="255"/>
               </row>
-              <row>  
+              <row>
                 <label value=""/>
                 <label value="&Anki.RTIFieldNamesHelp;"/>
               </row>
@@ -763,67 +832,12 @@
                 </hbox>
               </row>
             </rows>
-          </grid>	
+          </grid>
         </groupbox>
-        
-        <spacer style="height:1em"/>
-        
-        <groupbox>
-          <caption label="&Anki.AlreadyCaption;"/>
-          <rows>
-            <row>  
-              <label value="&Anki.AlreadyHelpLine1;"/>
-            </row>
-            <row> 
-              <label value="&Anki.AlreadyHelpLine2;"/>
-            </row>
-          </rows>
-          <spacer style="height:1em"/>
-          <rows>
-            <row> 
-              <label value="&Anki.AlreadyHelpLine3;"/>
-            </row>
-            <row> 
-              <label value="&Anki.AlreadyHelpLine4;"/>
-            </row>
-          </rows>
-          <spacer style="height:1em"/>
-          <checkbox label="&Anki.AlreadyEnable;" id="rcp-ankialreadyenable"/>
-          <grid>	
-            <columns>
-              <column/>
-              <column/>
-            </columns>
-            <rows>
-              <row>  
-    					  <label value="&Anki.AlreadyDeck;" control="rcp-ankialreadydeck" tooltiptext="&Anki.AlreadyDeckHelp;"/>
-					      <hbox>
-					      	<textbox id="rcp-ankialreadydeck" size="60" maxlength="255" flex="1"/>
-					      	<button label="..." oncommand="rcxOptions.browseFile('rcp-ankialreadydeck')"/>
-					      </hbox>
-              </row>
-              <row>  
-                <label value=""/>
-                <label value="&Anki.AlreadyDeckHelp;"/>
-              </row>
-              <spacer style="height:1em"/>
-              <row>
-                <label value="&Anki.AlreadyField;" control="rcp-ankialreadyfield" tooltiptext="&Anki.AlreadyFieldHelp;"/>
-                <textbox id="rcp-ankialreadyfield" size="30" maxlength="255" flex="1"/>
-              </row>
-              <row>  
-                <label value=""/>
-                <label value="&Anki.AlreadyFieldHelp;"/>
-              </row>
-            </rows>
-          </grid>	
-        </groupbox>
-        
-        
       </rows>
-    </grid>	
+    </vbox>
   </tabpanel>
-
+  
 </tabpanels>
 </tabbox>
 

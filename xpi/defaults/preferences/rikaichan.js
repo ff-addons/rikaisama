@@ -91,12 +91,14 @@ pref('rikaichan.atags', '');
 pref('rikaichan.savenotes', '');
 pref('rikaichan.saveformat', '$d$t$r$t$n');
 
+pref('rikaichan.vocabknownwordslistfile', '');
+pref('rikaichan.vocabknownwordslistcolumn', 1);
+pref('rikaichan.vocabtodowordslistfile', '');
+pref('rikaichan.vocabtodowordslistcolumn', 1);
+
 pref('rikaichan.rtifieldnamestext', 'Expression Reading Meaning');
 pref('rikaichan.rtisaveaudio', false);
 pref('rikaichan.rtiudpport', 49600);
-pref('rikaichan.ankialreadyenable', false);
-pref('rikaichan.ankialreadydeck', '');
-pref('rikaichan.ankialreadyfield', 'Expression');
 
 pref('rikaichan.version', '');
 pref('rikaichan.checkversion', true);

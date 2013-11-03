@@ -131,14 +131,17 @@ var rcxConfigList = [
 	[1, 'atags'],
 	[1, 'savenotes'],
 	[1, 'saveformat'],
+  
+  // Vocab
+	[1, 'vocabknownwordslistfile'],
+	[0, 'vocabknownwordslistcolumn'],
+  [1, 'vocabtodowordslistfile'],
+	[0, 'vocabtodowordslistcolumn'],
 
   // Anki
 	[1, 'rtifieldnamestext'],
 	[2, 'rtisaveaudio'],
 	[0, 'rtiudpport'],
-	[2, 'ankialreadyenable'],
-	[1, 'ankialreadydeck'],
-	[1, 'ankialreadyfield'],
   
 	// not in GUI
 	[0, 'popdelay'],
