@@ -205,6 +205,19 @@ var rcxOptions = {
 			document.getElementById(id).value = fp.file.path;
 	},
   
+  chooseFile: function(id) {
+		const nsIFilePicker = Components.interfaces.nsIFilePicker;
+		let fp = Components.classes['@mozilla.org/filepicker;1'].createInstance(nsIFilePicker);
+
+		fp.init(window, 'Browse', nsIFilePicker.modeOpen);
+		fp.appendFilters(nsIFilePicker.filterAll | nsIFilePicker.filterText);
+		fp.defaultString = document.getElementById(id).value;
+
+		let r = fp.show();
+		if ((r == nsIFilePicker.returnOK) || (r == nsIFilePicker.returnReplace))
+			document.getElementById(id).value = fp.file.path;
+	},
+  
   browseDir: function(id) 
   {
 		const nsIFilePicker = Components.interfaces.nsIFilePicker;

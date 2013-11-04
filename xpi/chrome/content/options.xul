@@ -748,7 +748,7 @@
               <row>
                 <hbox flex="1">
                   <textbox id="rcp-vocabknownwordslistfile" maxlength="255" flex="1"/>
-                  <button label="..." oncommand="rcxOptions.browseFile('rcp-vocabknownwordslistfile')"/>
+                  <button label="..." oncommand="rcxOptions.chooseFile('rcp-vocabknownwordslistfile')"/>
                 </hbox>
               </row>
               <row>
@@ -780,7 +780,7 @@
               <row>
                 <hbox flex="1">
                   <textbox id="rcp-vocabtodowordslistfile" maxlength="255" flex="1"/>
-                  <button label="..." oncommand="rcxOptions.browseFile('rcp-vocabtodowordslistfile')"/>
+                  <button label="..." oncommand="rcxOptions.chooseFile('rcp-vocabtodowordslistfile')"/>
                 </hbox>
               </row>
               <row>
