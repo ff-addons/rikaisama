@@ -389,6 +389,9 @@ var rcxMain = {
       // Add the word to the provided associative array
       if(word != "")
       {
+        // Strip HTML (sometimes Anki exports add HTML to the words)
+        word = this.trim(word.replace(/<.*?>/g, ""));
+
         // Prevent duplicates
         if(!outputDic[word])
         {

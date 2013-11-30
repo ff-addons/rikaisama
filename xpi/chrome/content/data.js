@@ -246,7 +246,7 @@ var rcxData = {
 								var newWord = word.substr(0, word.length - rule.from.length) + rule.to;
 								if (newWord.length <= 1) continue;
 								var o = {};
-								if (have[newWord] != undefined) {
+								if ((typeof(have[newWord])) != 'undefined') {
 									o = r[have[newWord]];
 									o.type |= (rule.type >> 8);
 									continue;
@@ -418,9 +418,16 @@ var rcxData = {
 							var g = gloss[z];
 							if ((y & 1) && (g == 'v1')) break;
 							if ((y & 4) && (g == 'adj-i')) break;
-							if ((y & 2) && (g.substr(0, 2) == 'v5')) break;
-							if ((y & 16) && (g.substr(0, 3) == 'vs-')) break;
+							if (y & 66) {
+								if ((g == 'v5k-s') || (g == 'v5u-s')) {
+									if (y & 64) break;
+								}
+								else if (g.substr(0, 2) == 'v5') {
+									if (y & 2) break;
+								}
+							}
 							if ((y & 8) && (g == 'vk')) break;
+							if ((y & 16) && (g.substr(0, 3) == 'vs-')) break;
 						}
 						ok = (z != -1);
 					}
