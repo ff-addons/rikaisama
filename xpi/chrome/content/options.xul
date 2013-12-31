@@ -408,42 +408,24 @@
 
 	<tabpanel><!-- EPWING -->
     <vbox flex="1">
+    
+      <groupbox flex="1">
+        <caption label="&Epwing.EpwingPathCaption;"/>
+        <hbox flex="1">
+          <listbox id="rcp-epwingpathlistbox" flex="1" rows="5" />
+          <vbox>
+            <button label="&#8593;" oncommand="rcxOptions.moveEpwingPriority(-1)"/>
+            <button label="&#8595;" oncommand="rcxOptions.moveEpwingPriority(1)"/>
+            <spacer style="height:2em"/>
+            <button label="&Epwing.Add;" oncommand="rcxOptions.addEpwingDictionary()"/>
+            <button label="&Epwing.Remove;" oncommand="rcxOptions.removeEpwingDictionary()"/>
+          </vbox>
+        </hbox>
+      </groupbox>
+
       <grid>
         <columns><column/><column flex="1"/></columns>
         <rows>
-
-          <row>
-            <label value="&Epwing.EpwingPath1;" control="rcp-epwingpath1" tooltiptext="&Epwing.ToolTipEpwingPath1;"/>
-            <hbox>
-              <textbox id="rcp-epwingpath1" maxlength="255" flex="1"/>
-              <button label="..." oncommand="rcxOptions.browseDir('rcp-epwingpath1')"/>
-            </hbox>
-          </row>
-
-          <row>
-            <label value="&Epwing.EpwingPath2;" control="rcp-epwingpath2" tooltiptext="&Epwing.ToolTipEpwingPath2;"/>
-            <hbox>
-              <textbox id="rcp-epwingpath2" maxlength="255" flex="1"/>
-              <button label="..." oncommand="rcxOptions.browseDir('rcp-epwingpath2')"/>
-            </hbox>
-          </row>
-
-          <row>
-            <label value="&Epwing.EpwingPath3;" control="rcp-epwingpath3" tooltiptext="&Epwing.ToolTipEpwingPath3;"/>
-            <hbox>
-              <textbox id="rcp-epwingpath3" maxlength="255" flex="1"/>
-              <button label="..." oncommand="rcxOptions.browseDir('rcp-epwingpath3')"/>
-            </hbox>
-          </row>
-
-          <row>
-            <label value="&Epwing.EpwingPath4;" control="rcp-epwingpath4" tooltiptext="&Epwing.ToolTipEpwingPath4;"/>
-            <hbox>
-              <textbox id="rcp-epwingpath4" maxlength="255" flex="1"/>
-              <button label="..." oncommand="rcxOptions.browseDir('rcp-epwingpath4')"/>
-            </hbox>
-          </row>
-
           <row>
             <label value="&Epwing.DicFallback;" control="rcp-epwingfallback"  tooltiptext="&Epwing.ToolTipDicFallback;"/>
             <hbox>

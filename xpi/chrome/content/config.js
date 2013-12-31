@@ -104,10 +104,7 @@ var rcxConfigList = [
 	[1, 'kindex'],
   
 	// epwing
-	[1, 'epwingpath1'],
-	[1, 'epwingpath2'],
-	[1, 'epwingpath3'],
-	[1, 'epwingpath4'],
+	[1, 'epwingpathlist'],
 	[1, 'epwingfallback'],
 	[0, 'epwingmaxlines'],
 	[2, 'epwingshowconjugation'],

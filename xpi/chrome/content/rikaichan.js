@@ -1333,29 +1333,21 @@ var rcxMain = {
     // Reset the dictionary list
     this.epwingDicList = [];
     
+    
     //
     // Add each dictionary to the list
     //
     
-    if(rcxConfig.epwingpath1 != "")
+    let epwingPaths = rcxConfig.epwingpathlist.split('|');
+
+    for (let i = 0; i < epwingPaths.length; ++i) 
     {
-      this.epwingDicList.push(rcxConfig.epwingpath1)
-    }
+      if(epwingPaths[i].length > 0)
+      {
+        this.epwingDicList.push(epwingPaths[i])
+      }
+		}
     
-    if(rcxConfig.epwingpath2 != "")
-    {
-      this.epwingDicList.push(rcxConfig.epwingpath2)
-    }
-    
-    if(rcxConfig.epwingpath3 != "")
-    {
-      this.epwingDicList.push(rcxConfig.epwingpath3)
-    }
-    
-    if(rcxConfig.epwingpath4 != "")
-    {
-      this.epwingDicList.push(rcxConfig.epwingpath4)
-    }
     
     // Does the current dictionary exist in the new list?
     for(i = 0; i < this.epwingDicList.length; i++)
@@ -1811,16 +1803,32 @@ var rcxMain = {
       var epwingDir = Components.classes["@mozilla.org/file/local;1"]
           .createInstance(Components.interfaces.nsILocalFile);
       epwingDir.initWithPath(this.epwingCurDic);  
-              
+      
       if(!epwingDir.exists())
       {
-        rcxMain.showPopup('Please enter a valid EPWING path in the EPWING tab of the options dialog.');
+        if(this.epwingCurDic.length > 0)
+        {
+          rcxMain.showPopup('Invalid EPWING dictionary: ' + this.epwingCurDic);
+        }
+        else
+        {
+          rcxMain.showPopup('Please add an EPWING dictionary in the EPWING tab of the options dialog.');
+        }
+        
         return;
       }
     }
     catch(ex)
     {
-      rcxMain.showPopup('Please enter a valid EPWING path in the EPWING tab of the options dialog.');
+      if(this.epwingCurDic.length > 0)
+      {
+        rcxMain.showPopup('Invalid EPWING dictionary: ' + this.epwingCurDic);
+      }
+      else
+      {
+        rcxMain.showPopup('Please add an EPWING dictionary in the EPWING tab of the options dialog.');
+      }
+        
       return;
     }
     
@@ -1927,6 +1935,9 @@ var rcxMain = {
           }
           else
           {
+            // Get the path only of the dictionary file
+            var epwingCurDicPathOnly = rcxMain.epwingCurDic.replace(/^(.*)[\\\/].*$/, '$1');
+          
             // Get a string identifying the current OS
             var osString = Components.classes["@mozilla.org/xre/app-info;1"]  
                    .getService(Components.interfaces.nsIXULRuntime).OS; 
@@ -1951,7 +1962,7 @@ var rcxMain = {
               process.init(eplkupToolDriver); 
               
               var args = [eplkupTool.path, "--gaiji", 1, "--hit", rcxMain.epwingCurHit, "--html-sub", "--html-sup",  
-                "--no-header", "--show-count", rcxMain.epwingCurDic, epwingInputFile.path, epwingOutputFile.path];
+                "--no-header", "--show-count", epwingCurDicPathOnly, epwingInputFile.path, epwingOutputFile.path];
             }
             else
             {
@@ -1961,7 +1972,7 @@ var rcxMain = {
               process.init(eplkupTool); 
               
               var args = ["--gaiji", 1, "--hit", rcxMain.epwingCurHit, "--html-sub", "--html-sup",  
-                "--no-header", "--show-count", rcxMain.epwingCurDic, epwingInputFile.path, epwingOutputFile.path];
+                "--no-header", "--show-count", epwingCurDicPathOnly, epwingInputFile.path, epwingOutputFile.path];
             }
             
             // Lookup the search term with the EPWING lookup tool
@@ -2226,7 +2237,10 @@ var rcxMain = {
                         // How should we fallback?
                         if(rcxConfig.epwingfallback == "none")
                         {
-                          // Don't fallback, just display "Entry not found." text
+                          // Don't fallback
+                          rcxMain.showPopup("Entry not found.");
+                          rcxMain.cleanupLookupEpwing();
+                          return;
                         }
                         else if(rcxConfig.epwingfallback == "jmdict")
                         {
@@ -2293,15 +2307,14 @@ var rcxMain = {
                     {
                       epwingText += "<br />...";
                     }
-                    
-                    
+
                     // Add the known/to-do list indicator
                     epwingText = rcxMain.getKnownWordIndicatorText() + epwingText;
-            
+
                     // Show the EPWING text
                     rcxMain.showPopup(epwingText, rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos); 
 
-                    rcxMain.cleanupLookupEpwing();                  
+                    rcxMain.cleanupLookupEpwing();
                   });
                 } 
                 else 
@@ -2321,7 +2334,6 @@ var rcxMain = {
       rcxMain.cleanupLookupEpwing();
       return;
     }
-    
   }, /* lookupEpwing */
   
 
@@ -2571,8 +2583,7 @@ var rcxMain = {
         // Exit - There is nothing to save
         return;
       }     
-           
-           
+
       // Does the file already exist in the audio dir? If so, play it and don't download.
       if((saveFile.length > 0) && rcxConfig.audiodir && (rcxConfig.audiodir.length > 0))
       {        
@@ -2637,6 +2648,10 @@ var rcxMain = {
       downloader.progressListener = 
       {
         onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) 
+        {
+          // Do nothing. This is only here so Firefox won't complain
+        },
+        onStatusChange: function(aWebProgress, aRequest, aStateFlags, aStatus, aDownload) 
         {
           // Do nothing. This is only here so Firefox won't complain
         },
@@ -2918,7 +2933,7 @@ var rcxMain = {
 
 	configPage: function() 
   {
-		window.openDialog('chrome://rikaichan/content/options.xul', '', 'chrome,centerscreen');
+		window.openDialog('chrome://rikaichan/content/options.xul', '', 'chrome,centerscreen,resizable');
 	},
 
 

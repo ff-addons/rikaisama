@@ -111,14 +111,9 @@
 <!ENTITY Kanji.DisplayedInformation "Displayed Information">
 
 
-<!ENTITY Epwing.EpwingPath1 "EPWING path 1">
-<!ENTITY Epwing.ToolTipEpwingPath1 "Full path to the directory that contains your EPWING dictionary's CATALOG file.">
-<!ENTITY Epwing.EpwingPath2 "EPWING path 2">
-<!ENTITY Epwing.ToolTipEpwingPath2 "Full path to the directory that contains your 2nd EPWING dictionary's CATALOG file.">
-<!ENTITY Epwing.EpwingPath3 "EPWING path 3">
-<!ENTITY Epwing.ToolTipEpwingPath3 "Full path to the directory that contains your 3rd EPWING dictionary's CATALOG file.">
-<!ENTITY Epwing.EpwingPath4 "EPWING path 4">
-<!ENTITY Epwing.ToolTipEpwingPath4 "Full path to the directory that contains your 4th EPWING dictionary's CATALOG file.">
+<!ENTITY Epwing.EpwingPathCaption "EPWING Dictionaries">
+<!ENTITY Epwing.Add "Add">
+<!ENTITY Epwing.Remove "Remove">
 <!ENTITY Epwing.DicFallback "Dictionary fallback">
 <!ENTITY Epwing.ToolTipDicFallback "Lookup behavior to use when the current dictionary doesn't contain the highlighted word.">
 <!ENTITY Epwing.DicFallbackOptNone "None">
@@ -129,7 +124,7 @@
 <!ENTITY Epwing.ShowConjugation "Show conjugation">
 <!ENTITY Epwing.ToolTipShowConjugation "Example conjugation: '(&lt; negative &lt; past)'.">
 <!ENTITY Epwing.ShowDicNum "Show number of current dictionary in top-right of popup">
-<!ENTITY Epwing.ToolTipShowDicNum "The dictionary number corresponds to 'EPWING path 1-4' text boxes above.">
+<!ENTITY Epwing.ToolTipShowDicNum "The number is the index of the dictionary in the list above.">
 <!ENTITY Epwing.StripNewlines "Compact (strip carriage returns and line feeds)">
 <!ENTITY Epwing.ToolTipStripNewlines "This will make the popup look a little more like non-EPWING mode.">
 <!ENTITY Epwing.AdvancedUsers "Advanced Users">

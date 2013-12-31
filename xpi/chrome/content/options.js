@@ -112,6 +112,9 @@ var rcxOptions = {
 			}
 		}
 		
+    //
+    // Fill in the dictionary listbox in the Dictionaries tab
+    //
 		let e = document.getElementById('rcp-priority');
 		let s = pb.getString('dpriority').split('|');
 		for (let i = 0; i < s.length; ++i) {
@@ -121,7 +124,22 @@ var rcxOptions = {
 		if ((window.arguments) && (window.arguments.length) && (window.arguments[0] == 'dic')) {
 			document.getElementById('rcp-tabbox').selectedIndex = 3;
 		}
-		
+    
+    
+    //
+    // Fill in the EPWING dictionary listbox in the EPWING tab
+    //
+    
+    let epwingDicListBox = document.getElementById('rcp-epwingpathlistbox');
+    let epwingDics = pb.getString('epwingpathlist').split('|');
+
+    for (let i = 0; i < epwingDics.length; ++i) 
+    {
+      if(epwingDics[i].length > 0)
+      {
+		    epwingDicListBox.appendItem(epwingDics[i], epwingDics[i]);
+      }
+		}
 	},
 
 	onOK: function() {
@@ -173,6 +191,10 @@ var rcxOptions = {
 			}
 		}
 
+    //
+    // Save the dictionary priorities in the Dictionary tab to a variable
+    //
+    
 		let buffer = [];
 		let e = document.getElementById('rcp-priority');
 		for (let i = 0; i < e.itemCount; ++i) {
@@ -180,6 +202,22 @@ var rcxOptions = {
 			buffer.push(item.value + '#' + item.label);
 		}
 		pb.setString('dpriority', buffer.join('|'));
+    
+    
+    //
+    // Save the EPWING dictionaries in the EPWING tab to a variable
+    //
+    
+    let epwingDicBuffer = [];
+    let epwingDicListBox = document.getElementById('rcp-epwingpathlistbox');
+    
+    for (let i = 0; i < epwingDicListBox.itemCount; ++i) 
+    {
+			let item = epwingDicListBox.getItemAtIndex(i);
+			epwingDicBuffer.push(item.value);
+		}
+    
+    pb.setString('epwingpathlist', epwingDicBuffer.join('|'));
 
 		return true;
 	},
@@ -233,6 +271,7 @@ var rcxOptions = {
 			document.getElementById(id).value = fp.file.path;
 	},
 	
+  // Change built-in dictionary priority in Dictionary tab
 	movePriority: function(dir) {
 		let list = document.getElementById('rcp-priority');
 
@@ -251,9 +290,92 @@ var rcxOptions = {
 		list.selectedIndex = j;
 	},
 	
+  // Download built-in dictionary in Dictionary tab
 	Download: function() {
 		Components.classes['@mozilla.org/observer-service;1']
 			.getService(Components.interfaces.nsIObserverService)
 			.notifyObservers(null, 'rikaichan', 'getdic');
-	}
+	},
+  
+  
+  // Change EPWING dictionary priority in EPWING tab.
+  moveEpwingPriority: function(amount) 
+  {
+    let epwingDicListBox = document.getElementById('rcp-epwingpathlistbox');
+    
+    let selectedIndex = epwingDicListBox.selectedIndex;
+    
+    if (selectedIndex == -1)
+    {
+      return;
+    }
+    
+    let newSelectedIndex = selectedIndex + amount;
+    
+    if ((newSelectedIndex < 0) || (newSelectedIndex >= epwingDicListBox.itemCount)) 
+    {
+      return;
+    }
+    
+    let itemValue = epwingDicListBox.selectedItem.value;
+    
+    epwingDicListBox.removeItemAt(selectedIndex);
+    epwingDicListBox.insertItemAt(newSelectedIndex, itemValue, itemValue);
+    epwingDicListBox.selectedIndex = newSelectedIndex;
+  },
+  
+  
+  // Add an EPWING dictionary to the list in the EPWING tab
+  addEpwingDictionary: function() 
+  {
+    let epwingDicListBox = document.getElementById('rcp-epwingpathlistbox');
+    
+    let selectedIndex = epwingDicListBox.selectedIndex;
+    let addIndex = selectedIndex;
+    let itemValue = '';
+    
+    if (selectedIndex >= 0)
+    {
+      let item = epwingDicListBox.getItemAtIndex(selectedIndex);
+	    itemValue = item.value;
+    }
+        
+    const nsIFilePicker = Components.interfaces.nsIFilePicker;
+    let fp = Components.classes['@mozilla.org/filepicker;1'].createInstance(nsIFilePicker);
+    
+    fp.init(window, 'Browse', nsIFilePicker.modeOpen);
+    fp.appendFilter('EPWING Dictionaries', 'CATALOGS;CATALOG');
+    fp.defaultString = itemValue;
+    
+    let result = fp.show();
+    
+    if ((result == nsIFilePicker.returnOK) || (result == nsIFilePicker.returnReplace))
+    {
+      if(addIndex == -1)
+      {
+        epwingDicListBox.appendItem(fp.file.path, fp.file.path);
+      }
+      else
+      {
+        epwingDicListBox.insertItemAt(addIndex, fp.file.path, fp.file.path);
+      }
+    }
+  },
+  
+  
+  // Remove an EPWING dictionary from the list in the EPWING tab
+  removeEpwingDictionary: function() 
+  {
+    let epwingDicListBox = document.getElementById('rcp-epwingpathlistbox');
+    
+    let selectedIndex = epwingDicListBox.selectedIndex;
+    
+    if (selectedIndex == -1)
+    {
+      return;
+    }
+    
+    epwingDicListBox.removeItemAt(selectedIndex);
+  }
+  
 };

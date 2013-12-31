@@ -109,7 +109,7 @@ var rcxData = {
 
 		if (addedNew) {
 			// show dictionary tab if we have a new dictionary
-			window.openDialog('chrome://rikaichan/content/options.xul', '', 'chrome,centerscreen', 'dic');
+			window.openDialog('chrome://rikaichan/content/options.xul', '', 'chrome,centerscreen,resizable', 'dic');
 		}
 
 		// FF 3.7a workaround; @@ revisit later

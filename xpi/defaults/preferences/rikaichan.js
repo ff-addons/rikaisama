@@ -64,10 +64,7 @@ pref('rikaichan.hidepitchaccentpos', true);
 
 pref('rikaichan.kindex', 'COMP,H,L,E,DK,N,V,Y,P,IN,I,U');
 
-pref('rikaichan.epwingpath1', '');
-pref('rikaichan.epwingpath2', '');
-pref('rikaichan.epwingpath3', '');
-pref('rikaichan.epwingpath4', '');
+pref('rikaichan.epwingpathlist', '');
 pref('rikaichan.epwingfallback', 'jmdict');
 pref('rikaichan.epwingmaxlines', 15);
 pref('rikaichan.epwingshowconjugation', true);
