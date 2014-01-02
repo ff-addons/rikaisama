@@ -1,4 +1,4 @@
-/*
+﻿/*
 
 	Rikaichan
 	Copyright (C) 2005-2012 Jonathan Zarate
@@ -43,6 +43,8 @@ var rcxOptions = {
 		'Page Down','End','Home','Left','Up','Right','Down','Insert','Delete','F1','F2','F3',
 		'F4','F5','F6','F7','F8','F9','F10','F11','F12'],
 	kindex: ['COMP', 'H','L','E','DK','N','V','Y','P','IN','I','U'],
+	importsLoaded: false,
+  curEpwingDicPath: "",
 
 	checkRange: function(e, name, min, max) {
 		e = document.getElementById(e);
@@ -131,13 +133,17 @@ var rcxOptions = {
     //
     
     let epwingDicListBox = document.getElementById('rcp-epwingpathlistbox');
-    let epwingDics = pb.getString('epwingpathlist').split('|');
+    let epwingDics = pb.getString('epwingdiclist').split('|');
 
     for (let i = 0; i < epwingDics.length; ++i) 
     {
       if(epwingDics[i].length > 0)
       {
-		    epwingDicListBox.appendItem(epwingDics[i], epwingDics[i]);
+        if (epwingDics[i].match(/(.+?)\?(.+)/))
+        { 
+          epwingDicListBox.appendItem("『" + RegExp.$2 + "』 - " + RegExp.$1, 
+            RegExp.$1 + "?" + RegExp.$2); // data?label
+        }
       }
 		}
 	},
@@ -217,7 +223,7 @@ var rcxOptions = {
 			epwingDicBuffer.push(item.value);
 		}
     
-    pb.setString('epwingpathlist', epwingDicBuffer.join('|'));
+    pb.setString('epwingdiclist', epwingDicBuffer.join('|'));
 
 		return true;
 	},
@@ -317,10 +323,11 @@ var rcxOptions = {
       return;
     }
     
+    let itemLabel = epwingDicListBox.selectedItem.label;
     let itemValue = epwingDicListBox.selectedItem.value;
     
     epwingDicListBox.removeItemAt(selectedIndex);
-    epwingDicListBox.insertItemAt(newSelectedIndex, itemValue, itemValue);
+    epwingDicListBox.insertItemAt(newSelectedIndex, itemLabel, itemValue);
     epwingDicListBox.selectedIndex = newSelectedIndex;
   },
   
@@ -351,14 +358,38 @@ var rcxOptions = {
     
     if ((result == nsIFilePicker.returnOK) || (result == nsIFilePicker.returnReplace))
     {
-      if(addIndex == -1)
+      // Load imports needed for the title lookup
+      if(!rcxOptions.importsLoaded)
       {
-        epwingDicListBox.appendItem(fp.file.path, fp.file.path);
+        Components.utils.import("resource://gre/modules/FileUtils.jsm");
+        Components.utils.import("resource://gre/modules/NetUtil.jsm");
+        
+        rcxOptions.importsLoaded = true;
       }
-      else
-      {
-        epwingDicListBox.insertItemAt(addIndex, fp.file.path, fp.file.path);
-      }
+    
+      rcxOptions.curEpwingDicPath = fp.file.path;
+    
+      rcxEpwing.lookupTitle(fp.file.path, rcxOptions.addEpwingDictionaryPart2);
+    }
+  },
+  
+  
+  addEpwingDictionaryPart2: function(title)
+  {
+    let epwingDicListBox = document.getElementById('rcp-epwingpathlistbox');
+    
+    let selectedIndex = epwingDicListBox.selectedIndex;
+    let addIndex = selectedIndex;
+    
+    if(addIndex == -1)
+    {
+      epwingDicListBox.appendItem("『" + title + "』 - " + rcxOptions.curEpwingDicPath, 
+        rcxOptions.curEpwingDicPath + "?" + title);
+    }
+    else
+    {
+      epwingDicListBox.insertItemAt(addIndex, "『" + title + "』 - " + rcxOptions.curEpwingDicPath, 
+        rcxOptions.curEpwingDicPath + "?" + title);
     }
   },
   

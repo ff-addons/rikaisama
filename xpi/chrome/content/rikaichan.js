@@ -57,19 +57,27 @@ var rcxMain = {
   epwingActive: false,          // Is the EPWING lookup in progress?
   epwingTotalHits: 0,           // The total number of EPWING hits for the current word
   epwingCurHit: 0,              // The current EPWING hit number (for showing hits one at a time)
+  epwingPrevHit: 0,             // The previous EPWING hit number
   epwingCurDic: "",             // The EPWING dictionary to use (path)
   prevEpwingSearchTerm: "",     // The previous search term used with EPWING mode
   epwingFallbackCount: 0,       // How many times have we attempted to fallback to another EPWING dictionary?
   epwingStartDic: "",           // The dictionary used for the original EPWING lookup (before any fallbacks)
   epwingDicList: [],            // The list of EPWING dictionaries
+  epwingDicTitleList: [],       // The list of EPWING dictionary titles
   saveKana: false,              // When saving a word, make the $d token equal to the $r token
   autoPlayAudioTimer: null,     // Timer used for automatically playing audio when a word is hilited
+  epwingTimer: null,            // Timer used to lookup word in EPWING dictionary after word is hilited for a certain amount of time.
   noAudioFileHash: "",          // The hash of the no no_audio.mp3
   noAudioDic: null,             // Associative array containing words that have no audio clip. Key = "Reading - Expression.mp3", Value = true.
   knownWordsDic: null,          // Associative array containing the user's known words
   todoWordsDic: null,           // Associative array containing the user's to-do words
   prevKnownWordsFilePath: "",   // Previous path of the known words file. Used to determine in the use changed the path in the options.
   prevTodoWordsFilePath: "",    // Previous path of the to-do words file. Used to determine in the use changed the path in the options.
+  epwingSearchTerm: "",         // Text to lookup in EPWING dictionary
+  epwingSearchingNextLongest: false, // true = Searching for the next longest word in the gloss if the longest was not found. 
+                                     //        For example, Kojien6 doesn't have 自由研究 (which is in EDICT) but it does have 自由, 
+                                     //        so 自由 is used for the next longest search
+  epwingResultList: [],         // List of results from the previous EPWING search
 
 	getBrowserTB: function() {
 		if (rcxMain.tabMail) return rcxMain.tabMail.getBrowserForSelectedTab();
@@ -758,6 +766,7 @@ var rcxMain = {
     // Reset the EPWING hit number and hit totals
     this.epwingTotalHits = 0;
     this.epwingCurHit = 0;
+    this.epwingPrevHit = 0;
     
     // Don't hide popup in superSticky unless given permission to
     if(!this.superSticky || this.superStickyOkayToHide)
@@ -780,6 +789,13 @@ var rcxMain = {
             clearTimeout(this.autoPlayAudioTimer);
             this.autoPlayAudioTimer = null;
           }
+        }
+        
+        // Stop the EPWING timer
+        if(this.epwingTimer)
+        {
+          clearTimeout(this.epwingTimer);
+          this.epwingTimer = null;
         }
       }
       
@@ -1332,19 +1348,26 @@ var rcxMain = {
         
     // Reset the dictionary list
     this.epwingDicList = [];
+    this.epwingDicTitleList = [];
     
     
     //
     // Add each dictionary to the list
     //
     
-    let epwingPaths = rcxConfig.epwingpathlist.split('|');
-
+    let epwingPaths = rcxConfig.epwingdiclist.split('|');
+   
     for (let i = 0; i < epwingPaths.length; ++i) 
     {
       if(epwingPaths[i].length > 0)
       {
-        this.epwingDicList.push(epwingPaths[i])
+        let pathFields = epwingPaths[i].split('?'); // The paths are stored in "path?title" format
+        
+        if(pathFields && (pathFields[0].length > 0) && (pathFields[1].length > 0))
+        {
+          this.epwingDicList.push(pathFields[0]);
+          this.epwingDicTitleList.push(pathFields[1]);
+        }
       }
 		}
     
@@ -1394,6 +1417,85 @@ var rcxMain = {
     return pos;
     
   }, /* getEpwingDicIndex */
+  
+  
+  // Get the title of the current dictionary
+  getCurEpwingDicTitle: function()
+  {
+    var dicIdx = rcxMain.getEpwingDicIndex();
+    
+    return rcxMain.epwingDicTitleList[dicIdx];
+  },
+  
+  
+  // Get the short form of the title for the current dictionary
+  getCurEpwingDicShortTitle: function()
+  {
+    var title = rcxMain.getCurEpwingDicTitle();
+    var shortTitle = "???";
+    
+    if(title == "研究社　新和英大辞典　第５版") // Kenkyusha 5th J-E. Contains example sentences.
+    {
+      shortTitle = "研究社五";
+    }
+    else if(title == "研究社　新英和・和英中辞典")  // Kenkyusha Shin Eiwa-Waei Chujiten J-E. Contains example sentences.
+    {
+      shortTitle = "中辞典";
+    }
+    else if(title == "大辞林 第2版") // Dajirin 2nd Edition. J-J. Japanese-only examples.
+    {
+      shortTitle = "大辞林二";
+    }
+    else if(title == "三省堂　スーパー大辞林") // Sanseido Super Daijirin
+    {
+      shortTitle = "大辞林二";
+    }
+    else if(title == "大辞泉") //  Daijisen. J-J. Japanese-only examples.
+    {
+      shortTitle = "大辞泉";
+    }
+    else if(title == "広辞苑第六版") // Kojien 6th Edition. J-J. Japanese-only examples.
+    {
+      shortTitle = "広辞苑六";
+    }
+    else if(title == "明鏡国語辞典") // Meikyo Kokugo Dictionary. J-J. Japanese-only examples.
+    {
+      shortTitle = "明鏡";
+    }
+    else if(title == "ジーニアス英和〈第３版〉・和英〈第２版〉辞典") // Genius EJ 3rd J-E 2nd. Contains example sentences.
+    {
+      shortTitle = "ジー三・二";
+    }
+    else if(title == "ジーニアス英和・和英辞典") //  Genius EJ-JE. Contains example sentences.
+    {
+      shortTitle = "ジー英和・和英";
+    }
+    else if(title == "研究社　新編英和活用大辞典") //  Kenkyusha New Edition E-J.
+    {
+      shortTitle = "研究社・新編英和";
+    }
+    else if(title == "例文") // Tanaka Corpus example sentences
+    {
+      shortTitle = "例文";
+    }
+    else if(title == "ＮＨＫ　日本語発音アクセント辞典") // NHK Pitch Accent Dictionary
+    {
+      shortTitle = "NHK発音";
+    }
+    else
+    {
+      var shortNameLen = 6;
+    
+      if(title.length < shortNameLen)
+      {
+        shortNameLen = title.length;
+      }
+      
+      shortTitle = rcxMain.trim(title.substring(0, shortNameLen));
+    }
+    
+    return shortTitle;
+  },
   
   
   // Sets the current EPWING dictionary (epwingCurDic) to the next available EPWING dictionary
@@ -1776,11 +1878,13 @@ var rcxMain = {
     // Reset to pre-fallback dictionary
     this.epwingCurDic = this.epwingStartDic;
     
+    this.epwingSearchingNextLongest = false;
+    
   }, /* cleanupLookupEpwing */
   
   
-  // Fetch entry from user-specified EPWING dictionary and display
-	lookupEpwing: function() 
+  // Lookup hilited word in EPWING dictionary
+  lookupEpwing: function()
   {
     // Is a word currently being looked up with EPWING?
     if(this.epwingActive)
@@ -1801,21 +1905,12 @@ var rcxMain = {
     try
     {
       var epwingDir = Components.classes["@mozilla.org/file/local;1"]
-          .createInstance(Components.interfaces.nsILocalFile);
+        .createInstance(Components.interfaces.nsILocalFile);
       epwingDir.initWithPath(this.epwingCurDic);  
       
       if(!epwingDir.exists())
       {
-        if(this.epwingCurDic.length > 0)
-        {
-          rcxMain.showPopup('Invalid EPWING dictionary: ' + this.epwingCurDic);
-        }
-        else
-        {
-          rcxMain.showPopup('Please add an EPWING dictionary in the EPWING tab of the options dialog.');
-        }
-        
-        return;
+        throw "Error";
       }
     }
     catch(ex)
@@ -1835,507 +1930,563 @@ var rcxMain = {
     // Prevent other EPWING lookups until this one is finished
     this.epwingActive = true;
     
-    // Get the first search term from the hilited word.
-    var searchTerm = this.extractSearchTerm(false);
-
-    if(!searchTerm)
+    // If searching for the next longest word in the gloss. For example, Kojien6 doesn't
+    // have 自由研究 (which is in EDICT) but it does have 自由, so 自由 is used for the next longest search.
+    if(rcxConfig.epwingsearchnextlongest && rcxMain.epwingSearchingNextLongest)
     {
-      rcxMain.cleanupLookupEpwing();
-      return;
+      var hilitedEntry = this.lastFound;
+      
+      if(hilitedEntry && (hilitedEntry.length > 0) && hilitedEntry[0] && hilitedEntry[0].data && hilitedEntry[0].data[1])
+      {
+        var entryData = hilitedEntry[0].data[1][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
+        
+        if(entryData && entryData[1] && (entryData[1].length > 0))
+        {
+          this.epwingSearchTerm = entryData[1];
+        }
+      }
+    }
+    else // Normal search for the first word in the EDICT gloss
+    {
+      // Get the first search term from the hilited word.
+      this.epwingSearchTerm = this.extractSearchTerm(false);
+
+      if(!this.epwingSearchTerm)
+      {
+        rcxMain.cleanupLookupEpwing();
+        return;
+      }
     }
     
     // Reset the EPWING hit number and hit totals if a new word is being searched for
-    if(searchTerm != this.prevEpwingSearchTerm)
+    if(this.epwingSearchTerm != this.prevEpwingSearchTerm)
     {
       this.epwingTotalHits = 0;
       this.epwingCurHit = 0;
-      this.prevEpwingSearchTerm = searchTerm;
-    }
-    
-    // Create the file object that contains the location of the EPWING lookup tool
-    var eplkupTool = Components.classes["@mozilla.org/file/directory_service;1"]
-      .getService(Components.interfaces.nsIProperties)
-      .get("ProfD", Components.interfaces.nsILocalFile);    
-    eplkupTool.append("extensions");
-    eplkupTool.append(rcxMain.id); // GUID of extension
-    eplkupTool.append("epwing");
-    eplkupTool.append("eplkup.exe");
-    
-    // Does the EPWING lookup tool exist?
-    if (eplkupTool.exists()) 
-    { 
-      // Create a temporary directory to place the output of the EPWING tool
-      var tmpDir = Components.classes["@mozilla.org/file/directory_service;1"]
-        .getService(Components.interfaces.nsIProperties)
-        .get("TmpD", Components.interfaces.nsIFile);
-      tmpDir.append("rikaisama");
-        
-      // Create the input file to the EPWING lookup tool
-      var epwingInputFile = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-      epwingInputFile.initWithPath(tmpDir.path + "_epwing_in.txt");
-      
-      try
-      {
-        // Remove the input file if it exists
-        if(epwingInputFile.exists())
-        {
-          epwingInputFile.remove(false);
-        }
-
-        epwingInputFile.create(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 0644);
-      }
-      catch(ex)
-      {
-        rcxMain.cleanupLookupEpwing();
-        return;
-      }
-      
-      // Create the output file from the EPWING lookup tool
-      var epwingOutputFile = Components.classes["@mozilla.org/file/local;1"]
-        .createInstance(Components.interfaces.nsILocalFile);
-      epwingOutputFile.initWithPath(tmpDir.path + "_epwing_out.txt");
-
-      try
-      {
-        // Remove the output file if it exists
-        if(epwingOutputFile.exists())
-        {
-          epwingOutputFile.remove(false);
-        }
-
-        epwingOutputFile.create(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 0644);
-      }
-      catch(ex)
-      {
-        rcxMain.cleanupLookupEpwing();
-        return;
-      }
-      
-      // Open a safe file output stream for writing
-      var ostream = FileUtils.openSafeFileOutputStream(epwingInputFile)
-      
-      // Convert the filename unicode string to an input stream
-      var converter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].
-      createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-      converter.charset = "UTF-8";
-      var istream = converter.convertToInputStream(searchTerm);
-      
-      // Asynchronously write the search term to the file 
-      NetUtil.asyncCopy
-      (istream, ostream, 
-        // This function will be called when the write to file is complete
-        function(status) 
-        {
-          if (!Components.isSuccessCode(status)) 
-          {
-            //rcxMain.showPopup('Error writing EPWING input file.');
-            rcxMain.cleanupLookupEpwing();
-            return;
-          }
-          else
-          {
-            // Get the path only of the dictionary file
-            var epwingCurDicPathOnly = rcxMain.epwingCurDic.replace(/^(.*)[\\\/].*$/, '$1');
-          
-            // Get a string identifying the current OS
-            var osString = Components.classes["@mozilla.org/xre/app-info;1"]  
-                   .getService(Components.interfaces.nsIXULRuntime).OS; 
-
-            if(osString == "Linux" || osString == "Darwin")
-            {   
-              // Create the file object that contains the location of the bash script that
-              //  will call the EPWING lookup tool with wine
-              var eplkupToolDriver = Components.classes["@mozilla.org/file/directory_service;1"]
-                .getService(Components.interfaces.nsIProperties)
-                .get("ProfD", Components.interfaces.nsILocalFile);    
-              eplkupToolDriver.append("extensions");
-              eplkupToolDriver.append(rcxMain.id); // GUID of extension
-              eplkupToolDriver.append("epwing");
-              eplkupToolDriver.append("run_eplkup.sh");
-              
-              eplkupToolDriver.permissions = 0744;
-      
-              // Create the process object that will use the EPWING lookup tool
-              var process = Components.classes['@mozilla.org/process/util;1']
-               .createInstance(Components.interfaces.nsIProcess);        
-              process.init(eplkupToolDriver); 
-              
-              var args = [eplkupTool.path, "--gaiji", 1, "--hit", rcxMain.epwingCurHit, "--html-sub", "--html-sup",  
-                "--no-header", "--show-count", epwingCurDicPathOnly, epwingInputFile.path, epwingOutputFile.path];
-            }
-            else
-            {
-              // Create the process object that will use the EPWING lookup tool
-              var process = Components.classes['@mozilla.org/process/util;1']
-               .createInstance(Components.interfaces.nsIProcess);        
-              process.init(eplkupTool); 
-              
-              var args = ["--gaiji", 1, "--hit", rcxMain.epwingCurHit, "--html-sub", "--html-sup",  
-                "--no-header", "--show-count", epwingCurDicPathOnly, epwingInputFile.path, epwingOutputFile.path];
-            }
-            
-            // Lookup the search term with the EPWING lookup tool
-            process.runAsync(args, args.length, 
-            {
-              observe: function(process, finishState, unused) 
-              {
-                // Did the lookup finish?
-                if (finishState == "process-finished") 
-                {
-                  // Read the output file that contains the lookup
-                  NetUtil.asyncFetch(epwingOutputFile, function(inputStream, status) 
-                  {
-                    var epwingText = "Entry not found.";
-                    var saveText = "";
-                    var newLines = 0;
-                    var showDots = false;
-                    var firstNewlinePos = -1;
-                    
-                    if (Components.isSuccessCode(status)) 
-                    {
-                      try
-                      {
-                        epwingText = NetUtil.readInputStreamToString(inputStream, inputStream.available());
-                        
-                        // Convert the EPWING result text to UTF-8
-                        var EpwingTextConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].
-                        createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-                        EpwingTextConverter.charset = "UTF-8";
-                        epwingText = EpwingTextConverter.ConvertToUnicode(epwingText);
-                        
-                        //
-                        // Extract the HITS: info and the lookup text
-                        //
-                        var matchText = epwingText.match(/^{HITS: (\d*?)}([\s\S]*)$/);
-                        
-                        // Extract number of hits
-                        if(matchText[1])
-                        {
-                          rcxMain.epwingTotalHits = matchText[1];
-                        }
-                        
-                        // Extract lookup text
-                        if(matchText[2])
-                        {
-                          epwingText = matchText[2];
-                        }
- 
-                        //
-                        // Get the conjugation
-                        //
-                        
-                        var conjugation = "";
-                         
-                        if (rcxConfig.epwingshowconjugation && rcxMain.lastFound[0].data && rcxMain.lastFound[0].data[0][1])
-                        {
-                          conjugation = '<span class="w-conj">(' + rcxMain.lastFound[0].data[0][1] + ')</span>';
-                        }
-                        
-                        //
-                        // Get the dictionary index that is currently being used
-                        //
-                        
-                        var which_dic = "";
-                        
-                        if(rcxConfig.epwingshowdicnum)
-                        {
-                          var dic_pos = rcxMain.getEpwingDicIndex() + 1;
-                          which_dic = '<span class="epwing-dic-name">' + dic_pos + '</span>';
-                        }
-                        
-                        // Trim whitespace
-                        epwingText = rcxMain.trimEnd(epwingText);
-                        
-                        // Replace carriage returns + linefeeds with linefeeds
-                        epwingText = epwingText.replace(/\r\n/g, '\n');
-                                        
-                        // Remove text that matches the user's regex
-                        if(rcxConfig.epwingremoveregex != '')
-                        {
-                          // Get the regex
-                          var userRegex = new RegExp(rcxConfig.epwingremoveregex, "g");
-                          
-                          // Use the regex
-                          var afterRegexEpwingText = epwingText.replace(userRegex, "");    
-                     
-                          //
-                          // Only apply the regex if it doesn't remove all of the text
-                          //
-
-                          var isBlank = afterRegexEpwingText.match(/^\s*$/);  
-                          
-                          if(!isBlank)
-                          {
-                            epwingText = afterRegexEpwingText;
-                          }
-                        }
-                        
-                        // We don't want to save the output of the following color and
-                        // pitch step, so store a copy
-                        saveText = epwingText;
-                        
-                        
-                        // Expression parsed from entry if rcxConfig.epwingaddcolorandpitc is enabled
-                        var parsedExpression = "";
-                        
-                        //
-                        // Add color and pitch to the header line. 
-                        // Optimized for Ken5 but also works with Meikyo, Daijisen, and Kojien.
-                        //
-                        if(rcxConfig.epwingaddcolorandpitch)
-                        {
-                          var newLineIdx = epwingText.indexOf("\n", 1); // Start at 1 because 0 is a \n
-                          
-                          if(newLineIdx != -1)
-                          {
-                            // Extract the header line
-                            var headerLine = epwingText.substr(0, newLineIdx);
-                            headerLine = rcxMain.trim(headerLine)
-                                                       
-                            // Remove "ﾛｰﾏ" and onwards for Ken5
-                            headerLine = headerLine.replace(/ﾛｰﾏ.*/, '');
-                            
-                            // Get the reading. Example the "じんかん" from "じんかん<sup>１</sup>【人間】 "
-                            headerLine.match(/^(.*?)[<【〘\[]/);     
-                            var reading = RegExp.$1;
-                            
-                            // If no reading found it is because the header line did not contain a <, 【, etc.
-                            if(!reading)
-                            {
-                              reading = rcxMain.trim(headerLine);
-                            }
-                            
-                            // Get the expression. The "人間" from "じんかん<sup>１</sup>【人間】 "
-                            headerLine.match(/【(.*?)】/);     
-                            var expression = RegExp.$1;
-                            
-                            // Some dics like Meikyo contain alternate brackets for the expression
-                            if(!expression)
-                            {
-                              headerLine.match(/〘(.*?)〙 /);     
-                              var expression = RegExp.$1;
-                            }
-                                                       
-                            // Determine the expression and reading to use to get pitch
-                            if(!expression)
-                            {
-                              var pitchExpression = reading;
-                              var pitchReading = null;
-                            }
-                            else
-                            {
-                              var pitchExpression = expression;
-                              var pitchReading = reading;
-                              pitchReading = pitchReading.replace(/[\-‐・]/g, '');
-                            }
-                            
-                            // Remove characters found in some non-Ken5 dics
-                            pitchExpression = pitchExpression.replace(/[\-‐・▽▼△×《》]/g, '');
-                            pitchExpression = pitchExpression.replace(/<.*?>/g, '');
-                            pitchExpression = pitchExpression.replace(/\(.*?\)/g, '');
-                            pitchExpression = pitchExpression.replace(/\（.*?\）/g, '');
-                            
-                            parsedExpression = pitchExpression;
-                                                     
-                            // Get the pitch accent
-                            var pitch = "";
-                            
-                            if(rcxConfig.showpitchaccent)
-                            {
-                              var pitch = rcxMain.getPitchAccent(pitchExpression, pitchReading)
-                            }
-                            
-                            // Apply color and pitch
-                            if(headerLine[0] != '①') // This can happen in some non-Ken5 dictionaries
-                            {
-                              if(expression)
-                              {
-                                var newHeaderLine = "<span class='w-kanji'>" + expression + "</span>"
-                                  + "<span class='w-kana'>" + reading + "</span> "
-                                  + "<span class='w-conj'>" + pitch + "</span>";
-                              }
-                              else
-                              {
-                                var newHeaderLine = "<span class='w-kana'>" + reading + "</span> "
-                                 + "<span class='w-conj'>" + pitch + "</span>";
-                              }
-                                                            
-                              // Add in the new header line
-                              epwingText = "\n" + newHeaderLine + epwingText.substr(newLineIdx);
-                            }
-                          }
-                        } // End add EPWING color and pitch
-                        
-                        //
-                        // Get the frequency  
-                        //
-                        var freqStr = "";
-                        
-                        if(rcxConfig.showfreq)
-                        {
-                          // Used the parsed expression if found
-                          if(parsedExpression != "")
-                          {
-                            var freq = rcxMain.getFreq(parsedExpression);
-                          }
-                          else // Otherwise use the search term used for finding the EPWING entries
-                          {
-                            var freq = rcxMain.getFreq(searchTerm);
-                          }
-                                                    
-                          if(freq && (freq.length > 0))
-                          {            
-                            var freqClass = rcxMain.getFreqStyle(freq);
-                            freqStr = ' <span class="' + freqClass + '">' + freq + '</span>';
-                          }
-                        }
-  
-                        // Add the header line to the lookup: (cur_hit/total_hits) (conjugation) freqStr   which_dic
-                        epwingText = "(" + (rcxMain.epwingCurHit + 1) + "/" + rcxMain.epwingTotalHits + ") "
-                          + conjugation + freqStr + which_dic + epwingText;
-                             
-                        // Limit text to the user-specified number of lines (not 
-                        // including lines generated from word wrap).
-                        // If 500 (max), don't even check.
-                        if(rcxConfig.epwingmaxlines != 500)
-                        {
-                          var epwingNumChars = epwingText.length;
-                          
-                          for(var i = 0; i < epwingNumChars; i++)
-                          {
-                            if(epwingText[i] == '\n')
-                            {
-                              newLines++;
-
-                              if(newLines == rcxConfig.epwingmaxlines)
-                              {
-                                epwingText = epwingText.substring(0, i);
-                                showDots = true;
-                                break;
-                              }
-                            }
-                          }
-                        }
-
-                        // Strip linefeeds or replace with "<br />"?
-                        if(rcxConfig.epwingstripnewlines)
-                        {
-                          epwingText = epwingText.replace(/\n/g, " ");
-                          saveText = saveText.replace(/\n/g, " ");
-                        }
-                        else
-                        {
-                          epwingText = epwingText.replace(/\n/g, "<br />");
-                          saveText = saveText.replace(/\n/g, "<br />");
-                        }
-                      }
-                      catch(ex)
-                      {
-                        // Probably here because eplkup output file was empty
-        
-                        // How should we fallback?
-                        if(rcxConfig.epwingfallback == "none")
-                        {
-                          // Don't fallback
-                          rcxMain.showPopup("Entry not found.");
-                          rcxMain.cleanupLookupEpwing();
-                          return;
-                        }
-                        else if(rcxConfig.epwingfallback == "jmdict")
-                        {
-                          // Fallback to the default non-EPWING dictionary that comes with rikaichan (JMDICT)
-
-                          rcxMain.cleanupLookupEpwing();
-                          rcxMain.showPopup(rcxMain.getKnownWordIndicatorText() + rcxData.makeHtml(rcxMain.lastFound[0]), 
-                            rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos);
-                          return;
-                        }
-                        else 
-                        {
-                          // Fallback to the next available EPWING dictionary. If there aren't any, fallback to JMDICT.
-                        
-                          // Are we out of EPWING dictionaries to fallback to?
-                          if(rcxMain.epwingFallbackCount > rcxMain.epwingDicList.length)
-                          {
-                            // If so, fallback to JMDICT
-                            rcxMain.cleanupLookupEpwing();
-                            rcxMain.showPopup(rcxMain.getKnownWordIndicatorText() + rcxData.makeHtml(rcxMain.lastFound[0]), 
-                              rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos);
-                            return;
-                          }       
-                          
-                          // Set a timer to call this function again with the next available dictionary
-                          window.setTimeout
-                          (
-                            function() 
-                            {
-                              // Allow this routine to be re-entered
-                              rcxMain.epwingActive = false;
-                              
-                              rcxMain.epwingFallbackCount++;
-                              rcxMain.nextEpwingDic();
-                              rcxMain.lookupEpwing();
-                            }, 10
-                          );
-
-                          return;
-                        }
-                      }
-                    }
-
-                    // Place the lookup text into rcxMain.lastFound so that the save and 
-                    // real-time import features work correctly.
-                    try
-                    {                      
-                      // Strip initial whitespace/line break
-                      saveText = saveText.replace(/^( |<br \/>)/, "");
- 
-                      rcxMain.lastFound[0].data[0][0] = rcxMain.lastFound[0].data[0][0]
-                        .replace(/\/.+\//g, "/" + saveText + "/");
-  
-                      // Remove all words except for the one we just looked up
-                      rcxMain.lastFound[0].data = [rcxMain.lastFound[0].data[0]];
-                    }
-                    catch(ex)
-                    {
-                      // Probably here because a single kanji was selected that isn't also a regular word.
-                    }
-
-                    // Show trailing dots if not all of the entry's lines could be displayed
-                    if(showDots)
-                    {
-                      epwingText += "<br />...";
-                    }
-
-                    // Add the known/to-do list indicator
-                    epwingText = rcxMain.getKnownWordIndicatorText() + epwingText;
-
-                    // Show the EPWING text
-                    rcxMain.showPopup(epwingText, rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos); 
-
-                    rcxMain.cleanupLookupEpwing();
-                  });
-                } 
-                else 
-                {
-                  // Components.utils.reportError("Error invoking EPWING tool.");
-                  rcxMain.cleanupLookupEpwing();
-                  return;
-                }
-              }
-            });
-          }
-        }
-      );
+      this.epwingPrevHit = 0;
+      this.prevEpwingSearchTerm = this.epwingSearchTerm;
     }
     else
     {
-      rcxMain.cleanupLookupEpwing();
-      return;
+      if(!rcxConfig.epwingshowallentries && (this.epwingCurHit != this.epwingPrevHit))
+      {
+        // If just viewing the next/prev entry, no need to re-lookup
+        rcxMain.showEpwingPopup();
+        return;
+      }
     }
+    
+    // Form the list of words to lookup
+    var wordList = [];
+    wordList.push(this.epwingSearchTerm);
+    
+    // Perform lookup. When lookup is complete, the results will be passed to lookupEpwingPart2().
+    rcxEpwing.lookupWords(rcxMain.epwingCurDic, wordList, rcxMain.lookupEpwingPart2);
+    
   }, /* lookupEpwing */
   
+  
+  // Callback that will be called when the rcxEpwing.lookupWords() function in lookupEpwing() is 
+  // complete. It saves the EPWING results to rcxMain.epwingResultList. If no results are found,
+  // it will fallback. If results are found, it will show a popup containing the results.
+  lookupEpwingPart2: function(resultList)
+  {   
+    rcxMain.epwingResultList = resultList;
+    
+    // If no result where found in current EPWING dictionary, fallback
+    if(resultList.length === 0)
+    {
+      // If the user want to search for the next longest word and we haven't performed one yet
+      if(rcxConfig.epwingsearchnextlongest && !rcxMain.epwingSearchingNextLongest)
+      {
+        rcxMain.epwingSearchingNextLongest = true;
+        
+        window.setTimeout
+        (
+          function() 
+          {
+            rcxMain.epwingActive = false;
+            rcxMain.lookupEpwing();
+          }, 10
+        );
+        
+        return;
+      }
+      else // Next longest search also failed
+      {
+        rcxMain.epwingSearchingNextLongest = false;
+      }
+      
+      // How should we fallback?
+      if(rcxConfig.epwingfallback == "none")
+      {
+        // Don't fallback
+        rcxMain.showPopup("Entry not found.");
+        rcxMain.cleanupLookupEpwing();
+      }
+      else if(rcxConfig.epwingfallback == "jmdict")
+      {
+        // Fallback to the default non-EPWING dictionary that comes with rikaichan (JMDICT)
+
+        rcxMain.cleanupLookupEpwing();
+        rcxMain.showPopup(rcxMain.getKnownWordIndicatorText() + rcxData.makeHtml(rcxMain.lastFound[0]), 
+          rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos);
+      }
+      else 
+      {
+        // Fallback to the next available EPWING dictionary. If there aren't any, fallback to JMDICT.
+      
+        // Are we out of EPWING dictionaries to fallback to?
+        if(rcxMain.epwingFallbackCount > rcxMain.epwingDicList.length)
+        {
+          // If so, fallback to JMDICT
+          rcxMain.cleanupLookupEpwing();
+          rcxMain.showPopup(rcxMain.getKnownWordIndicatorText() + rcxData.makeHtml(rcxMain.lastFound[0]), 
+            rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos);
+          return;
+        }       
+        
+        // Set a timer to call this function again with the next available dictionary
+        window.setTimeout
+        (
+          function() 
+          {
+            rcxMain.epwingActive = false;
+            rcxMain.epwingFallbackCount++;
+            rcxMain.nextEpwingDic();
+            rcxMain.lookupEpwing();
+          }, 10
+        );
+      }
+
+      return;
+    }
+    
+    rcxMain.showEpwingPopup();
+    
+  }, /* lookupEpwingPart2 */
+  
+  
+  // Display the EPWING results in rcxMain.epwingResultList.
+  showEpwingPopup: function()
+  {
+    var epwingText = rcxMain.epwingResultList[0];
+    
+    //
+    // Extract each entry
+    //    
+    
+    // Replace carriage returns + linefeeds with linefeeds
+    epwingText = epwingText.replace(/\r\n/g, '\n');
+    
+    var entryFields = epwingText.split(/{ENTRY: \d+}\n/);
+    var entryList = [];
+    
+    for (let i = 0; i < entryFields.length; ++i) 
+    {
+      var curEntry = entryFields[i];
+      
+      if(curEntry.length > 0)
+      {
+        var isDuplicate = false;
+        
+        for(let j = 0; j < entryList.length; ++j)
+        {
+          if(curEntry == entryList[j])
+          {
+            isDuplicate = true;
+            break;
+          }
+        }
+        
+        if(!isDuplicate)
+        {
+          entryList.push(entryFields[i]);
+        }
+      }
+    }
+    
+    // Store the total number of entries
+    rcxMain.epwingTotalHits = entryList.length;
+        
+    var jmdictGloss = "";
+    
+    // Save the JMDICT gloss so that we can append it later
+    if(rcxConfig.epwingappendjmdict)
+    {
+      jmdictGloss = rcxData.makeHtml(rcxMain.lastFound[0]);
+    }
+    
+    //
+    // Format the entry/entries
+    //
+    
+    // The EPWING lookup text that will be used for the $n (translation) save token.
+    var epwingDefText = "";
+    
+    // If user wants to display all entries from the same dictionary
+    if(rcxConfig.epwingshowallentries)
+    {
+      epwingText = "";
+      
+      for (let i = 0; i < entryList.length; ++i) 
+      {
+        epwingDefText += entryList[i];
+        
+        var showHeader = (i == 0);
+        epwingText += rcxMain.epwingFormatEntry(entryList[i], showHeader, false);
+        
+        // Add entry separator
+        if(i != entryList.length - 1)
+        {
+          epwingText += "<hr />";
+          epwingDefText += "<br />";
+        }
+      }
+    }
+    else // Display one entry at a time
+    {
+      epwingDefText = entryList[rcxMain.epwingCurHit];
+      epwingText = rcxMain.epwingFormatEntry(entryList[rcxMain.epwingCurHit], true, true);
+    }
+    
+    // If we were searching the next longest word, perform a new EDICT search so that the 
+    // expression and reading save tokens will be correct
+    if(rcxConfig.epwingsearchnextlongest && rcxMain.epwingSearchingNextLongest)
+    {
+      var e = rcxData.wordSearch(rcxMain.epwingSearchTerm);
+		  this.lastFound = [e];
+    }
+    
+    // Place the EPWING lookup text into rcxMain.lastFound so that the save and 
+    // real-time import features work correctly.
+    try
+    {           
+      if(rcxConfig.epwingstripnewlines)
+      {
+        epwingDefText = epwingDefText.replace(/\n/g, " ");
+      }
+      else
+      {
+        epwingDefText = epwingDefText.replace(/\n/g, "<br />");
+      }
+      
+      // Strip initial whitespace/line break
+      epwingDefText = epwingDefText.replace(/^( |<br \/>)/, "");
+
+      rcxMain.lastFound[0].data[0][0] = rcxMain.lastFound[0].data[0][0]
+        .replace(/\/.+\//g, "/" + epwingDefText + "/");
+
+      // Remove all words except for the one we just looked up
+      rcxMain.lastFound[0].data = [rcxMain.lastFound[0].data[0]];
+    }
+    catch(ex)
+    {
+      // Probably here because a single kanji was selected that isn't also a regular word.
+    }
+    
+    // If the user wants to append the JMDICT gloss, do it
+    if(rcxConfig.epwingappendjmdict)
+    {
+      epwingText += "<hr /><span class='epwing-dic-name'>EDICT</span>" + jmdictGloss;
+    }  
+
+    // Show the EPWING text
+    rcxMain.showPopup(epwingText, rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos); 
+
+    rcxMain.cleanupLookupEpwing();
+	},
+  
+    
+  // Format a single EPWING entry for display in the popup.
+  epwingFormatEntry: function(entryText, showHeader, showEntryNumber) 
+  {
+    // Trim whitespace
+    epwingText = rcxMain.trimEnd(entryText);
+    
+    // Remove text that matches the user's regex
+    if(rcxConfig.epwingremoveregex != '')
+    {
+      // Get the regex
+      var userRegex = new RegExp(rcxConfig.epwingremoveregex, "g");
+      
+      // Use the regex
+      var afterRegexEpwingText = epwingText.replace(userRegex, "");    
+ 
+      //
+      // Only apply the regex if it doesn't remove all of the text
+      //
+
+      var isBlank = afterRegexEpwingText.match(/^\s*$/);  
+      
+      if(!isBlank)
+      {
+        epwingText = afterRegexEpwingText;
+      }
+    }
+    
+    // Expression parsed from entry if rcxConfig.epwingaddcolorandpitch is enabled
+    var parsedExpression = "";
+    
+    //
+    // Parse entry and add color and pitch to the header line. 
+    // Only certain dictionaries are supported.
+    //
+    
+    var dicTitle = rcxMain.getCurEpwingDicTitle();
+    
+    if(rcxConfig.epwingaddcolorandpitch
+      && ((dicTitle == "研究社　新和英大辞典　第５版")
+        ||(dicTitle == "明鏡国語辞典")
+        ||(dicTitle == "大辞泉")
+        ||(dicTitle == "広辞苑第六版")
+        ||(dicTitle == "大辞林 第2版")
+        ||(dicTitle == "三省堂　スーパー大辞林")))
+    {
+      var newLineIdx = epwingText.indexOf("\n", 1); // Start at 1 because 0 is a \n
+      
+      if(newLineIdx != -1)
+      {
+        // Extract the header line
+        var headerLine = epwingText.substr(0, newLineIdx);
+        headerLine = rcxMain.trim(headerLine)
+                                   
+        // Remove "ﾛｰﾏ" and onwards for Ken5
+        if(dicTitle == "研究社　新和英大辞典　第５版")
+        {
+          headerLine = headerLine.replace(/ﾛｰﾏ.*/, '');
+        }
+        
+        // Get the reading. Example the "じんかん" from "じんかん<sup>１</sup>【人間】 "
+        headerLine.match(/^(.*?)[<【〘\[]/);     
+        var reading = RegExp.$1;
+        
+        // If no reading found it is because the header line did not contain a <, 【, etc.
+        if(!reading)
+        {
+          reading = rcxMain.trim(headerLine);
+        }
+        
+        // Get the expression. The "人間" from "じんかん<sup>１</sup>【人間】 "
+        headerLine.match(/【(.*?)】/);     
+        var expression = RegExp.$1;
+        
+        // Some dics like Meikyo contain alternate brackets for the expression
+        if(!expression)
+        {
+          headerLine.match(/〘(.*?)〙 /);     
+          expression = RegExp.$1;
+        }
+                                   
+        // Determine the expression and reading to use to get pitch
+        if(!expression)
+        {
+          var pitchExpression = reading;
+          var pitchReading = null;
+        }
+        else
+        {
+          var pitchExpression = expression;
+          var pitchReading = reading;
+          
+          if((dicTitle == "三省堂　スーパー大辞林") || (dicTitle == "大辞林 第2版"))
+          {
+           // If the pitch reading contains a space, remove it and everything after it
+            if(pitchReading.indexOf(" ") != -1)
+            {
+              pitchReading = pitchReading.replace(/^(.*?) .*$/, '$1');
+            }
+          }
+          
+          pitchReading = pitchReading.replace(/[\-‐・ ]/g, '');
+        }
+
+        // If the pitch expression contains a "・", remove it and everything after
+        if(pitchExpression.indexOf("・") != -1)
+        {
+          pitchExpression = pitchExpression.replace(/^(.*?)・.*$/, '$1');
+        }
+        
+        // Remove characters found in some non-Ken5 dics
+        pitchExpression = pitchExpression.replace(/[\-‐・▽▼△×《》○ ]/g, '');
+        pitchExpression = pitchExpression.replace(/<.*?>/g, '');
+        pitchExpression = pitchExpression.replace(/\(.*?\)/g, '');
+        pitchExpression = pitchExpression.replace(/\（.*?\）/g, '');
+        
+        parsedExpression = pitchExpression;
+                                 
+        // Get the pitch accent
+        var pitch = "";
+        
+        if(rcxConfig.showpitchaccent)
+        {
+          pitch = rcxMain.getPitchAccent(pitchExpression, pitchReading);
+        }
+        
+        // Apply color and pitch
+        if(headerLine[0] != '①') // This can happen in some non-Ken5 dictionaries
+        {
+          var newHeaderLine = "";
+          
+          if(expression)
+          {
+            newHeaderLine = "<span class='w-kanji'>" + expression + "</span>"
+              + "<span class='w-kana'>" + reading + "</span> "
+              + "<span class='w-conj'>" + pitch + "</span>";
+          }
+          else
+          {
+            newHeaderLine = "<span class='w-kana'>" + reading + "</span> "
+             + "<span class='w-conj'>" + pitch + "</span>";
+          }
+                                        
+          // Add in the new header line
+          if(rcxConfig.epwingstripnewlines)
+          {
+            epwingText = newHeaderLine + "<br />" + epwingText.substr(newLineIdx);
+          }
+          else
+          {
+            epwingText = newHeaderLine + epwingText.substr(newLineIdx);
+          }
+        }
+      }
+      
+    } // End add EPWING color and pitch
+    
+    // Show the header text? (known word indicator, entry number, frequency, dictionary number)
+    if(showHeader)
+    {
+      //
+      // Get the frequency  
+      //
+      var freqStr = "";
+      
+      if(rcxConfig.showfreq)
+      {
+        // Used the parsed expression if found
+        if(parsedExpression != "")
+        {
+          var freq = rcxMain.getFreq(parsedExpression);
+        }
+        else // Otherwise use the search term used for finding the EPWING entries
+        {
+          var freq = rcxMain.getFreq(rcxMain.epwingSearchTerm);
+        }
+                                  
+        if(freq && (freq.length > 0))
+        {            
+          var freqClass = rcxMain.getFreqStyle(freq);
+          freqStr = ' <span class="' + freqClass + '">' + freq + '</span>';
+        }
+      }
+    
+      var entryNumber = "";
+      
+      // Format the (num_entries / total_entries) text?
+      if(showEntryNumber)
+      {
+        entryNumber = "(" + (rcxMain.epwingCurHit + 1) + "/" + rcxMain.epwingTotalHits + ") ";
+      }
+      
+      // Get the known/to-do list indicator
+      knownWordIndicator =  rcxMain.getKnownWordIndicatorText();
+    
+      // Add a linefeed at the beginning of epwingText if one does not already exist
+      if(epwingText[0] != "\n")
+      {
+        epwingText = "<br />" + epwingText;
+      }
+      
+      // Format the conjugation
+      var conjugation = "";
+       
+      if (rcxConfig.epwingshowconjugation && rcxMain.lastFound[0].data && rcxMain.lastFound[0].data[0][1])
+      {
+        conjugation = '<span class="w-conj">(' + rcxMain.lastFound[0].data[0][1] + ')</span>';
+      }
+      
+      // Format the index and title of the current dictionary
+      var whichDic = "";
+      
+      if(rcxConfig.epwingshowdicnum)
+      {
+        var dicPos = rcxMain.getEpwingDicIndex() + 1;
+        var title = "";
+        
+        // If
+        if(rcxConfig.epwingshowtitle)
+        {
+          if(rcxConfig.epwingshowshorttitle)
+          {
+            title = "　" + rcxMain.getCurEpwingDicShortTitle() + " - ";
+          }
+          else // Show long title
+          {
+            title = "　" + rcxMain.getCurEpwingDicTitle() + " - ";
+          }
+        }
+        
+        whichDic = '<span class="epwing-dic-name">' + title + dicPos + '</span>';
+      }
+      
+      epwingText = knownWordIndicator + entryNumber + conjugation + freqStr + whichDic + epwingText;
+    }
+ 
+    var showDots = false;
+    
+    // Limit text to the user-specified number of lines (not 
+    // including lines generated from word wrap).
+    // If 500 (max), don't even check.
+    if(rcxConfig.epwingmaxlines != 500)
+    {
+      var maxLines = rcxConfig.epwingmaxlines;
+      
+      // Compensate for the header line
+      if(showHeader)
+      {
+        maxLines++;
+      }
+      
+      var epwingNumChars = epwingText.length;
+      var newLines = 0;
+      
+      for(var i = 0; i < epwingNumChars; i++)
+      {
+        if(epwingText[i] == '\n')
+        {
+          newLines++;
+
+          if(newLines >= maxLines)
+          {
+            epwingText = epwingText.substring(0, i);
+            showDots = true;
+            break;
+          }
+        }
+      }
+    }
+
+    // Strip linefeeds or replace with "<br />"?
+    if(rcxConfig.epwingstripnewlines)
+    {
+      epwingText = epwingText.replace(/\n/g, " ");
+    }
+    else
+    {
+      epwingText = epwingText.replace(/\n/g, "<br />");
+    }
+
+    // Show trailing dots if not all of the entry's lines could be displayed
+    if(showDots)
+    {
+      epwingText += "<br />...";
+    }
+
+    return epwingText;
+    
+  }, /* epwingFormatEntry */
+    
 
   // Fetch entry page from sanseido, parse out definition and display
 	lookupSanseido: function() 
@@ -3002,7 +3153,7 @@ var rcxMain = {
 			break;
       
 		case parseInt(rcxConfig.kbjdicaudio):	// f - JDIC Audio
-			this.playJDicAudio(false);
+			this.playJDicAudio(false);      
 			break;
       
 		case parseInt(rcxConfig.kbsavetofile):	// s - Save to file
@@ -3103,6 +3254,7 @@ var rcxMain = {
         // Reset the EPWING hit number and hit totals
         this.epwingTotalHits = 0;
         this.epwingCurHit = 0;
+        this.epwingPrevHit = 0;
         
         this.show(ev.currentTarget.rikaichan);
       }
@@ -3120,6 +3272,7 @@ var rcxMain = {
        // Reset the EPWING hit number and hit totals
         this.epwingTotalHits = 0;
         this.epwingCurHit = 0;
+        this.epwingPrevHit = 0;
     
         this.show(ev.currentTarget.rikaichan);
       }
@@ -3129,6 +3282,8 @@ var rcxMain = {
       if(this.epwingTotalHits > 0)
       {
         this.allowOneTimeSuperSticky();
+        
+        this.epwingPrevHit =  this.epwingCurHit;
       
         this.epwingCurHit--;
         
@@ -3147,6 +3302,7 @@ var rcxMain = {
       { 
         this.allowOneTimeSuperSticky();
       
+        this.epwingPrevHit = this.epwingCurHit;
         this.epwingCurHit = (this.epwingCurHit + 1) % this.epwingTotalHits;
         this.show(ev.currentTarget.rikaichan);
       }
@@ -3171,6 +3327,7 @@ var rcxMain = {
 			ev.preventDefault();
 		}
 	},
+
 
 	onKeyUp: function(ev) {
 		if (rcxMain.keysDown[ev.keyCode]) rcxMain.keysDown[ev.keyCode] = 0;
@@ -3651,7 +3808,14 @@ var rcxMain = {
         && (rcxData.dicList[rcxData.selected].name.indexOf("Names") == -1)
         && (rcxData.dicList[rcxData.selected].name.indexOf("Kanji") == -1))
       {
-        this.lookupEpwing();
+        if(this.epwingTimer)
+        {
+          clearTimeout(this.epwingTimer);
+          this.epwingTimer = null;
+        }
+       
+        // The user must hilite a word for at least 100 ms before the lookup will occur
+        this.epwingTimer = setTimeout(function() { rcxMain.lookupEpwing() }, 0);
       }
       // Normal popup
       else

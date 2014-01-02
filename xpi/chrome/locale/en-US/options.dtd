@@ -117,28 +117,32 @@
 <!ENTITY Epwing.DicFallback "Dictionary fallback">
 <!ENTITY Epwing.ToolTipDicFallback "Lookup behavior to use when the current dictionary doesn't contain the highlighted word.">
 <!ENTITY Epwing.DicFallbackOptNone "None">
-<!ENTITY Epwing.DicFallbackOptJMDICT "Use the default non-EPWING dictionary">
+<!ENTITY Epwing.DicFallbackOptJMDICT "Use the default non-EPWING dictionary (EDICT)">
 <!ENTITY Epwing.DicFallbackOptEpwing "Use the next available EPWING dictionary">
-<!ENTITY Epwing.MaxLines "Max lines to display">
-<!ENTITY Epwing.ToolTipMaxLines "Limit the number of lines shown in the popup window.">
-<!ENTITY Epwing.ShowConjugation "Show conjugation">
-<!ENTITY Epwing.ToolTipShowConjugation "Example conjugation: '(&lt; negative &lt; past)'.">
-<!ENTITY Epwing.ShowDicNum "Show number of current dictionary in top-right of popup">
-<!ENTITY Epwing.ToolTipShowDicNum "The number is the index of the dictionary in the list above.">
+<!ENTITY Epwing.MaxLines "Max lines per entry">
+<!ENTITY Epwing.ToolTipMaxLines "Limit the number of lines shown in the popup window for each entry.">
+<!ENTITY Epwing.ShowConjugation "Show conjugation rule">
+<!ENTITY Epwing.ToolTipShowConjugation "Example conjugation rule: '(&lt; negative &lt; past)'.">
+<!ENTITY Epwing.ShowDicNum "Show number and title of current dictionary in top-right of popup">
+<!ENTITY Epwing.ToolTipShowDicNum "The number is the index of the dictionary in the list above. To hide the title, set 'epwingshowtitle' to false in 'about:config'. To use the full title instead of the shortened title, set 'epwingshowshorttitle' to false in 'about:config'.">
 <!ENTITY Epwing.StripNewlines "Compact (strip carriage returns and line feeds)">
 <!ENTITY Epwing.ToolTipStripNewlines "This will make the popup look a little more like non-EPWING mode.">
-<!ENTITY Epwing.AdvancedUsers "Advanced Users">
+<!ENTITY Epwing.ShowAllEntries "Show all entries from the same dictionary at the same time">
+<!ENTITY Epwing.ToolTipStripShowAllEntries "If unchecked, the entries will appear one at a time.">
+<!ENTITY Epwing.AppendEdict "Append EDICT gloss">
+<!ENTITY Epwing.ToolTipStripAppendEdict "Append the results from the built-in dictionary (EDICT) to the end of the EPWING results.">
+<!ENTITY Epwing.AddColorAndPitch "Parse entries to add color, show pitch and enhance frequency (see tooltip for dictionary support)">
+<!ENTITY Epwing.AddColorAndPitchHelp1 "This option will only be applied to the following dictionaries:">
+<!ENTITY Epwing.AddColorAndPitchHelp2 "　　●　『研究社　新和英大辞典　第５版』 (Kenkyusha Shin Waei Daijiten 5th Edition [J-E])">
+<!ENTITY Epwing.AddColorAndPitchHelp3 "　　●　『広辞苑第六版』 (Kojien 6th Edition [J-J])">
+<!ENTITY Epwing.AddColorAndPitchHelp4 "　　●　『大辞泉』 (Daijisen [J-J])">
+<!ENTITY Epwing.AddColorAndPitchHelp5 "　　●　『明鏡国語辞典』 (Meikyo Kokugojiten [J-J])">
+<!ENTITY Epwing.AddColorAndPitchHelp6 "　　●　『大辞林 第2版』 (Dajirin 2nd Edition [J-J])">
+<!ENTITY Epwing.AddColorAndPitchHelp7 "　　●　『三省堂　スーパー大辞林』 (Sanseido Super Daijirin [J-J])">
+<!ENTITY Epwing.SearchNextLongest "If longest match could not be found, search for the next longest">
+<!ENTITY Epwing.ToolTipSearchNextLongest "For example, the word '自由研究' does not exist in many EPWING dictionaries, however, the word '自由' does. So if '自由研究' could not be found, '自由' will then be searched.">
 <!ENTITY Epwing.RemoveRegex "Remove text matching the following RegEx:">
 <!ENTITY Epwing.ToolTipRemoveRegex "You can use this to remove things like example sentences or other unnecessary text.">
-<!ENTITY Epwing.AddColorAndPitch "Parse entry to add color, show pitch and enhance frequency (see tooltip for dictionary support)">
-<!ENTITY Epwing.AddColorAndPitchHelp1 "This option is optimized for:">
-<!ENTITY Epwing.AddColorAndPitchHelp2 "　　●　『研究社　新和英大辞典　第５版』 (Kenkyusha Shin Waei Daijiten 5th Edition [J-E])">
-<!ENTITY Epwing.AddColorAndPitchHelp3 "But will also work with these dictionaries:">
-<!ENTITY Epwing.AddColorAndPitchHelp4 "　　●　『大辞泉』 (Daijisen [J-J])">
-<!ENTITY Epwing.AddColorAndPitchHelp5 "　　●　『広辞苑第六版』 (Kojien 6th Edition [J-J])">
-<!ENTITY Epwing.AddColorAndPitchHelp6 "　　●　『明鏡国語辞典』 (Meikyo Kokugojiten [J-J])">
-<!ENTITY Epwing.AddColorAndPitchHelp7 "If this option is unchecked, frequency can still be shown, but it will">
-<!ENTITY Epwing.AddColorAndPitchHelp8 "be based on the highlighted search term rather than the actual entry.">
 <!ENTITY Epwing.Keys "EPWING Keys">
 <!ENTITY Epwing.EpwingMode "EPWING mode">
 <!ENTITY Epwing.NextDic "Next dictionary">

@@ -45,6 +45,8 @@
 
 <script type="application/javascript;version=1.7" src="config.js"/>
 <script type="application/javascript;version=1.7" src="options.js"/>
+<script type="application/javascript;version=1.7" src="epwing.js" />
+
 
 <tabbox id="rcp-tabbox">
 <tabs>
@@ -453,38 +455,30 @@
           <checkbox label="&Epwing.ShowDicNum;" id="rcp-epwingshowdicnum" tooltiptext="&Epwing.ToolTipShowDicNum;"/>
 
           <checkbox label="&Epwing.StripNewlines;" id="rcp-epwingstripnewlines" tooltiptext="&Epwing.ToolTipStripNewlines;"/>
+          
+          <checkbox label="&Epwing.ShowAllEntries;" id="rcp-epwingshowallentries" tooltiptext="&Epwing.ToolTipStripShowAllEntries;"/>
+          
+          <checkbox label="&Epwing.AppendEdict;" id="rcp-epwingappendjmdict" tooltiptext="&Epwing.ToolTipStripAppendEdict;"/>
+          
+          
+          <tooltip id="AddColorAndPitchToolTip" orient="vertical">
+            <label value="&Epwing.AddColorAndPitchHelp1;"/>
+            <label value="&Epwing.AddColorAndPitchHelp2;"/>
+            <label value="&Epwing.AddColorAndPitchHelp3;"/>
+            <label value="&Epwing.AddColorAndPitchHelp4;"/>
+            <label value="&Epwing.AddColorAndPitchHelp5;"/>
+            <label value="&Epwing.AddColorAndPitchHelp6;"/>
+            <label value="&Epwing.AddColorAndPitchHelp7;"/>
+          </tooltip>
 
-          <spacer style="height:1em"/>
+          <checkbox label="&Epwing.AddColorAndPitch;" id="rcp-epwingaddcolorandpitch" tooltip="AddColorAndPitchToolTip"/>
+          
+          <checkbox label="&Epwing.SearchNextLongest;" id="rcp-epwingsearchnextlongest" tooltiptext="&Epwing.ToolTipSearchNextLongest;"/>
 
-          <groupbox>
-            <caption label="&Epwing.AdvancedUsers;"/>
-            <rows>
-              <row>
-                <hbox flex="1">
-                  <label value="&Epwing.RemoveRegex;" control="rcp-epwingremoveregex" tooltiptext="&Epwing.ToolTipRemoveRegex;"/>
-                  <textbox id="rcp-epwingremoveregex" maxlength="255" flex="1"/>
-                </hbox>
-              </row>
-
-              <tooltip id="AddColorAndPitchToolTip" orient="vertical">
-                <label value="&Epwing.AddColorAndPitchHelp1;"/>
-                <label value="&Epwing.AddColorAndPitchHelp2;"/>
-                <spacer style="height:1em"/>
-                <label value="&Epwing.AddColorAndPitchHelp3;"/>
-                <label value="&Epwing.AddColorAndPitchHelp4;"/>
-                <label value="&Epwing.AddColorAndPitchHelp5;"/>
-                <label value="&Epwing.AddColorAndPitchHelp6;"/>
-                <spacer style="height:1em"/>
-                <label value="&Epwing.AddColorAndPitchHelp7;"/>
-                <label value="&Epwing.AddColorAndPitchHelp8;"/>
-              </tooltip>
-
-              <checkbox label="&Epwing.AddColorAndPitch;" id="rcp-epwingaddcolorandpitch" tooltip="AddColorAndPitchToolTip"/>
-            </rows>
-
-          </groupbox>
-
-          <spacer style="height:1em"/>
+          <hbox flex="1">
+            <label value="&Epwing.RemoveRegex;" control="rcp-epwingremoveregex" tooltiptext="&Epwing.ToolTipRemoveRegex;"/>
+            <textbox id="rcp-epwingremoveregex" maxlength="255" flex="1"/>
+          </hbox>
 
           <groupbox>
             <caption label="&Epwing.Keys;"/>

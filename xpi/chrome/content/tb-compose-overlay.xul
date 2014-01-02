@@ -41,6 +41,7 @@
 <script type="application/javascript;version=1.7" src="config.js" />
 <script type="application/javascript;version=1.7" src="rikaichan.js" />
 <script type="application/javascript;version=1.7" src="data.js" />
+<script type="application/javascript;version=1.7" src="epwing.js" />
 
 <commandset id="composeCommands">
 	<command id="rikaichan-toggle-cmd" oncommand="rcxMain.toggle()"/>

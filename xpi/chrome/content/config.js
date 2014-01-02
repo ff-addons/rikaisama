@@ -104,15 +104,22 @@ var rcxConfigList = [
 	[1, 'kindex'],
   
 	// epwing
-	[1, 'epwingpathlist'],
+	[1, 'epwingdiclist'],
 	[1, 'epwingfallback'],
 	[0, 'epwingmaxlines'],
+	[0, 'epwingmaxlinesall'],
 	[2, 'epwingshowconjugation'],
 	[2, 'epwingshowdicnum'],
+ 	[2, 'epwingshowtitle'],
+	[2, 'epwingshowshorttitle'],
 	[2, 'epwingstripnewlines'],
+  [2, 'epwingshowallentries'],
+ 	[2, 'epwingappendjmdict'],
 	[1, 'epwingremoveregex'],
 	[2, 'epwingaddcolorandpitch'],
+	[2, 'epwingsearchnextlongest'],
   
+
 	// clipboard / save file
 	[1, 'sfile'],
 	[1, 'audiodir'],
