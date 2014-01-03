@@ -103,22 +103,21 @@ var rcxConfigList = [
 	// kanji
 	[1, 'kindex'],
   
-	// epwing
-	[1, 'epwingdiclist'],
-	[1, 'epwingfallback'],
-	[0, 'epwingmaxlines'],
-	[0, 'epwingmaxlinesall'],
-	[2, 'epwingshowconjugation'],
-	[2, 'epwingshowdicnum'],
- 	[2, 'epwingshowtitle'],
-	[2, 'epwingshowshorttitle'],
-	[2, 'epwingstripnewlines'],
-  [2, 'epwingshowallentries'],
- 	[2, 'epwingappendjmdict'],
-	[1, 'epwingremoveregex'],
-	[2, 'epwingaddcolorandpitch'],
-	[2, 'epwingsearchnextlongest'],
-  
+	// Epwing
+	[1, 'epwingdiclist'],           // Format: dic1?dic1_title|dic2?dic2_title|etc...
+	[1, 'epwingfallback'],          // none, jmdict, or epwing
+	[0, 'epwingmaxlines'],          // Max lines per entry
+	[0, 'epwingmaxentries'],        // Max entries to show (when epwingshowallentries is set)
+	[2, 'epwingshowconjugation'],   // Show conjugation rule
+	[2, 'epwingshowdicnum'],        // Show dic num and title in popup
+ 	[2, 'epwingshowtitle'],         // Show title next to dic num in popup
+	[2, 'epwingshowshorttitle'],    // Show short version of title in popup
+	[2, 'epwingstripnewlines'],     // Remove \r and \n from entries
+  [2, 'epwingshowallentries'],    // Append all entries from same dictionary into same popup
+ 	[2, 'epwingappendjmdict'],      // Append EDICT gloss to EPWING results
+	[2, 'epwingaddcolorandpitch'],  // Parse entry
+	[2, 'epwingsearchnextlongest'], // Search for next longest word if longest word not found
+ 	[1, 'epwingremoveregex'],       // Remove text matching this regex
 
 	// clipboard / save file
 	[1, 'sfile'],

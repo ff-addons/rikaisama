@@ -66,7 +66,7 @@
 		<grid>
 			<columns><column/><column/></columns>
 			<rows>
-				<row>
+				<row align="center">
 					<label value="&General.ColorScheme;" control="rcp-css"/>
 					<menulist id="rcp-css">
 						<menupopup>
@@ -77,14 +77,14 @@
 						</menupopup>
 					</menulist>
 				</row>
-        <row>
+        <row align="center">
 					<label value="&General.Opacity;" control="rcp-opacity" tooltiptext="&General.ToolTipOpacity;"/>
           <hbox>
             <textbox id="rcp-opacity" type="number" size="3" min="60" max="100"/>
             <label value="" control="rcp-opacity"/>
           </hbox>
 				</row>
-				<row id="rcp-enmode-box">
+				<row align="center" id="rcp-enmode-box">
 					<label value="&General.EnableMode;" control="rcp-enmode"/>
 					<menulist id="rcp-enmode">
 						<menupopup>
@@ -95,7 +95,7 @@
 						</menupopup>
 					</menulist>
 				</row>
-        <row>
+        <row align="center">
 					<label value="&General.Volume;" control="rcp-volume" tooltiptext="&General.ToolTipVolume;"/>
           <hbox>
             <textbox id="rcp-volume" type="number" size="3" min="0" max="100"/>
@@ -155,7 +155,7 @@
 			<grid>
 				<columns><column/><column/><column/><column/><column/></columns>
 				<rows>
-					<row>
+					<row align="center">
 						<label value="&Keyboard.Toggle;"/>
 						<checkbox label="&Keyboard.Ctrl;" id="rcp-toggle-accel"/>
 						<checkbox label="&Keyboard.Alt;" id="rcp-toggle-alt"/>
@@ -164,7 +164,7 @@
 							<menupopup id="rcp-toggle-list"/>
 						</menulist>
 					</row>
-					<row>
+					<row align="center">
 						<label value="&Keyboard.LookupBar;"/>
 						<checkbox label="&Keyboard.Ctrl;" id="rcp-lbar-accel"/>
 						<checkbox label="&Keyboard.Alt;" id="rcp-lbar-alt"/>
@@ -186,60 +186,60 @@
 				  <grid>
 				  	<columns><column/><column/></columns>
 				  	<rows>
-				  		<row>
+				  		<row align="center">
 				  			<description value="&Keyboard.AlternateView;"/>
                 <hbox>
                   <menulist id="rcp-kbalternateview"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
                   <label value=" " control="rcp-kbalternateview"/>
                 </hbox>
 				  		</row>
-				  		<row>
+				  		<row align="center">
 				  			<description value="&Keyboard.StickyPopup;"/>
                 <hbox>
                   <menulist id="rcp-kbstickypopup"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
                   <label value=" " control="rcp-kbstickypopup"/>
                 </hbox>
 				  		</row>
-				  		<row>
+				  		<row align="center">
 				  			<description value="&Keyboard.MovePopupDown;"/>
                 <hbox>
                   <menulist id="rcp-kbmovepopupdown"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
                   <label value=" " control="rcp-kbmovepopupdown"/>
                 </hbox>
 				  		</row>
-				  		<row>
+				  		<row align="center">
 				  			<description value="&Keyboard.CopyToClipboard;"/>
                 <hbox>
                   <menulist id="rcp-kbcopytoclipboard"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
                   <label value=" " control="rcp-kbcopytoclipboard"/>
                 </hbox>
 				  		</row>
-				  		<row>
+				  		<row align="center">
 				  			<description value="&Keyboard.SaveToFile;"/>
                 <hbox>
                   <menulist id="rcp-kbsavetofile"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
                   <label value=" " control="rcp-kbsavetofile"/>
                 </hbox>
 				  		</row>
-				  		<row>
+				  		<row align="center">
 				  			<description value="&Keyboard.SaveToFileKana;"/>
                 <hbox>
                   <menulist id="rcp-kbsavetofilekana"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
                   <label value=" " control="rcp-kbsavetofilekana"/>
                 </hbox>
 				  		</row>
-				  		<row>
+				  		<row align="center">
 				  			<description value="&Keyboard.HideShowDefinitions;"/>
                 <hbox>
                   <menulist id="rcp-kbhideshowdefinitions"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
                   <label value=" " control="rcp-kbhideshowdefinitions"/>
                 </hbox>
 				  		</row>
-				  		<row>
+				  		<row align="center">
 				  			<description value="&Keyboard.SwitchDictionary;"/>
 				  			<description value="SHIFT, ENTER, 1-9"/>
 				  		</row>
-              <row>
+              <row align="center">
 				  			<description value="&Keyboard.PreviousCharacter;"/>
                 <hbox>
                   <menulist id="rcp-kbpreviouscharacter"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
@@ -255,63 +255,63 @@
               <column/>
             </columns>
             <rows>
-				  		<row>
+				  		<row align="center">
 				  			<description value="&Keyboard.NextCharacter;"/>
                 <hbox>
                   <menulist id="rcp-kbnextcharacter"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
                   <label value=" " control="rcp-kbnextcharacter"/>
                 </hbox>
 				  		</row>
-				  		<row>
+				  		<row align="center">
 				  			<description value="&Keyboard.NextWord;"/>
                 <hbox>
                   <menulist id="rcp-kbnextword"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
                   <label value=" " control="rcp-kbnextword"/>
                 </hbox>
 				  		</row>
-				  		<row>
+				  		<row align="center">
 				  			<description value="&Keyboard.JdicAudio;"/>
                 <hbox>
                   <menulist id="rcp-kbjdicaudio"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
                   <label value=" " control="rcp-kbjdicaudio"/>
                 </hbox>
 				  		</row>
-              <row>
+              <row align="center">
 				  			<description value="&Keyboard.SanseidoMode;"/>
                 <hbox>
                   <menulist id="rcp-kbsanseidomode"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
                   <label value=" " control="rcp-kbsanseidomode"/>
                 </hbox>
 				  		</row>
-				  		<row>
+				  		<row align="center">
 				  			<description value="&Keyboard.EpwingMode;"/>
                 <hbox>
                   <menulist id="rcp-kbepwingmode"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
                   <label value=" " control="rcp-kbepwingmode"/>
                 </hbox>
 				  		</row>
-				  		<row>
+				  		<row align="center">
 				  			<description value="&Keyboard.RealTimeImport;"/>
                 <hbox>
                   <menulist id="rcp-kbrealtimeimport"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
                   <label value=" " control="rcp-kbrealtimeimport"/>
                 </hbox>
 				  		</row>
-				  		<row>
+				  		<row align="center">
 				  			<description value="&Keyboard.RealTimeImportKana;"/>
                 <hbox>
                   <menulist id="rcp-kbrealtimeimportkana"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
                   <label value=" " control="rcp-kbrealtimeimportkana"/>
                 </hbox>
 				  		</row>
-				  		<row>
+				  		<row align="center">
 				  			<description value="&Keyboard.SuperStickyMode;"/>
                 <hbox>
                   <menulist id="rcp-kbsuperstickymode"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
                   <label value=" " control="rcp-kbsuperstickymode"/>
                 </hbox>
 				  		</row>
-              <row>
+              <row align="center">
 				  			<description value="&Keyboard.EditNotes;"/>
                 <hbox>
                   <menulist id="rcp-kbeditnotes"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
@@ -369,11 +369,11 @@
 			<checkbox label="&Dictionaries.HideX;" id="rcp-hidex"/>
 			<checkbox label="&Dictionaries.ShowWordType;" id="rcp-wpos"/>
 			<checkbox label="&Dictionaries.ShowPopular;" id="rcp-wpop"/>
-			<hbox>
+			<hbox align="center">
 				<label value="&Dictionaries.MaxEntries;" control="rcp-wmax"/>
 				<textbox id="rcp-wmax" maxlength="5" size="5"/>
 			</hbox>
-			<hbox>
+			<hbox align="center">
 				<label value="&Dictionaries.MaxNames;" control="rcp-namax"/>
 				<textbox id="rcp-namax" maxlength="5" size="5"/>
 			</hbox>
@@ -429,8 +429,8 @@
         <columns><column/><column flex="1"/></columns>
         <rows>
           <row>
-            <label value="&Epwing.DicFallback;" control="rcp-epwingfallback"  tooltiptext="&Epwing.ToolTipDicFallback;"/>
-            <hbox>
+            <hbox align="center">
+              <label value="&Epwing.DicFallback;" control="rcp-epwingfallback"  tooltiptext="&Epwing.ToolTipDicFallback;"/>
               <menulist id="rcp-epwingfallback">
                 <menupopup>
                   <menuitem label="&Epwing.DicFallbackOptNone;" value="none"/>
@@ -438,15 +438,13 @@
                   <menuitem label="&Epwing.DicFallbackOptEpwing;" value="epwing"/>
                 </menupopup>
               </menulist>
-              <label value=" " control="rcp-epwingfallback"/>
             </hbox>
           </row>
 
           <row>
-            <label value="&Epwing.MaxLines;" control="rcp-epwingmaxlines" tooltiptext="&Epwing.ToolTipMaxLines;"/>
-            <hbox>
+            <hbox align="center">
+              <label value="&Epwing.MaxLines;" control="rcp-epwingmaxlines" tooltiptext="&Epwing.ToolTipMaxLines;"/>
               <textbox id="rcp-epwingmaxlines" type="number" size="4" min="1" max="500" increment="1"/>
-              <label value="" control="rcp-epwingmaxlines"/>
             </hbox>
           </row>
 
@@ -456,10 +454,16 @@
 
           <checkbox label="&Epwing.StripNewlines;" id="rcp-epwingstripnewlines" tooltiptext="&Epwing.ToolTipStripNewlines;"/>
           
-          <checkbox label="&Epwing.ShowAllEntries;" id="rcp-epwingshowallentries" tooltiptext="&Epwing.ToolTipStripShowAllEntries;"/>
+          <hbox>
+            <checkbox label="&Epwing.ShowAllEntries;" id="rcp-epwingshowallentries" tooltiptext="&Epwing.ToolTipStripShowAllEntries;"/>
+            <spacer style="width:2em"/>
+            <hbox align="center">
+              <label value="&Epwing.MaxEntries;" control="rcp-epwingmaxentries" tooltiptext="&Epwing.ToolTipStripMaxEntries;"/>
+              <textbox id="rcp-epwingmaxentries" type="number" size="3" min="1" max="999"/>
+            </hbox>
+          </hbox>
           
           <checkbox label="&Epwing.AppendEdict;" id="rcp-epwingappendjmdict" tooltiptext="&Epwing.ToolTipStripAppendEdict;"/>
-          
           
           <tooltip id="AddColorAndPitchToolTip" orient="vertical">
             <label value="&Epwing.AddColorAndPitchHelp1;"/>
@@ -475,7 +479,7 @@
           
           <checkbox label="&Epwing.SearchNextLongest;" id="rcp-epwingsearchnextlongest" tooltiptext="&Epwing.ToolTipSearchNextLongest;"/>
 
-          <hbox flex="1">
+          <hbox align="center" flex="1">
             <label value="&Epwing.RemoveRegex;" control="rcp-epwingremoveregex" tooltiptext="&Epwing.ToolTipRemoveRegex;"/>
             <textbox id="rcp-epwingremoveregex" maxlength="255" flex="1"/>
           </hbox>
@@ -486,21 +490,21 @@
               <grid>
                 <columns><column/><column/></columns>
                 <rows>
-                  <row>
+                  <row align="center">
                     <description value="&Epwing.EpwingMode;"/>
                     <hbox>
                       <label value="See Keyboard tab"/>
                       <label value=" "/>
                     </hbox>
                   </row>
-                  <row>
+                  <row align="center">
                     <description value="&Epwing.NextDic;"/>
                     <hbox>
                       <menulist id="rcp-kbepwingnextdic"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
                       <label value=" " control="rcp-kbepwingnextdic"/>
                     </hbox>
                   </row>
-                  <row>
+                  <row align="center">
                     <description value="&Epwing.PrevDic;"/>
                     <hbox>
                       <menulist id="rcp-kbepwingprevdic"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
@@ -510,20 +514,20 @@
                 </rows>
               </grid>
               <spacer style="width:1em"/>
-                <grid>
-                  <columns>
-                    <column/>
-                    <column/>
-                  </columns>
+              <grid>
+                <columns>
+                  <column/>
+                  <column/>
+                </columns>
                 <rows>
-                  <row>
+                  <row align="center">
                     <description value="&Epwing.NextEntry;"/>
                     <hbox>
                       <menulist id="rcp-kbepwingnextentry"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
                       <label value=" " control="rcp-kbepwingnextentry"/>
                     </hbox>
                   </row>
-                  <row>
+                  <row align="center">
                     <description value="&Epwing.PrevEntry;"/>
                     <hbox>
                       <menulist id="rcp-kbepwingpreventry"><menupopup><menuitem label="A" value="65"/><menuitem label="B" value="66"/><menuitem label="C" value="67"/><menuitem label="D" value="68"/><menuitem label="E" value="69"/><menuitem label="F" value="70"/><menuitem label="G" value="71"/><menuitem label="H" value="72"/><menuitem label="I" value="73"/><menuitem label="J" value="74"/><menuitem label="K" value="75"/><menuitem label="L" value="76"/><menuitem label="M" value="77"/><menuitem label="N" value="78"/><menuitem label="O" value="79"/><menuitem label="P" value="80"/><menuitem label="Q" value="81"/><menuitem label="R" value="82"/><menuitem label="S" value="83"/><menuitem label="T" value="84"/><menuitem label="U" value="85"/><menuitem label="V" value="86"/><menuitem label="W" value="87"/><menuitem label="X" value="88"/><menuitem label="Y" value="89"/><menuitem label="Z" value="90"/><menuitem label="` ~" value="192"/><menuitem label="0" value="48"/><menuitem label="- _" value="109"/><menuitem label="= +" value="107"/><menuitem label="[ {" value="219"/><menuitem label="] }" value="221"/><menuitem label="\ |" value="220"/><menuitem label="; :" value="59"/><menuitem label="' &quot;" value="222"/><menuitem label=", &lt;" value="188"/><menuitem label=". &gt;" value="190"/><menuitem label="/ ?" value="191"/><menuitem label="F1" value="112"/><menuitem label="F2" value="113"/><menuitem label="F3" value="114"/><menuitem label="F4" value="115"/><menuitem label="F5" value="116"/><menuitem label="F6" value="117"/><menuitem label="F7" value="118"/><menuitem label="F8" value="119"/><menuitem label="F9" value="120"/><menuitem label="F10" value="121"/><menuitem label="F11" value="122"/><menuitem label="F12" value="123"/><menuitem label="SPACE" value="32"/><menuitem label="BACKSPACE" value="8"/><menuitem label="INSERT" value="45"/><menuitem label="DELETE" value="46"/><menuitem label="HOME" value="36"/><menuitem label="END" value="35"/><menuitem label="PAGE UP" value="33"/><menuitem label="PAGE DOWN" value="34"/><menuitem label="LEFT" value="37"/><menuitem label="RIGHT" value="39"/><menuitem label="UP" value="38"/><menuitem label="DOWN" value="40"/><menuitem label="KEYPAD 0" value="96"/><menuitem label="KEYPAD 1" value="97"/><menuitem label="KEYPAD 2" value="98"/><menuitem label="KEYPAD 3" value="99"/><menuitem label="KEYPAD 4" value="100"/><menuitem label="KEYPAD 5" value="101"/><menuitem label="KEYPAD 6" value="102"/><menuitem label="KEYPAD 7" value="103"/><menuitem label="KEYPAD 8" value="104"/><menuitem label="KEYPAD 9" value="105"/><menuitem label="KEYPAD /" value="111"/><menuitem label="KEYPAD *" value="106"/><menuitem label="KEYPAD ." value="110"/></menupopup></menulist>
@@ -545,7 +549,7 @@
       <grid>
         <columns><column/><column flex="1"/></columns>
         <rows>
-          <row>
+          <row align="center">
             <label value="&ClipSave.Filename;" control="rcp-sfile" tooltiptext="&ClipSave.ToolTipFilename;"/>
             <hbox>
               <textbox id="rcp-sfile" maxlength="255" flex="1"/>
@@ -553,7 +557,7 @@
             </hbox>
           </row>
 
-          <row>
+          <row align="center">
             <label value="&ClipSave.AudioDir;" control="rcp-audiodir" tooltiptext="&ClipSave.ToolTipAudioDir;"/>
             <hbox>
               <textbox id="rcp-audiodir" maxlength="255" flex="1"/>
@@ -566,7 +570,7 @@
             <checkbox label="&ClipSave.SaveAudioOnPlay;" id="rcp-saveaudioonplay" tooltiptext="&ClipSave.ToolTipSaveAudioOnPlay;"/>
           </row>
 
-          <row>
+          <row align="center">
             <label value="&ClipSave.Encoding;" control="rcp-sfcs"/>
             <hbox>
               <menulist id="rcp-sfcs" flex="0">
@@ -585,7 +589,7 @@
             </hbox>
           </row>
 
-          <row>
+          <row align="center">
             <label value="&ClipSave.LineEnding;" control="rcp-snlf"/>
             <hbox>
               <menulist id="rcp-snlf">
@@ -599,7 +603,7 @@
             </hbox>
           </row>
 
-          <row>
+          <row align="center">
             <label value="&ClipSave.AnkiTags;" control="rcp-atags" tooltiptext="&ClipSave.ToolTipAnkiTags;"/>
             <hbox>
               <textbox id="rcp-atags" size="50" maxlength="255"/>
@@ -607,12 +611,12 @@
             </hbox>
           </row>
 
-          <row>
+          <row align="center">
             <label value="&ClipSave.SaveNotes;" control="rcp-savenotes" tooltiptext="&ClipSave.ToolTipSaveNotes;"/>
             <textbox id="rcp-savenotes"/>
           </row>
 
-          <row>
+          <row align="center">
             <label value="&ClipSave.SaveFormat;" control="rcp-saveformat" tooltiptext="&ClipSave.ToolTipSaveFormat;"/>
             <textbox id="rcp-saveformat"/>
           </row>
@@ -728,7 +732,7 @@
                 </hbox>
               </row>
               <row>
-                <hbox>
+                <hbox align="center">
                   <label value="&Vocab.KnownWordsFileCol;"/>
                   <textbox id="rcp-vocabknownwordslistcolumn" type="number" size="4" min="1" max="99"/>
                 </hbox>
@@ -760,7 +764,7 @@
                 </hbox>
               </row>
               <row>
-                <hbox>
+                <hbox align="center">
                   <label value="&Vocab.ToDoWordsFileCol;"/>
                   <textbox id="rcp-vocabtodowordslistcolumn" type="number" size="4" min="1" max="99"/>
                 </hbox>
@@ -789,7 +793,7 @@
               <column flex="1"/>
             </columns>
             <rows>
-              <row>
+              <row align="center">
                 <label value="&Anki.RTIFieldNames;" control="rcp-rtifieldnamestext" tooltiptext="&Anki.ToolTipRTIFieldNames;"/>
                 <textbox id="rcp-rtifieldnamestext" maxlength="255"/>
               </row>
@@ -800,7 +804,7 @@
               <spacer style="height:1em"/>
               <checkbox label="&Anki.RTISaveAudio;" id="rcp-rtisaveaudio"/>
               <spacer style="height:1em"/>
-              <row>
+              <row align="center">
                 <label value="&Anki.RTIPort;" control="rcp-rtiudpport" tooltiptext="&Anki.ToolTipRTIPort;"/>
                 <hbox>
                   <textbox id="rcp-rtiudpport" type="number" size="6" min="49152" max="65535"/>

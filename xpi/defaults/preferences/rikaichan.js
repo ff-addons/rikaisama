@@ -67,7 +67,7 @@ pref('rikaichan.kindex', 'COMP,H,L,E,DK,N,V,Y,P,IN,I,U');
 pref('rikaichan.epwingdiclist', '');
 pref('rikaichan.epwingfallback', 'jmdict');
 pref('rikaichan.epwingmaxlines', 15);
-pref('rikaichan.epwingmaxlinesall', 45); // Currently unused
+pref('rikaichan.epwingmaxentries', 5);
 pref('rikaichan.epwingshowconjugation', true);
 pref('rikaichan.epwingshowdicnum', true);
 pref('rikaichan.epwingshowtitle', true);
@@ -75,9 +75,9 @@ pref('rikaichan.epwingshowshorttitle', true);
 pref('rikaichan.epwingstripnewlines', false);
 pref('rikaichan.epwingshowallentries', false);
 pref('rikaichan.epwingappendjmdict', false);
-pref('rikaichan.epwingremoveregex', '');
 pref('rikaichan.epwingaddcolorandpitch', true);
 pref('rikaichan.epwingsearchnextlongest', false);
+pref('rikaichan.epwingremoveregex', '');
 
 pref('rikaichan.sfile', '');
 pref('rikaichan.audiodir', '');

@@ -2103,6 +2103,12 @@ var rcxMain = {
         {
           entryList.push(entryFields[i]);
         }
+        
+        // If user wants to limit number of entries, check to see if we have enough
+        if(rcxConfig.epwingshowallentries && (entryList.length >= rcxConfig.epwingmaxentries))
+        {
+          break;
+        }
       }
     }
     
