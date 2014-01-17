@@ -138,6 +138,10 @@
 <!ENTITY Epwing.AddColorAndPitchHelp5 "　　●　『明鏡国語辞典』 (Meikyo Kokugojiten [J-J])">
 <!ENTITY Epwing.AddColorAndPitchHelp6 "　　●　『大辞林 第2版』 (Dajirin 2nd Edition [J-J])">
 <!ENTITY Epwing.AddColorAndPitchHelp7 "　　●　『三省堂　スーパー大辞林』 (Sanseido Super Daijirin [J-J])">
+<!ENTITY Epwing.AddColorAndPitchHelp8 "　　●　『新明解国語辞典　第五版』 (Shinmeikai Kokugojiten 5th Edition [J-J])">
+<!ENTITY Epwing.AddColorAndPitchHelp9 "">
+<!ENTITY Epwing.AddColorAndPitchHelp10 "Advanced: To force parsing of unsupported dictionaries,">
+<!ENTITY Epwing.AddColorAndPitchHelp11 "set 'epwingforceparse' to true in 'about:config'.">
 <!ENTITY Epwing.SearchNextLongest "If longest match could not be found, search for the next longest">
 <!ENTITY Epwing.ToolTipSearchNextLongest "For example, the word '自由研究' does not exist in many EPWING dictionaries, however, the word '自由' does. So if '自由研究' could not be found, '自由' will then be searched.">
 <!ENTITY Epwing.RemoveRegex "Remove text matching the following RegEx:">

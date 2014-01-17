@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------
---  Copyright (C) 2011-2012 Christopher Brochtrup
+--  Copyright (C) 2011-2014 Christopher Brochtrup
 --
 --  This file is part of eplkup.
 --
@@ -49,48 +49,11 @@
 #define GAIJI_OPTION_HTML_IMG   1 /* HTML IMG tag (image is embedded as base64) */
 
 
-
-/* The path of the book */
-extern char book_path[MAXLEN_PATH + 1];
-
-/* The path of input file */
-extern char in_path[MAXLEN_PATH + 1];
-
-/* The path of the output file */
-extern char out_path[MAXLEN_PATH + 1];
-
-/* The path of the file that contains the gaiji replacement string to use */
-extern char gaiji_file[MAXLEN_PATH + 1];
-
 /* The name of the subbook directory (not the full path) */
 extern char subbook_directory[EB_MAX_DIRECTORY_NAME_LENGTH + 1];
 
-/* Output the number of hits on the first line? */
-extern int show_hit_count;
-
-/* The subbook */
-extern int subbook_index;
-
-/* Print the heading?  */
-extern int print_heading;
-
-/* Print the text? */
-extern int print_text;
-
-/* A particular hit to output */
-extern int hit_to_output;
-
-/* How many hits to output */
-extern int max_hits_to_output;
-
-/* Print the hit number before printing the actual hit? */
-extern int print_hit_number;
-
 /* Gaiji replacement option: GAIJI_OPTION_DEFAULT or GAIJI_OPTION_HTML_IMG */
 extern int gaiji_option;
-
-/* Print the title of the subbook? */
-extern int print_title;
 
 
 #endif /* EPLKUP_DATA_H */

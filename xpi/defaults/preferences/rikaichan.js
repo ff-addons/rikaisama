@@ -76,6 +76,7 @@ pref('rikaichan.epwingstripnewlines', false);
 pref('rikaichan.epwingshowallentries', false);
 pref('rikaichan.epwingappendjmdict', false);
 pref('rikaichan.epwingaddcolorandpitch', true);
+pref('rikaichan.epwingforceparse', false);
 pref('rikaichan.epwingsearchnextlongest', false);
 pref('rikaichan.epwingremoveregex', '');
 

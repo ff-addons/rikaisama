@@ -473,6 +473,10 @@
             <label value="&Epwing.AddColorAndPitchHelp5;"/>
             <label value="&Epwing.AddColorAndPitchHelp6;"/>
             <label value="&Epwing.AddColorAndPitchHelp7;"/>
+            <label value="&Epwing.AddColorAndPitchHelp8;"/>
+            <label value="&Epwing.AddColorAndPitchHelp9;"/>
+            <label value="&Epwing.AddColorAndPitchHelp10;"/>
+            <label value="&Epwing.AddColorAndPitchHelp11;"/>
           </tooltip>
 
           <checkbox label="&Epwing.AddColorAndPitch;" id="rcp-epwingaddcolorandpitch" tooltip="AddColorAndPitchToolTip"/>

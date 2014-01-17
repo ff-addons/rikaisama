@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------
---  Copyright (C) 2011-2012 Christopher Brochtrup
+--  Copyright (C) 2011-2014 Christopher Brochtrup
 --
 --  This file is part of eplkup.
 --
@@ -20,17 +20,6 @@
 
 #include "eplkup_data.h"
 
-extern char book_path[MAXLEN_PATH + 1]  = "";
-extern char in_path[MAXLEN_PATH + 1]    = "";
-extern char out_path[MAXLEN_PATH + 1]   = "";
-extern char gaiji_path[MAXLEN_PATH + 1] = "";
 extern char subbook_directory[EB_MAX_DIRECTORY_NAME_LENGTH + 1] = "";
-extern int show_hit_count               = 0;
-extern int subbook_index                = 0;
-extern int print_heading                = 1;
-extern int print_text                   = 1;
-extern int hit_to_output                = -1;
-extern int max_hits_to_output           = MAX_HITS;
-extern int print_hit_number             = 0;
-extern int gaiji_option                 = 0;
-extern int print_title                  = 0;
+extern int gaiji_option = 0;
+

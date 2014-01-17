@@ -1,5 +1,5 @@
 /*------------------------------------------------------------------------
---  Copyright (C) 2011-2012 Christopher Brochtrup
+--  Copyright (C) 2011-2014 Christopher Brochtrup
 --
 --  This file is part of eplkup.
 --
@@ -168,6 +168,20 @@ void get_gaiji_table(const char *dic_name, char width, Gaiji_table_type **gaiji_
     {
       *gaiji_table = gaiji_table_wide_daijisen;
       *max_elem = NUM_WIDE_DAIJISEN_ITEMS;
+    }
+  }
+  else if(str_eq_i(dic_name, "snmkg99"))
+  {
+    if(width == 'n')
+    {
+      *gaiji_table = NULL;
+      //*gaiji_table = gaiji_table_narrow_snmkg99;
+      *max_elem = NUM_NARROW_SNMKG99_ITEMS;
+    }
+    else
+    {
+      *gaiji_table = gaiji_table_wide_snmkg99;
+      *max_elem = NUM_WIDE_SNMKG99_ITEMS;
     }
   }
   else

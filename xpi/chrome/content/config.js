@@ -116,6 +116,7 @@ var rcxConfigList = [
   [2, 'epwingshowallentries'],    // Append all entries from same dictionary into same popup
  	[2, 'epwingappendjmdict'],      // Append EDICT gloss to EPWING results
 	[2, 'epwingaddcolorandpitch'],  // Parse entry
+  [2, 'epwingforceparse'],        // Force entry to be parsed even if dic is not supported
 	[2, 'epwingsearchnextlongest'], // Search for next longest word if longest word not found
  	[1, 'epwingremoveregex'],       // Remove text matching this regex
 

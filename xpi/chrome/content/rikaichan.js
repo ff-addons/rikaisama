@@ -1462,6 +1462,10 @@ var rcxMain = {
     {
       shortTitle = "明鏡";
     }
+    else if(title == "新明解国語辞典　第五版") // Shinmeikai Kokugojiten 5th Edition. J-J.
+    {
+      shortTitle = "新明解五";
+    }
     else if(title == "ジーニアス英和〈第３版〉・和英〈第２版〉辞典") // Genius EJ 3rd J-E 2nd. Contains example sentences.
     {
       shortTitle = "ジー三・二";
@@ -2242,12 +2246,14 @@ var rcxMain = {
     var dicTitle = rcxMain.getCurEpwingDicTitle();
     
     if(rcxConfig.epwingaddcolorandpitch
-      && ((dicTitle == "研究社　新和英大辞典　第５版")
-        ||(dicTitle == "明鏡国語辞典")
-        ||(dicTitle == "大辞泉")
-        ||(dicTitle == "広辞苑第六版")
-        ||(dicTitle == "大辞林 第2版")
-        ||(dicTitle == "三省堂　スーパー大辞林")))
+      &&  (rcxConfig.epwingforceparse
+           || ((dicTitle == "研究社　新和英大辞典　第５版")
+           ||  (dicTitle == "明鏡国語辞典")
+           ||  (dicTitle == "大辞泉")
+           ||  (dicTitle == "広辞苑第六版")
+           ||  (dicTitle == "大辞林 第2版")
+           ||  (dicTitle == "三省堂　スーパー大辞林")
+           ||  (dicTitle == "新明解国語辞典　第五版"))))
     {
       var newLineIdx = epwingText.indexOf("\n", 1); // Start at 1 because 0 is a \n
       
