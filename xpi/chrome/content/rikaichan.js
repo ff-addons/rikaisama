@@ -78,6 +78,8 @@ var rcxMain = {
                                      //        For example, Kojien6 doesn't have 自由研究 (which is in EDICT) but it does have 自由, 
                                      //        so 自由 is used for the next longest search
   epwingResultList: [],         // List of results from the previous EPWING search
+  freqDB: null,                 // Frequency database connection
+  pitchDB: null,                // Pitch accent database connection
 
 	getBrowserTB: function() {
 		if (rcxMain.tabMail) return rcxMain.tabMail.getBrowserForSelectedTab();
@@ -929,31 +931,35 @@ var rcxMain = {
   getFreq: function(inExpression)
   {
     try
-    {    
-      // Get the path of the frequency database
-      var freqDbPath = Components.classes["@mozilla.org/file/directory_service;1"]
-      .getService(Components.interfaces.nsIProperties)
-      .get("ProfD", Components.interfaces.nsILocalFile);
-      freqDbPath.append("extensions");
-      freqDbPath.append(rcxMain.id); // GUID of extension
-      freqDbPath.append("freq");
-      freqDbPath.append("freq.sqlite");
-      
-      // Is the frequency database could not be found, return
-      if(!freqDbPath.exists())
+    { 
+      // If we have not yet made a connection to the database
+      if(this.freqDB == null)
       {
-        return "";
+        // Get the path of the frequency database
+        var freqDbPath = Components.classes["@mozilla.org/file/directory_service;1"]
+        .getService(Components.interfaces.nsIProperties)
+        .get("ProfD", Components.interfaces.nsILocalFile);
+        freqDbPath.append("extensions");
+        freqDbPath.append(rcxMain.id); // GUID of extension
+        freqDbPath.append("freq");
+        freqDbPath.append("freq.sqlite");
+        
+        // Is the frequency database could not be found, return
+        if(!freqDbPath.exists())
+        {
+          return "";
+        }
+      
+        // Get file pointer to the frequency sqlite database
+        var freqDbFile = Components.classes['@mozilla.org/file/local;1']
+         .createInstance(Components.interfaces.nsILocalFile);
+        freqDbFile.initWithPath(freqDbPath.path);
+      
+        // Open the frequency database
+        this.freqDB = Components.classes['@mozilla.org/storage/service;1']
+         .getService(Components.interfaces.mozIStorageService)
+         .openDatabase(freqDbFile);
       }
-      
-      // Get file pointer to the frequency sqlite database
-      var freqDbFile = Components.classes['@mozilla.org/file/local;1']
-       .createInstance(Components.interfaces.nsILocalFile);
-      freqDbFile.initWithPath(freqDbPath.path);
-      
-      // Open the frequency database
-      var freqDB = Components.classes['@mozilla.org/storage/service;1']
-       .getService(Components.interfaces.mozIStorageService)
-       .openDatabase(freqDbFile);
        
       // If the caller provided an expression, use it, otherwise use the
       // expression of the hilited word
@@ -980,19 +986,24 @@ var rcxMain = {
 
         var expression = entryData[1];
       }
-      
-      var stFreq = freqDB.createStatement("SELECT freq FROM Dict WHERE expression='"
-          + expression + "'");
-      
-      stFreq.executeStep();
-      
-      // Get the result of the query
-      var freq = stFreq.row.freq;
-      
-      stFreq.reset();
-      stFreq.finalize();
 
-      freqDB.close();
+      // Reference: https://developer.mozilla.org/en-US/docs/Storage
+      var stFreq = this.freqDB.createStatement("SELECT freq FROM Dict WHERE expression='"
+          + expression + "'");
+
+      var freq = "";
+      
+      try
+      {      
+        stFreq.executeStep();
+        
+        // Get the result of the query
+        freq = stFreq.row.freq;
+      }
+      finally
+      {
+        stFreq.reset();
+      }
 
       return freq;
     }
@@ -1012,30 +1023,34 @@ var rcxMain = {
   {
     try
     {
-      // Get the path of the pitch accent database
-      var pitchDbPath = Components.classes["@mozilla.org/file/directory_service;1"]
-      .getService(Components.interfaces.nsIProperties)
-      .get("ProfD", Components.interfaces.nsILocalFile);
-      pitchDbPath.append("extensions");
-      pitchDbPath.append(rcxMain.id); // GUID of extension
-      pitchDbPath.append("pitch");
-      pitchDbPath.append("pitch_accents.sqlite");
-
-      // Is the pitch accent database could not be found, return
-      if(!pitchDbPath.exists())
+      // If we have not yet made a connection to the database
+      if(this.pitchDB == null)
       {
-        return "";
+        // Get the path of the pitch accent database
+        var pitchDbPath = Components.classes["@mozilla.org/file/directory_service;1"]
+        .getService(Components.interfaces.nsIProperties)
+        .get("ProfD", Components.interfaces.nsILocalFile);
+        pitchDbPath.append("extensions");
+        pitchDbPath.append(rcxMain.id); // GUID of extension
+        pitchDbPath.append("pitch");
+        pitchDbPath.append("pitch_accents.sqlite");
+
+        // Is the pitch accent database could not be found, return
+        if(!pitchDbPath.exists())
+        {
+          return "";
+        }
+      
+        // Get file pointer to the pitch accent sqlite database
+        var pitchDbFile = Components.classes['@mozilla.org/file/local;1']
+         .createInstance(Components.interfaces.nsILocalFile);
+        pitchDbFile.initWithPath(pitchDbPath.path);
+      
+        // Open the pitch accent database
+        this.pitchDB = Components.classes['@mozilla.org/storage/service;1']
+         .getService(Components.interfaces.mozIStorageService)
+         .openDatabase(pitchDbFile);
       }
-
-      // Get file pointer to the pitch accent sqlite database
-      var pitchDbFile = Components.classes['@mozilla.org/file/local;1']
-       .createInstance(Components.interfaces.nsILocalFile);
-      pitchDbFile.initWithPath(pitchDbPath.path);
-
-      // Open the pitch accent database
-      var pitchDB = Components.classes['@mozilla.org/storage/service;1']
-       .getService(Components.interfaces.mozIStorageService)
-       .openDatabase(pitchDbFile);
 
       // If the caller provided an expression/reading, use them, otherwise use the
       // expression/reading of the hilited word
@@ -1068,20 +1083,30 @@ var rcxMain = {
       // Form the SQL used to query the pitch accent
       if(!reading)
       {
-        var stPitch = pitchDB.createStatement("SELECT pitch FROM Dict WHERE expression='"
+        // Reference: https://developer.mozilla.org/en-US/docs/Storage
+        var stPitch = this.pitchDB.createStatement("SELECT pitch FROM Dict WHERE expression='"
           + expression + "'");
       }
       else
       {
-        var stPitch = pitchDB.createStatement("SELECT pitch FROM Dict WHERE expression='"
+        var stPitch = this.pitchDB.createStatement("SELECT pitch FROM Dict WHERE expression='"
           + expression + "' AND reading='" + reading + "'");
       }
 
-      stPitch.executeStep();
-
-      // Get the result of the query
-      var pitch = stPitch.row.pitch;
+      var pitch = "";
       
+      try
+      {  
+        stPitch.executeStep();
+        
+        // Get the result of the query
+        pitch = stPitch.row.pitch;
+      }
+      finally
+      {
+        stPitch.reset();
+      }
+
       // If user wants to hide the part-of-speech unless , or | is present
       if(rcxConfig.hidepitchaccentpos)
       {
@@ -1090,11 +1115,6 @@ var rcxMain = {
           pitch = pitch.replace(/\(.*?\)/g, "")
         }
       }
-
-      stPitch.reset();
-      stPitch.finalize();
-
-      pitchDB.close();
 
       return pitch;
     }

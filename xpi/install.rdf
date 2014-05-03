@@ -5,7 +5,7 @@
 		<em:id>{697F6AFE-5321-4DE1-BFE6-4471C3721BD4}</em:id>
     <em:type>2</em:type>
 		<em:name>Rikaisama</em:name>
-		<em:version>20.2</em:version>
+		<em:version>20.3</em:version>
 		<em:description>Japanese dictionary extension</em:description>
 		<em:optionsURL>chrome://rikaichan/content/options.xul</em:optionsURL>
 		<em:iconURL>chrome://rikaichan/skin/smile.png</em:iconURL>
