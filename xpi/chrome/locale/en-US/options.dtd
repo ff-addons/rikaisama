@@ -80,19 +80,19 @@
 
 <!ENTITY Dictionaries.Priority "Priority">
 <!ENTITY Dictionaries.ShowFreq "Show frequency information">
-<!ENTITY Dictionaries.ToolTipShowFreq1  "Show frequency of highlighted word in terms of the number">
-<!ENTITY Dictionaries.ToolTipShowFreq2  "of words that are more frequent than it + 1. ">
-<!ENTITY Dictionaries.ToolTipShowFreq3  "So if a word has a frequency of 1563, it means that 1562">
-<!ENTITY Dictionaries.ToolTipShowFreq4  "words are more frequent than it.">
-<!ENTITY Dictionaries.ToolTipShowFreq5  "Colors of the frequency numbers:">
-<!ENTITY Dictionaries.ToolTipShowFreq6  "　　●　Very common words are green-ish">
-<!ENTITY Dictionaries.ToolTipShowFreq7  "　　●　Common words are yellow-ish">
-<!ENTITY Dictionaries.ToolTipShowFreq8  "　　●　Uncommon words are orange-ish">
-<!ENTITY Dictionaries.ToolTipShowFreq9  "　　●　Rare words are pink-ish">
-<!ENTITY Dictionaries.ToolTipShowFreq10 "Frequencies are based on analysis of 5000+ novels.">
-<!ENTITY Dictionaries.ToolTipShowFreq11 "Naturally, frequency based on other mediums might vary.">
-<!ENTITY Dictionaries.ToolTipShowFreq12 "Not all words have frequency information.">
-<!ENTITY Dictionaries.ToolTipShowFreq13 "It is possible for multiple words to share the same frequency.">
+<!ENTITY Dictionaries.ToolTipShowFreq1  "Show frequency group number. The lower the number, the">
+<!ENTITY Dictionaries.ToolTipShowFreq2  "more frequent the word. All words that share the same">
+<!ENTITY Dictionaries.ToolTipShowFreq3  "frequency are members of the same frequency group. So">
+<!ENTITY Dictionaries.ToolTipShowFreq4  "if a word belongs to frequency group 1563, it means that">
+<!ENTITY Dictionaries.ToolTipShowFreq5  "there exist 1562 frequency groups that are more frequent.">
+<!ENTITY Dictionaries.ToolTipShowFreq6  "Colors of the frequency numbers:">
+<!ENTITY Dictionaries.ToolTipShowFreq7  "　　●　Very common words are green-ish">
+<!ENTITY Dictionaries.ToolTipShowFreq8  "　　●　Common words are yellow-ish">
+<!ENTITY Dictionaries.ToolTipShowFreq9  "　　●　Uncommon words are orange-ish">
+<!ENTITY Dictionaries.ToolTipShowFreq10 "　　●　Rare words are pink-ish">
+<!ENTITY Dictionaries.ToolTipShowFreq11 "Frequencies are based on analysis of 5000+ novels.">
+<!ENTITY Dictionaries.ToolTipShowFreq12 "Naturally, frequency based on other mediums might vary.">
+<!ENTITY Dictionaries.ToolTipShowFreq13 "Not all words have frequency information.">
 <!ENTITY Dictionaries.ShowPitchAccent "Show pitch accent">
 <!ENTITY Dictionaries.ToolTipShowPitchAccent "Display pitch accent number to the right of the reading.">
 <!ENTITY Dictionaries.HidePitchAccentPOS "Hide pitch accent part-of-speech unless ',' or '|' is present">
@@ -175,10 +175,14 @@
 <!ENTITY ClipSave.ToolTipFmtAudioFile "Name of pronunciation .mp3 file for the saved word. Format: 'kana - kanji.mp3'.">
 <!ENTITY ClipSave.FmtDictForm "Dictionary form:">
 <!ENTITY ClipSave.ToolTipFmtDictForm "The dictionary/plain form of the saved word.">
+<!ENTITY ClipSave.FmtFrequency "Frequency:">
+<!ENTITY ClipSave.ToolTipFmtFrequency "The frequency of the saved word.">
 <!ENTITY ClipSave.FmtHighlighted "Highlighted word:">
 <!ENTITY ClipSave.ToolTipFmtHighlighted "The highlighted word (including any conjugations).">
 <!ENTITY ClipSave.FmtNotes "Notes:">
 <!ENTITY ClipSave.ToolTipFmtNotes "The text from the 'Notes' text box above.">
+<!ENTITY ClipSave.FmtPitch "Pitch accent:">
+<!ENTITY ClipSave.ToolTipFmtPitch "The pitch accent of the saved word.">
 <!ENTITY ClipSave.FmtReading "Reading:">
 <!ENTITY ClipSave.ToolTipFmtReading "The kana reading of the saved word.">
 <!ENTITY ClipSave.FmtSentence "Sentence:">

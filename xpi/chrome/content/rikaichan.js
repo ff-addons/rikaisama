@@ -902,8 +902,10 @@ var rcxMain = {
 
   
   /* Get the CSS style to use when drawing the provided frequency */
-  getFreqStyle: function(freqNum)
+  getFreqStyle: function(inFreqNum)
   {
+    freqNum = inFreqNum.replace(/_r/g, "");
+  
     var freqStyle = 'w-freq-rare';
                         
     if (freqNum <= 5000)
@@ -924,14 +926,99 @@ var rcxMain = {
   }, /* getFreqStyle */
   
   
-  /* Get the frequency for the given expression. If expression is not given,
-     get the frequency for the last hilited word.
+  /* Get the frequency for the given expression/reading. If the frequency is based on the 
+     reading then "_r" is appended to the frequency string that is returned.
+     
+     useHilitedWord - Set to true to allow the hilited word to be considered when
+                      determining frequency.
+     
      Note: frequency information comes from analysis of 5000+ novels (via 
            Japanese Text Analysis Tool). */
-  getFreq: function(inExpression)
+  getFreq: function(inExpression, inReading, useHilitedWord)
   {
+    var expression = inExpression;
+    var reading = inReading;
+    var hilitedWord = this.word; // Hilited word without de-inflection
+    
+    var freqNum = "";
+    var freqStr = "";
+    var freqBasedOnReading = false;
+      
     try
-    { 
+    {       
+      var readingFreqNum = this.lookupFreqInDb(reading);
+      var readingSameAsExpression = (expression == reading);
+      var expressionFreqNum = readingFreqNum;
+            
+      // Don't waste time looking up the expression freq if expression is same as the reading
+      if(!readingSameAsExpression)
+      {
+        expressionFreqNum = this.lookupFreqInDb(expression);
+      }
+      
+      // If frequency was found for either frequency or reading
+      if((expressionFreqNum.length > 0) || (readingFreqNum.length > 0))
+      {
+        // If the hilited word does not contain kanji, and the reading is unique,
+        // use the reading frequency
+        if(useHilitedWord
+            && !readingSameAsExpression
+            && !this.containsKanji(hilitedWord)
+            && (readingFreqNum.length > 0)
+            && (rcxData.getReadingCount(reading) == 1))
+        {
+          freqNum = readingFreqNum;
+          freqBasedOnReading = true;
+        }
+        
+        // If expression and reading are the same, use the reading frequency
+        if((freqNum.length == 0)
+            && readingSameAsExpression
+            && (readingFreqNum.length > 0))
+        {
+          freqNum = readingFreqNum;
+        }
+        
+        // If the expression is in the freq db, use the expression frequency
+        if((freqNum.length == 0) && (expressionFreqNum.length > 0))
+        {
+          freqNum = expressionFreqNum;
+        }
+        
+        // If the reading is in the freq db, use the the reading frequency
+        if((freqNum.length == 0) && (readingFreqNum.length > 0))
+        {
+          freqNum = readingFreqNum;
+          freqBasedOnReading = true;
+        }
+      }
+      
+      freqStr = freqNum;
+      
+      // Indicate that frequency was based on the reading
+      if(freqBasedOnReading)
+      {
+        freqStr += "_r";
+      } 
+    }
+    catch(ex)
+    {
+      Components.utils.reportError("getFreq() Exception: " + ex);
+      freqStr = "";
+    }
+
+    return freqStr;
+    
+  }, /* getFreq */
+  
+  
+  /* Lookup the provided word in the frequency database. */
+  lookupFreqInDb: function(word)
+  {
+    var freq = "";
+          
+    try
+    {
       // If we have not yet made a connection to the database
       if(this.freqDB == null)
       {
@@ -960,61 +1047,35 @@ var rcxMain = {
          .getService(Components.interfaces.mozIStorageService)
          .openDatabase(freqDbFile);
       }
-       
-      // If the caller provided an expression, use it, otherwise use the
-      // expression of the hilited word
-      if(inExpression)
-      {
-        var expression = inExpression;
-      }
-      else
-      {
-        var hilitedEntry = this.lastFound;
-
-        if ((!hilitedEntry) || (hilitedEntry.length == 0)
-          || !hilitedEntry[0] || !hilitedEntry[0].data[0])
-        {
-          return "";
-        }
-
-        var entryData = hilitedEntry[0].data[0][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
-
-        //   entryData[0] = kanji/kana + kana + definition
-        //   entryData[1] = kanji (or kana if no kanji)
-        //   entryData[2] = kana (null if no kanji)
-        //   entryData[3] = definition
-
-        var expression = entryData[1];
-      }
-
-      // Reference: https://developer.mozilla.org/en-US/docs/Storage
-      var stFreq = this.freqDB.createStatement("SELECT freq FROM Dict WHERE expression='"
-          + expression + "'");
-
-      var freq = "";
       
+      // Reference: https://developer.mozilla.org/en-US/docs/Storage
+      var stFreq = this.freqDB.createStatement(
+        "SELECT freq FROM Dict WHERE expression='" + word + "'");
+
       try
       {      
-        stFreq.executeStep();
+        var freqFound = stFreq.executeStep();
         
-        // Get the result of the query
-        freq = stFreq.row.freq;
+        if(freqFound)
+        {
+          freq = stFreq.row.freq;
+        }
       }
       finally
       {
         stFreq.reset();
       }
-
-      return freq;
     }
     catch(ex)
     {
-      return "";
+      Components.utils.reportError("lookupFreqInDb() Exception: " + ex);
+      freq = "";
     }
 
-    return "";
+    return freq;
     
-  }, /* getFreq */
+  }, /* lookupFreqInDb */
+  
   
   
   /* Get the pitch accent of the last hilited word if present. If inExpression is not provided,
@@ -2257,6 +2318,7 @@ var rcxMain = {
     
     // Expression parsed from entry if rcxConfig.epwingaddcolorandpitch is enabled
     var parsedExpression = "";
+    var parsedReading = "";
     
     //
     // Parse entry and add color and pitch to the header line. 
@@ -2333,6 +2395,8 @@ var rcxMain = {
           pitchReading = pitchReading.replace(/[\-‐・ ]/g, '');
         }
 
+        parsedReading = pitchReading;
+        
         // If the pitch expression contains a "・", remove it and everything after
         if(pitchExpression.indexOf("・") != -1)
         {
@@ -2399,11 +2463,11 @@ var rcxMain = {
         // Used the parsed expression if found
         if(parsedExpression != "")
         {
-          var freq = rcxMain.getFreq(parsedExpression);
+          var freq = rcxMain.getFreq(parsedExpression, parsedReading, true);
         }
         else // Otherwise use the search term used for finding the EPWING entries
         {
-          var freq = rcxMain.getFreq(rcxMain.epwingSearchTerm);
+          var freq = rcxMain.getFreq(rcxMain.epwingSearchTerm, 'DUMMY', false);
         }
                                   
         if(freq && (freq.length > 0))

@@ -483,7 +483,7 @@ var rcxData = {
 		} while (ds != this.selected);
 		return null;
 	},
-
+  
 	translate: function(text) {
 		var result = { data: [], textLen: text.length };
 		while (text.length > 0) {
@@ -588,6 +588,19 @@ var rcxData = {
 		} while (ds != this.selected);
 		return null;
 	},
+  
+  
+  /* Get the number of times that the provided reading appears in EDICT. */
+  getReadingCount: function(reading)
+  {
+    let dic = this.dicList[this.selected];
+    let readingsList = dic.getReadings(reading);
+    var count = readingsList.length;
+    
+    return count;
+    
+  }, /* getReadingCount */
+    
 
 	// @@@ todo later...
 	kanjiSearch: function(kanji) {
@@ -857,30 +870,36 @@ var rcxData = {
                 
 				if (entry.data[i][1]) b.push(' <span class="w-conj">(' + entry.data[i][1] + ')</span>');
         
-        // Add frequency after all readings and conjugations
-        var freqStr = "";
-        
+        // Add frequency
         if(rcxConfig.showfreq)
         {
-          var freq = rcxMain.getFreq(e[1]);
+          var freqExpression = e[1];
+          var freqReading = e[2];
+          
+          if(freqReading == null)
+          {
+            var freqReading = freqExpression;
+          }
+          
+          var freq = rcxMain.getFreq(freqExpression, freqReading, (i == 0));
           
           if(freq && (freq.length > 0))
           {            
             var freqClass = rcxMain.getFreqStyle(freq);
-            freqStr = ' <span class="' + freqClass + '">' + freq + '</span>';
+            b.push('<span class="' + freqClass + '"> ' + freq + '</span>');
           }
         }
     
 				s = e[3];
 				if (rcxConfig.hidedef) {
-					t = freqStr + '<br/>';
+					t = '<br/>';
 				}
 				else {
 					t = s.replace(/\//g, '; ');
 					if (!rcxConfig.wpos) t = t.replace(/^\([^)]+\)\s*/, '');
 					if (!rcxConfig.wpop) t = t.replace('; (P)', '');
 					t = t.replace(/\n/g, '<br/>');
-					t = freqStr + '<br/><span class="w-def">' + t + '</span><br/>';
+					t = '<br/><span class="w-def">' + t + '</span><br/>';
 				}
 			}
 			b.push(t);
@@ -948,26 +967,26 @@ var rcxData = {
     
     var audioFile = reading + ' - ' + dictForm + '.mp3';
     
-    var tranlation = "";
+    var translation = "";
         
     if(rcxMain.epwingMode)
     {
-      tranlation = entryData[3];
+      translation = entryData[3];
     }
     else
     {
-      tranlation = entryData[3].replace(/\//g, "; ");
+      translation = entryData[3].replace(/\//g, "; ");
       
       // Remove word type indicators? [example: (v1,n)]
       if(!rcxConfig.wpos) 
       {
-        tranlation = tranlation.replace(/^\([^)]+\)\s*/, '');
+        translation = translation.replace(/^\([^)]+\)\s*/, '');
       }
 
       // Remove popular indicator? [example: (P)]
       if(!rcxConfig.wpop)
       {
-        tranlation = tranlation.replace('; (P)', '');
+        translation = translation.replace('; (P)', '');
       }
     }
     
@@ -975,8 +994,14 @@ var rcxData = {
     var pageTitle = window.document.title;
     pageTitle = pageTitle.replace(/ \- Mozilla Firefox$/, '');	
     
+    // Frequency
+    var freqStr = rcxMain.getFreq(dictForm, reading, true);
+    
+    // Pitch accent
+    var pitch = rcxMain.getPitchAccent(dictForm, reading);
+    
     saveText = saveText.replace(/\$a/g, audioFile);             // Audio file
-    saveText = saveText.replace(/\$d/g, dictForm);              // Dictionary form
+    saveText = saveText.replace(/\$d/g, dictForm);              // Dictionary form (expression)
     saveText = saveText.replace(/\$h/g, word);                  // Highlighted Word
     saveText = saveText.replace(/\$r/g, reading);               // Reading (kana)
     saveText = saveText.replace(/\$o/g, rcxConfig.savenotes);   // Notes
@@ -986,8 +1011,10 @@ var rcxData = {
     saveText = saveText.replace(/\$t/g, '\t');                  // Tab character
     saveText = saveText.replace(/\$g/g, ankiTags);              // Anki tags
     saveText = saveText.replace(/\$i/g, pageTitle);             // Page title
-    saveText = saveText.replace(/\$n/g, tranlation);            // Translation/definition
-
+    saveText = saveText.replace(/\$n/g, translation);           // Translation/definition
+    saveText = saveText.replace(/\$f/g, freqStr);               // Frequency
+    saveText = saveText.replace(/\$p/g, pitch);                 // Pitch accent
+    
     saveText += '\n';
         
     return saveText;
@@ -1200,6 +1227,12 @@ function RcxDic(dic)
 	this.findText = function(text) {
 		return this.find('SELECT * FROM dict WHERE entry LIKE ?1 LIMIT 300', '%' + text + '%');
 	};
+  
+  this.getReadings = function(reading) 
+  {
+    return this.find('SELECT * FROM dict WHERE kana=?1 LIMIT 10', reading);
+  };
+  
 
 	return this;
 };
