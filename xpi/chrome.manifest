@@ -1,7 +1,7 @@
-content	rikaichan	jar:chrome/rikaichan.jar!/content/
-content	rikaichan	jar:chrome/rikaichan.jar!/content/ contentaccessible=yes
-locale	rikaichan	en-US	jar:chrome/rikaichan.jar!/locale/en-US/
-skin	rikaichan	classic/1.0	jar:chrome/rikaichan.jar!/skin/classic/
+content	rikaichan	chrome/content/
+content	rikaichan	chrome/content/ contentaccessible=yes
+locale	rikaichan	en-US	chrome/locale/en-US/
+skin	rikaichan	classic/1.0	chrome/skin/classic/
 
 overlay	chrome://browser/content/browser.xul	chrome://rikaichan/content/ff-overlay.xul
 style	chrome://global/content/customizeToolbar.xul	chrome://rikaichan/skin/rikaichan.css
