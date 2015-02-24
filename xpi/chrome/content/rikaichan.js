@@ -2799,7 +2799,7 @@ var rcxMain = {
   
   
   
-  // Download the JDIC audio and then play it with bassplayer (Windows) or mplayer (linux, Mac)
+  // Download the JDIC audio and then play it.
   // Called by: playJDicAudio
   // httpLoc   - (string) The URL of the MP3 to download
   // saveAudio - (string) Name of save file (without path).
@@ -2824,7 +2824,7 @@ var rcxMain = {
         // If user wants to hear the "no audio" clip, play it
         if(rcxConfig.enablenoaudioclip)
         {
-          rcxMain.playMp3(noAudio.path);
+          rcxMain.playAudioFile(noAudio);
         }
         
         // Exit - There is nothing to save
@@ -2864,7 +2864,7 @@ var rcxMain = {
             }
           }
                    
-          rcxMain.playMp3(destFile.path);
+          rcxMain.playAudioFile(destFile);
           return;
         }
       }
@@ -2949,7 +2949,7 @@ var rcxMain = {
               }
             }
                         
-            rcxMain.playMp3(audioFile);
+            rcxMain.playAudioFile(tempAudioFile);
           }
         }
       }
@@ -2961,69 +2961,53 @@ var rcxMain = {
       // Download the audio file and save to a temporary location
       downloader.saveURI(audioUrl, null, null, null, null, tempAudioFile, null);
     }
-    catch (e) 
+    catch (ex) 
     {
-      //alert(e);
+      Components.utils.reportError("downloadAndPlayAudio() Exception:" + ex);
     }
     
   }, /* downloadAndPlayAudio */
   
   
-  // Play the provided mp3 file.
-  playMp3: function(mp3File) 
-  {   
-    // Get a string identifying the current OS
-    var osString = Components.classes["@mozilla.org/xre/app-info;1"]  
-           .getService(Components.interfaces.nsIXULRuntime).OS; 
-           
-    // Create the file object that contains the location of the audio player
-    if(osString == "Linux")
-    {
-      var audioPlayer = Components.classes["@mozilla.org/file/local;1"]
-          .createInstance(Components.interfaces.nsILocalFile);
-      audioPlayer.initWithPath("/usr/bin/mplayer");
-    }
-    else if(osString == "Darwin") // Mac
-    {
-      var audioPlayer = Components.classes["@mozilla.org/file/local;1"]
-          .createInstance(Components.interfaces.nsILocalFile);
-      audioPlayer.initWithPath("/usr/local/bin/mplayer");
-    }
-    else // Windows
-    {
-      var audioPlayer = Components.classes["@mozilla.org/file/directory_service;1"]
-        .getService(Components.interfaces.nsIProperties)
-        .get("ProfD", Components.interfaces.nsILocalFile);    
-      audioPlayer.append("extensions");
-      audioPlayer.append(rcxMain.id); // GUID of extension
-      audioPlayer.append("audio");
-      audioPlayer.append("bassplayer-win.exe");
-    }            
+  // Play the provided audio file.
+  // audioFile - (nsIFile) The audio file to play.
+  playAudioFile: function(audioFile)
+  {
+    // Get the URL of the file
+    var ioService = Components.classes["@mozilla.org/network/io-service;1"]
+                      .getService(Components.interfaces.nsIIOService);
+    var fileURL = ioService.newFileURI(audioFile).spec;  
     
-    // Does the audio player exist?
-    if (audioPlayer.exists()) 
+    var audioCtx = new AudioContext();
+    var source = audioCtx.createBufferSource();
+    var request = new XMLHttpRequest();
+  
+    // Open the file and store into an ArrayBuffer
+    request.open('GET', fileURL, true);
+    request.responseType = 'arraybuffer';
+    request.onload = function() 
     {
-       // Create a process object that will play the audio file
-       var process = Components.classes['@mozilla.org/process/util;1']
-        .createInstance(Components.interfaces.nsIProcess);        
-       process.init(audioPlayer);
-                                       
-        // Set audio player arguments        
-        if((osString == "Linux") || (osString == "Darwin"))
-        {
-          var args = ["-volume", rcxConfig.volume, mp3File];
-        }
-        else
-        {
-          var args = ["-vol", rcxConfig.volume, mp3File];
-        }
-    
-       // Play the audio
-       process.runwAsync(args, args.length);  
+      var audioData = request.response;
+  
+      audioCtx.decodeAudioData(audioData, function(buffer) 
+      {
+          // Set the volume to a [0.0, 1.0] range
+          var gainNode = audioCtx.createGain();
+          gainNode.gain.value = rcxConfig.volume / 100.0;
+          
+          source.buffer = buffer;
+          source.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+          
+          // Play
+          source.start();
+      }, function(e){"Error with decoding audio data" + e.err});
     }
     
-  }, /* playMp3 */
-	
+    request.send();
+    
+  }, /* playAudioFile */
+  
   
   // Play the JDIC audio for the hilited word.
   // saveAudio - (boolean) Save the audio in the user specified audio folder
