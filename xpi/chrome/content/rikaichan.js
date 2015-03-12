@@ -257,7 +257,11 @@ var rcxMain = {
     // Needed to write asynchronously to file in the sendToAnki routine
     Components.utils.import("resource://gre/modules/FileUtils.jsm");
     Components.utils.import("resource://gre/modules/NetUtil.jsm");
-
+    
+    // Needed to download the audio file
+    Components.utils.import("resource://gre/modules/Downloads.jsm");
+    Components.utils.import("resource://gre/modules/osfile.jsm")
+    Components.utils.import("resource://gre/modules/Task.jsm");
 
 			// add icon to the toolbar
 			try {
@@ -2765,10 +2769,13 @@ var rcxMain = {
   }, /* toHexString */
   
   
-  // Return the MD5 hash of the provided nsILocalFile file as a string.
+  // Return the MD5 hash of the provided file as a string.
   // https://developer.mozilla.org/en-US/docs/XPCOM_Interface_Reference/nsICryptoHash
-  getFileHash: function(file)
+  // filePath - (string) The path of the file to hash.
+  getFileHash: function(filePath)
   {
+    var file = new FileUtils.File(filePath);
+    
     var istream = Components.classes["@mozilla.org/network/file-input-stream;1"]           
       .createInstance(Components.interfaces.nsIFileInputStream);
       
@@ -2798,55 +2805,59 @@ var rcxMain = {
   }, /* getFileHash */
   
   
-  
   // Download the JDIC audio and then play it.
-  // Called by: playJDicAudio
-  // httpLoc   - (string) The URL of the MP3 to download
-  // saveAudio - (string) Name of save file (without path).
-  // saveAudioClipToDisk - (bool) True = save the audio clip to the audio directory
-  downloadAndPlayAudio: function(httpLoc, saveFile, saveAudioClipToDisk) 
-  {  
-    try 
+  // httpLoc - (string) The URL of the MP3 to download.
+  // saveFilename - (string) Name of save file (without path).
+  // saveAudioClipToDisk - (bool) True = Save the audio clip to the audio directory.
+  downloadAndPlayAudio: function(httpLoc, saveFilename, saveAudioClipToDisk)
+  {
+    if(!httpLoc || (httpLoc.length == 0) 
+      || !saveFilename || (saveFilename.length == 0))
     {
-      // Create the file object that contains the location of shorter "no audio" mp3 file
-      var noAudio = Components.classes["@mozilla.org/file/directory_service;1"]
-                .getService(Components.interfaces.nsIProperties)
-                .get("ProfD", Components.interfaces.nsILocalFile);    
-                noAudio.append("extensions");
-                noAudio.append(rcxMain.id); // GUID of extension
-                noAudio.append("audio");
-                noAudio.append("no_audio.mp3");
-              
-              
-      // If saveFile is in the no audio dictionary
-      if((saveFile.length > 0) && rcxMain.noAudioDic[saveFile])
+      return;
+    }
+    
+    try
+    { 
+      // The shorter 'no audio' mp3 file
+      var noAudioPath = OS.Path.join(
+        OS.Constants.Path.profileDir, "extensions", rcxMain.id, "audio", "no_audio.mp3");
+      
+      var savedAudioPath = null;
+        
+      // If the user entered a directory in which to store the audio files
+      if(rcxConfig.audiodir && (rcxConfig.audiodir.length > 0))
       {
-        // If user wants to hear the "no audio" clip, play it
+        // Create the file object for the file to save to the audio directory
+        savedAudioPath = OS.Path.join(rcxConfig.audiodir, saveFilename);
+      }
+      
+      // If saveFilename is in the 'no audio' dictionary
+      if(rcxMain.noAudioDic[saveFilename])
+      {
+        // If user wants to hear the 'no audio' clip, play it
         if(rcxConfig.enablenoaudioclip)
         {
-          rcxMain.playAudioFile(noAudio);
+          rcxMain.playAudioFile(noAudioPath);
         }
         
         // Exit - There is nothing to save
         return;
-      }     
-
+      }
+      
       // Does the file already exist in the audio dir? If so, play it and don't download.
-      if((saveFile.length > 0) && rcxConfig.audiodir && (rcxConfig.audiodir.length > 0))
-      {        
-        // Create a file object for the destination file (for checking existence)
-        var destFile = Components.classes["@mozilla.org/file/local;1"]
-          .createInstance(Components.interfaces.nsILocalFile);
-        destFile.initWithPath(rcxConfig.audiodir);
-        destFile.append(saveFile);
-        
+      if(savedAudioPath)
+      {   
+        // Create a file object for the saved file (for checking existence)        
+        var savedAudioFile = new FileUtils.File(savedAudioPath);
+          
         // If the destination already exists, play it and skip the download
-        if(destFile.exists())
+        if(savedAudioFile.exists())
         {
-          // If the 'no audio' clip has not been hashed yet
+          // If the 'no audio' clip has not been hashed yet, hash it
           if(this.noAudioFileHash == "")
           {
-            this.noAudioFileHash = rcxMain.getFileHash(noAudio);
+            this.noAudioFileHash = rcxMain.getFileHash(noAudioPath);
           }
         
           // If user doesn't want to hear the 'no audio' clip.
@@ -2856,7 +2867,7 @@ var rcxMain = {
             // Note: As of v19.2, Rikaisama no longer saves the 'no audio' clips to the audio folder
             //       for caching purposes. This code is left here in case the user still has these
             //       clips in the audio folder from a previous version.
-            var hash = rcxMain.getFileHash(destFile);
+            var hash = rcxMain.getFileHash(savedAudioPath);
             
             if(hash == this.noAudioFileHash)
             {
@@ -2864,115 +2875,69 @@ var rcxMain = {
             }
           }
                    
-          rcxMain.playAudioFile(destFile);
+          rcxMain.playAudioFile(savedAudioPath);
           return;
         }
       }
       
-  
-      // Create URI that contains the url of the audio file to download
-      var audioUrl = Components.classes["@mozilla.org/network/io-service;1"]
-        .getService(Components.interfaces.nsIIOService)
-        .newURI(httpLoc, null, null);
-   
-      // Create a temporary mp3 file to save the download to
-      var tempAudioFile = Components.classes["@mozilla.org/file/directory_service;1"]
-        .getService(Components.interfaces.nsIProperties)
-        .get("TmpD", Components.interfaces.nsIFile);
-	    tempAudioFile.append("~rikai_audio.mp3");
+      var downloadedAudioPath = OS.Path.join(OS.Constants.Path.tmpDir, "~rikai_audio.mp3");
+      var audioFileToPlay = null;
       
-      // If file doesn't exist, create it
-      if(!tempAudioFile.exists()) 
+      Task.spawn(function ()
       {
-        tempAudioFile.create(0x00, 0644);
-      }
-   
-      // Create the persist object that will download the audio file
-      var downloader = Components.classes["@mozilla.org/embedding/browser/nsWebBrowserPersist;1"]
-        .createInstance(Components.interfaces.nsIWebBrowserPersist);
-      
-      // Create a listener to play the mp3 after download is complete
-      downloader.progressListener = 
-      {
-        onProgressChange: function(aWebProgress, aRequest, aCurSelfProgress, aMaxSelfProgress, aCurTotalProgress, aMaxTotalProgress) 
+        try
         {
-          // Do nothing. This is only here so Firefox won't complain
-        },
-        onStatusChange: function(aWebProgress, aRequest, aStateFlags, aStatus, aDownload) 
-        {
-          // Do nothing. This is only here so Firefox won't complain
-        },
-        onStateChange: function(aWebProgress, aRequest, aStateFlags, aStatus) 
-        {
-          // Did the download complete?
-          if (aStateFlags & Components.interfaces.nsIWebProgressListener.STATE_STOP) 
-          {           
-            var audioFile = tempAudioFile.path;
-            var fileSize = rcxMain.getFileSize(audioFile);
-             
-            // Did we just download the "no audio" clip? If so, use a shorter "no audio" clip instead
-            if(fileSize > 52000)
+          // Download the audio file and save to a temporary location
+          yield Downloads.fetch(httpLoc, downloadedAudioPath);
+
+          var fileSize = rcxMain.getFileSize(downloadedAudioPath);
+          
+          // Did we just download the 'no audio' clip? If so, play a shorter 'no audio' clip instead
+          if(fileSize > 52000)
+          {
+            rcxMain.addNoAudioListEntry(saveFilename);
+            
+            // If the user wants to hear the 'no audio' clip
+            if(rcxConfig.enablenoaudioclip)
             {
-              rcxMain.addNoAudioListEntry(saveFile);
-              
-              // If the user does not want to hear the "no audio" clip, exit
-              if(!rcxConfig.enablenoaudioclip)
-              {
-                return;
-              }
-                            
-              audioFile = noAudio.path; // Set the audio to the "no audio" clip
+              audioFileToPlay = noAudioPath;
             }
-            // Should we save the audio to the user specified audio folder?
-            else if(saveAudioClipToDisk && (saveFile.length > 0) && rcxConfig.audiodir && (rcxConfig.audiodir.length > 0))
+          }
+          else // Not the 'no audio' clip
+          {
+            audioFileToPlay = downloadedAudioPath;
+            
+            // Save audio file to user-provided directory
+            if(saveAudioClipToDisk && savedAudioPath)
             {
-              // Create a file object for the file to copy
-              var audioCopyFile = Components.classes["@mozilla.org/file/local;1"]
-                  .createInstance(Components.interfaces.nsILocalFile);
-              audioCopyFile.initWithPath(audioFile);
-              
-              // Create a file object for the directory to copy to
-              var saveDir = Components.classes["@mozilla.org/file/local;1"]
-                  .createInstance(Components.interfaces.nsILocalFile);
-              saveDir.initWithPath(rcxConfig.audiodir);
-              
-              // Create a file object for the destination file (for checking existence)
-              var destFile = Components.classes["@mozilla.org/file/local;1"]
-                  .createInstance(Components.interfaces.nsILocalFile);
-              destFile.initWithPath(rcxConfig.audiodir);
-              destFile.append(saveFile);
-              
-               // Copy and rename the file
-              if(!destFile.exists())
-              {
-                audioCopyFile.copyTo(saveDir, saveFile);
-              }
+              OS.File.copy(downloadedAudioPath, savedAudioPath);
             }
-                        
-            rcxMain.playAudioFile(tempAudioFile);
+          }
+          
+          if(audioFileToPlay)
+          {
+            rcxMain.playAudioFile(audioFileToPlay);
           }
         }
-      }
-
-      const nsIWBP = Components.interfaces.nsIWebBrowserPersist;
-      const flags = nsIWBP.PERSIST_FLAGS_REPLACE_EXISTING_FILES;
-      downloader.persistFlags = flags | nsIWBP.PERSIST_FLAGS_FROM_CACHE;
-      
-      // Download the audio file and save to a temporary location
-      downloader.saveURI(audioUrl, null, null, null, null, tempAudioFile, null);
+        catch(ex)
+        {
+          Components.utils.reportError("[1] downloadAndPlayAudio() Error: " + ex);
+        }
+      }).then(null, Components.utils.reportError);
     }
-    catch (ex) 
+    catch(ex)
     {
-      Components.utils.reportError("downloadAndPlayAudio() Exception:" + ex);
+      Components.utils.reportError("[2] downloadAndPlayAudio() Error: " + ex);
     }
-    
-  }, /* downloadAndPlayAudio */
+  }, /* downloadAndPlayAudio() */
   
-  
+   
   // Play the provided audio file.
-  // audioFile - (nsIFile) The audio file to play.
-  playAudioFile: function(audioFile)
+  // audioFilePath - (string) The path of the audio file to play.
+  playAudioFile: function(audioFilePath)
   {
+    var audioFile = new FileUtils.File(audioFilePath);
+  
     // Get the URL of the file
     var ioService = Components.classes["@mozilla.org/network/io-service;1"]
                       .getService(Components.interfaces.nsIIOService);
@@ -3099,7 +3064,7 @@ var rcxMain = {
     
     var saveAudioClipToDisk = (saveAudio || rcxConfig.saveaudioonplay);
     
-    this.downloadAndPlayAudio(jdicAudioUrlText, saveFile,  saveAudioClipToDisk);
+    this.downloadAndPlayAudio(jdicAudioUrlText, saveFile, saveAudioClipToDisk);
     
 	}, /* playJDicAudio */
 		
