@@ -183,14 +183,35 @@ var rcxEpwing =
   */
   doEplkup: function(dicPath, inputText, argList, callback)
   {
-    // Create the file object that contains the location of eplkup.exe
-    var eplkupTool = Components.classes["@mozilla.org/file/directory_service;1"]
+    // Get a string identifying the current OS
+    let osString = Components.classes["@mozilla.org/xre/app-info;1"]
+      .getService(Components.interfaces.nsIXULRuntime).OS;
+
+    let useWine = false;
+
+    // Create the file object that contains the location of eplkup(.exe)
+    let eplkupTool = Components.classes["@mozilla.org/file/directory_service;1"]
       .getService(Components.interfaces.nsIProperties)
       .get("ProfD", Components.interfaces.nsILocalFile);
     eplkupTool.append("extensions");
     eplkupTool.append(rcxEpwing.id); // GUID of extension
     eplkupTool.append("epwing");
-    eplkupTool.append("eplkup.exe");
+    
+    if (osString === 'Darwin')
+    {
+      eplkupTool.append("osx");
+      eplkupTool.append("eplkup");
+    }
+    else if (osString === 'Linux')
+    {
+      eplkupTool.append("linux");
+      eplkupTool.append("eplkup");
+    }
+    else // Windows
+    {
+      eplkupTool.append("windows");
+      eplkupTool.append("eplkup.exe");
+    }
 
     // Does the EPWING lookup tool exist?
     if(!eplkupTool.exists())
@@ -198,6 +219,8 @@ var rcxEpwing =
       callback("Error");
       return;
     }
+    
+    eplkupTool.permissions = 0744;
 
     // Create the process object used to execute eplkup.exe
     var process = Components.classes['@mozilla.org/process/util;1']
@@ -270,11 +293,7 @@ var rcxEpwing =
         return;
       }
 
-      // Get a string identifying the current OS
-      var osString = Components.classes["@mozilla.org/xre/app-info;1"]
-        .getService(Components.interfaces.nsIXULRuntime).OS;
-
-      if(osString == "Linux" || osString == "Darwin")
+      if (useWine)
       {
         // Create the file object that contains the location of the
         // bash script that will call eplkup with wine

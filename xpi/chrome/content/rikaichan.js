@@ -1355,71 +1355,14 @@ var rcxMain = {
           return;
         }
         else
-        {         
-          // Get a string identifying the current OS
-          var osString = Components.classes["@mozilla.org/xre/app-info;1"]  
-                 .getService(Components.interfaces.nsIXULRuntime).OS; 
-                   
+        {
           // Send the UDP message to Anki's Real-Time Import containing location of information to add
-          if(osString == "Linux" || osString == "Darwin")
-          {            
-            var udpSender = Components.classes["@mozilla.org/file/directory_service;1"]
-              .getService(Components.interfaces.nsIProperties)
-              .get("ProfD", Components.interfaces.nsILocalFile);    
-            udpSender.append("extensions");
-            udpSender.append(rcxMain.id); // GUID of extension
-            udpSender.append("udp");
-            udpSender.append("RealTimeImport_UDP_Client.py");
-            
-            udpSender.permissions = 0744;
-            
-            var udpSenderDriver = Components.classes["@mozilla.org/file/directory_service;1"]
-              .getService(Components.interfaces.nsIProperties)
-              .get("ProfD", Components.interfaces.nsILocalFile);    
-            udpSenderDriver.append("extensions");
-            udpSenderDriver.append(rcxMain.id); // GUID of extension
-            udpSenderDriver.append("udp");
-            udpSenderDriver.append("run_udp.sh");
-            
-            udpSenderDriver.permissions = 0744;
-            
-            if (udpSender.exists() && udpSenderDriver.exists()) 
-            {
-              var process = Components.classes['@mozilla.org/process/util;1']
-               .createInstance(Components.interfaces.nsIProcess);        
-              process.init(udpSenderDriver);
-              
-               // Set arguments        
-               var args = [udpSender.path, port, tempRtiFile.path];
-               
-               // Send UDP message
-               process.runAsync(args, args.length); 
-            } 
-          }
-          else // Windows
-          {
-            var udpSender = Components.classes["@mozilla.org/file/directory_service;1"]
-              .getService(Components.interfaces.nsIProperties)
-              .get("ProfD", Components.interfaces.nsILocalFile);    
-            udpSender.append("extensions");
-            udpSender.append(rcxMain.id); // GUID of extension
-            udpSender.append("udp");
-            udpSender.append("RealTimeImport_UDP_Client.exe");
-            
-            // Does the UDP Sender exist?
-            if (udpSender.exists()) 
-            {
-               var process = Components.classes['@mozilla.org/process/util;1']
-                .createInstance(Components.interfaces.nsIProcess);        
-               process.init(udpSender);
-                                               
-               // Set arguments        
-               var args = [port, tempRtiFile.path];
-
-               // Send UDP message
-               process.runAsync(args, args.length);  
-            }
-          }  
+          // Use Firefox's own barely-publicized UDP service
+          let udpSocket = Cc["@mozilla.org/network/udp-socket;1"].createInstance(Ci.nsIUDPSocket);
+          udpSocket.init(0, true, true);
+          let utf8encoder = new TextEncoder('utf-8');
+          let msg = utf8encoder.encode(tempRtiFile.path);
+          udpSocket.send('127.0.0.1', port, msg, msg.length);
         }
       });
       

@@ -350,8 +350,13 @@ var rcxOptions = {
     const nsIFilePicker = Components.interfaces.nsIFilePicker;
     let fp = Components.classes['@mozilla.org/filepicker;1'].createInstance(nsIFilePicker);
     
+    let osString = Components.classes["@mozilla.org/xre/app-info;1"]
+          .getService(Components.interfaces.nsIXULRuntime).OS;
     fp.init(window, 'Browse', nsIFilePicker.modeOpen);
-    fp.appendFilter('EPWING Dictionaries', 'CATALOGS;CATALOG');
+    if (osString != 'Darwin') {
+      // Don't add filters on OS X - it fails on them.
+      fp.appendFilter('EPWING Dictionaries', 'CATALOGS;CATALOG');
+    }
     fp.defaultString = itemValue;
     
     let result = fp.show();
