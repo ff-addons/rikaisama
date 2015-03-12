@@ -42,8 +42,8 @@ pref('rikaichan.kbrealtimeimport', '82');
 pref('rikaichan.kbrealtimeimportkana', '84');
 pref('rikaichan.kbsuperstickymode', '85');
 pref('rikaichan.kbeditnotes', '74');
-pref('rikaichan.kbepwingnextdic', '107');
-pref('rikaichan.kbepwingprevdic', '109');
+pref('rikaichan.kbepwingnextdic', '61');
+pref('rikaichan.kbepwingprevdic', '173');
 pref('rikaichan.kbepwingnextentry', '221');
 pref('rikaichan.kbepwingpreventry', '219');
 
