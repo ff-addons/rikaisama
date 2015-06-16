@@ -3326,8 +3326,8 @@ var rcxMain = {
   
 	onMouseDown: function(ev) 
   {
-    // Did a Ctrl-click just occur in Super Sticky mode?
-    if(ev.ctrlKey && rcxMain.superSticky)
+    // Did a Ctrl-click or Alt-click just occur in Super Sticky mode?
+    if(rcxMain.superSticky && (ev.ctrlKey || ev.altKey))
     {
       // Prevent the surrounding table element from hiliting when the user
       // performs a ctrl-left click
