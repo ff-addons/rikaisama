@@ -1,7 +1,7 @@
 /*
 
 	Rikaichan
-	Copyright (C) 2005-2012 Jonathan Zarate
+	Copyright (C) 2005-2015 Jonathan Zarate
 	http://www.polarcloud.com/
 
 	---
@@ -119,6 +119,7 @@ var rcxConfigList = [
   [2, 'epwingforceparse'],        // Force entry to be parsed even if dic is not supported
 	[2, 'epwingsearchnextlongest'], // Search for next longest word if longest word not found
  	[1, 'epwingremoveregex'],       // Remove text matching this regex
+ 	[2, 'epwingusewine'],           // On Linux, use Wine with the Windows exe instead of using the native exe
 
 	// clipboard / save file
 	[1, 'sfile'],
@@ -150,7 +151,6 @@ var rcxConfigList = [
 	// not in GUI
 	[0, 'popdelay'],
 	[2, 'hidedef'],
-	[2, 'checkversion'],
 //	[2, 'sticky']
 ];
 
@@ -159,7 +159,7 @@ var rcxConfigList = [
 function rcxPrefs() {
 	this.branch = Components.classes['@mozilla.org/preferences-service;1']
 		.getService(Components.interfaces.nsIPrefService)
-		.getBranch('rikaichan.');
+		.getBranch('extensions.rikaisama.');
 }
 
 rcxPrefs.prototype = {

@@ -187,7 +187,9 @@ var rcxEpwing =
     let osString = Components.classes["@mozilla.org/xre/app-info;1"]
       .getService(Components.interfaces.nsIXULRuntime).OS;
 
-    let useWine = false;
+    // For Linux, should we use Wine with the Windows exe instead of the native Linux exe?
+    let prefs = new rcxPrefs();
+		let useWine = prefs.getBool('epwingusewine');
 
     // Create the file object that contains the location of eplkup(.exe)
     let eplkupTool = Components.classes["@mozilla.org/file/directory_service;1"]
@@ -196,21 +198,22 @@ var rcxEpwing =
     eplkupTool.append("extensions");
     eplkupTool.append(rcxEpwing.id); // GUID of extension
     eplkupTool.append("epwing");
-    
-    if (osString === 'Darwin')
+
+    if ((osString === 'WINNT') 
+      || (useWine && (osString === 'Linux')))
     {
-      eplkupTool.append("osx");
-      eplkupTool.append("eplkup");
+      eplkupTool.append("windows");
+      eplkupTool.append("eplkup.exe");
     }
     else if (osString === 'Linux')
     {
       eplkupTool.append("linux");
       eplkupTool.append("eplkup");
     }
-    else // Windows
+    else if (osString === 'Darwin')
     {
-      eplkupTool.append("windows");
-      eplkupTool.append("eplkup.exe");
+      eplkupTool.append("osx");
+      eplkupTool.append("eplkup");
     }
 
     // Does the EPWING lookup tool exist?
@@ -221,11 +224,6 @@ var rcxEpwing =
     }
     
     eplkupTool.permissions = 0744;
-
-    // Create the process object used to execute eplkup.exe
-    var process = Components.classes['@mozilla.org/process/util;1']
-      .createInstance(Components.interfaces.nsIProcess);
-    process.init(eplkupTool);
 
     // Create a temporary directory to place the output of eplkup.exe
     var tmpDir = Components.classes["@mozilla.org/file/directory_service;1"]
@@ -293,7 +291,7 @@ var rcxEpwing =
         return;
       }
 
-      if (useWine)
+      if (useWine && (osString === 'Linux'))
       {
         // Create the file object that contains the location of the
         // bash script that will call eplkup with wine
@@ -303,6 +301,7 @@ var rcxEpwing =
         eplkupToolDriver.append("extensions");
         eplkupToolDriver.append(rcxEpwing.id); // GUID of extension
         eplkupToolDriver.append("epwing");
+        eplkupToolDriver.append("windows");
         eplkupToolDriver.append("run_eplkup.sh");
 
         eplkupToolDriver.permissions = 0744;
@@ -316,7 +315,7 @@ var rcxEpwing =
         var eplkupArgs = argList;
         argList.unshift(eplkupTool.path);
       }
-      else
+      else // Don't use Wine
       {
         // Create the process object that will use eplkup
         var process = Components.classes['@mozilla.org/process/util;1']

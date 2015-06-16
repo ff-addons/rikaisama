@@ -1,7 +1,7 @@
 ﻿/*
 
 	Rikaichan
-	Copyright (C) 2005-2012 Jonathan Zarate
+	Copyright (C) 2005-2015 Jonathan Zarate
 	http://www.polarcloud.com/
 
 	---
@@ -119,8 +119,6 @@ var rcxMain = {
 
 	rcxObs: {
 		observe: function(subject, topic, data) {
-//			rcxDebug.echo('rcxObs: topic=' + topic + ' / data=' + data);
-
 			if (topic == 'rikaichan') {
 				if (data == 'getdic') {
 					rcxMain.showDownloadPage();
@@ -208,7 +206,7 @@ var rcxMain = {
 						document.getElementById('mainKeyset') || document.getElementById('navKeys');
 			if (mks) {
 				let prefs = new rcxPrefs();
-				for (let [i, name] in ['toggle', 'lbar']) {
+				['toggle', 'lbar'].forEach(function(name) {
 					let s = prefs.getString(name + '.key');
 					if ((s.length) && (s != '(disabled)')) {
 						let key = document.createElementNS('http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul', 'key');
@@ -219,7 +217,7 @@ var rcxMain = {
 						key.setAttribute('command', 'rikaichan-' + name + '-cmd');
 						mks.appendChild(key);
 					}
-				}
+				});
 			}
 		}
 
@@ -502,7 +500,7 @@ var rcxMain = {
 	},
 
 	showDownloadPage: function() {
-		const url = 'http://rikaichan.mozdev.org/getdic2.html?version=' + (this.version || '');
+		const url = 'http://www.polarcloud.com/getrcx/?version=' + (this.version || '');
 		try {
 			if (this.isTB) {
 				Components.classes['@mozilla.org/messenger;1'].createInstance()
@@ -518,37 +516,18 @@ var rcxMain = {
 		}
 	},
 
-  checkVersion: function() {
-		let id = '{697F6AFE-5321-4DE1-BFE6-4471C3721BD4}';
-		try {
-			// ref: https://developer.mozilla.org/en/Addons/Add-on_Manager/AddonManager
-			Components.utils.import('resource://gre/modules/AddonManager.jsm');
-			AddonManager.getAddonByID(id, function(addon) {
-				rcxMain.version = addon.version;
-			});
-		}
-		catch (ex) {
-			try {
-				this.version = Components.classes['@mozilla.org/extensions/manager;1']
-					.getService(Components.interfaces.nsIExtensionManager)
-					.getItemForID(id).version;
+	checkVersion: function() {
+		Components.utils.import('resource://gre/modules/AddonManager.jsm');
+		AddonManager.getAddonByID('{697F6AFE-5321-4DE1-BFE6-4471C3721BD4}', function(addon) {
+			rcxMain.version = addon.version;
+			let prefs = new rcxPrefs();
+			if (prefs.getString('version') != addon.version) {
+				prefs.setString('version', addon.version);
+				setTimeout(function() {
+					rcxMain.showDownloadPage();
+				}, 2000);
 			}
-			catch (ex) {
-			}
-		}
-
-		if (rcxConfig.checkversion) {
-			setTimeout(function() {
-				if (rcxMain.version) {
-					let prefs = new rcxPrefs();
-					let v = 'v' + rcxMain.version;
-					if (prefs.getString('version') != v) {
-						prefs.setString('version', v);
-						rcxMain.showDownloadPage();
-					}
-				}
-			}, 2000);
-		}
+		});
 	},
 
 	onTabSelect: function() {
@@ -705,12 +684,15 @@ var rcxMain = {
 
 				// when zoomed, convert to zoomed document pixel position
 				// - not in TB compose and ...?
-				if (cb.markupDocumentViewer != null) {
-					var z = cb.markupDocumentViewer.fullZoom || 1;
+				try {
+					var z = cb.fullZoom || 1;
 					if (z != 1) {
 						x = Math.round(x / z);
 						y = Math.round(y / z);
 					}
+				}
+				catch (ex) {
+					// console.log('ex: ' + ex)
 				}
 
 				if (elem instanceof Components.interfaces.nsIDOMHTMLOptionElement) {
@@ -4274,19 +4256,17 @@ var rcxLookupBar = {
 var rcxConfig = {
 	observer: {
 		observe: function(subject, topic, data) {
-			if (topic == 'nsPref:changed') rcxConfig.load();
+			// console.log('rcxConfig.observer: topic=' + topic);
+			rcxConfig.load();
 		},
 		start: function() {
-			Components.classes['@mozilla.org/preferences-service;1']
-				.getService(Components.interfaces.nsIPrefBranch)
-				.QueryInterface(Components.interfaces.nsIPrefBranch2)
-				.addObserver('rikaichan.', this, false);
+			this.branch = Components.classes['@mozilla.org/preferences-service;1']
+				.getService(Components.interfaces.nsIPrefService)
+				.getBranch('extensions.rikaisama.');
+			this.branch.addObserver('', this, false);
 		},
 		stop: function() {
-			Components.classes['@mozilla.org/preferences-service;1']
-					.getService(Components.interfaces.nsIPrefBranch)
-					.QueryInterface(Components.interfaces.nsIPrefBranch2)
-					.removeObserver('rikaichan.', this);
+			this.branch.removeObserver('', this);
 		}
 	},
 
@@ -4355,55 +4335,5 @@ var rcxConfig = {
     rcxMain.populateEpwingDics();
 	}
 };
-
-
-/*					
-var rcxDebug = {
-	echo: function(text) {
-		Components.classes['@mozilla.org/consoleservice;1']
-			.getService(Components.interfaces.nsIConsoleService)
-			.logStringMessage(text);
-			if (!rcxDebug.consoneOnce) {
-				//	toJavaScriptConsole();
-				rcxDebug.consoneOnce = 1;
-			}
-	},
-
-	status: function(text) {
-		if (rcxDebug.stimer) {
-			clearTimeout(rcxDebug.stimer);
-			rcxDebug.stimer = null;
-		}
-
-		var e = document.getElementById('rikaichan-status-text');
-		if (text) {
-			e.setAttribute('label', text);
-			e.setAttribute('hidden', false);
-			rcxDebug.stimer = setTimeout(rcxDebug.status, 5000);
-		}
-		else {
-			e.setAttribute('hidden', true);
-		}
-	},
-
-	dumpObj: function(o) {
-		rcxDebug.echo('[' + o + ']');
-		for (var key in o) {
-			try {
-				rcxDebug.echo(key + '=' + String(o[key]).replace(/[\r\n\t]/g, ' ') + '\r\n');
-			}
-			catch (ex) {
-				rcxDebug.echo(key + '=<exception: ' + ex + '>');
-			}
-		}
-	},
-
-	clip: function(text) {
-		Components.classes['@mozilla.org/widget/clipboardhelper;1']
-			.getService(Components.interfaces.nsIClipboardHelper)
-			.copyString(text);
-	}
-};
-*/
 
 rcxMain.init();

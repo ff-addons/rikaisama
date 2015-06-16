@@ -2,7 +2,7 @@
 <!--
 
 	Rikaichan
-	Copyright (C) 2005-2012 Jonathan Zarate
+	Copyright (C) 2005-2015 Jonathan Zarate
 	http://www.polarcloud.com/
 
 
@@ -337,7 +337,7 @@
 						<button label="&#8593;" oncommand="rcxOptions.movePriority(-1)"/>
 						<button label="&#8595;" oncommand="rcxOptions.movePriority(1)"/>
 						<spacer style="height:2em"/>
-						<button label="&Dictionaries.Download;" oncommand="rcxOptions.Download()"/>
+						<button label="&Dictionaries.More;" oncommand="rcxOptions.Download()"/>
 					</vbox>
 				</hbox>
 			</groupbox>

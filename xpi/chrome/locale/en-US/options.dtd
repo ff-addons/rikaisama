@@ -102,7 +102,7 @@
 <!ENTITY Dictionaries.ShowPopular "Show &quot;popular&quot; indicator [example: (P)]">
 <!ENTITY Dictionaries.MaxEntries "Maximum entries displayed:">
 <!ENTITY Dictionaries.MaxNames "Maximum names displayed:">
-<!ENTITY Dictionaries.Download "Download...">
+<!ENTITY Dictionaries.More "More...">
 
 
 <!ENTITY Kanji.DisplayedInformation "Displayed Information">
@@ -121,7 +121,7 @@
 <!ENTITY Epwing.ShowConjugation "Show conjugation rule">
 <!ENTITY Epwing.ToolTipShowConjugation "Example conjugation rule: '(&lt; negative &lt; past)'.">
 <!ENTITY Epwing.ShowDicNum "Show number and title of current dictionary in top-right of popup">
-<!ENTITY Epwing.ToolTipShowDicNum "The number is the index of the dictionary in the list above. To hide the title, set 'epwingshowtitle' to false in 'about:config'. To use the full title instead of the shortened title, set 'epwingshowshorttitle' to false in 'about:config'.">
+<!ENTITY Epwing.ToolTipShowDicNum "The number is the index of the dictionary in the list above. To hide the title, set 'extensions.rikaisama.epwingshowtitle' to false in 'about:config'. To use the full title instead of the shortened title, set 'extensions.rikaisama.epwingshowshorttitle' to false in 'about:config'.">
 <!ENTITY Epwing.StripNewlines "Compact (strip carriage returns and line feeds)">
 <!ENTITY Epwing.ToolTipStripNewlines "This will make the popup look a little more like non-EPWING mode.">
 <!ENTITY Epwing.ShowAllEntries "Show all entries from the same dictionary at the same time">
@@ -141,7 +141,7 @@
 <!ENTITY Epwing.AddColorAndPitchHelp8 "　　●　『新明解国語辞典　第五版』 (Shinmeikai Kokugojiten 5th Edition [J-J])">
 <!ENTITY Epwing.AddColorAndPitchHelp9 "">
 <!ENTITY Epwing.AddColorAndPitchHelp10 "Advanced: To force parsing of unsupported dictionaries,">
-<!ENTITY Epwing.AddColorAndPitchHelp11 "set 'epwingforceparse' to true in 'about:config'.">
+<!ENTITY Epwing.AddColorAndPitchHelp11 "set 'extensions.rikaisama.epwingforceparse' to true in 'about:config'.">
 <!ENTITY Epwing.SearchNextLongest "If longest match could not be found, search for the next longest">
 <!ENTITY Epwing.ToolTipSearchNextLongest "For example, the word '自由研究' does not exist in many EPWING dictionaries, however, the word '自由' does. So if '自由研究' could not be found, '自由' will then be searched.">
 <!ENTITY Epwing.RemoveRegex "Remove text matching the following RegEx:">

@@ -1,7 +1,7 @@
 ﻿/*
 
 	Rikaichan
-	Copyright (C) 2005-2012 Jonathan Zarate
+	Copyright (C) 2005-2015 Jonathan Zarate
 	http://www.polarcloud.com/
 
 	---
@@ -121,7 +121,6 @@ var rcxData = {
 				AddonManager.getAddonsByIDs(ids, function(addons) {
 					for (let i = 0; i < addons.length; ++i) {
 						let a = addons[i];
-						// URL->URI changed in 3.7a6?
 						rcxData.dicPath[a.id] = a.getResourceURI('install.rdf')
 								.QueryInterface(Components.interfaces.nsIFileURL)
 								.file.parent.path;
@@ -1076,35 +1075,32 @@ function RcxDb(name)
 {
 	this.open = function() {
 		var f;
+		var fu = Components.utils.import('resource://gre/modules/FileUtils.jsm').FileUtils
 
 		if (name.match(/(.+)\|(.+)/)) {
 			let id = RegExp.$1;
 			let nm = RegExp.$2;
-			try {
-				f = Components.classes['@mozilla.org/extensions/manager;1']
-					.getService(Components.interfaces.nsIExtensionManager)
-					.getInstallLocation(id).getItemFile(id, nm);
-			}
-			catch (ex) {
-				if ((rcxData.dicPath) && (rcxData.dicPath[id])) {
-					f = Components.classes['@mozilla.org/file/local;1']
-						.createInstance(Components.interfaces.nsILocalFile);
-					f.initWithPath(rcxData.dicPath[id]);
-					f.append(nm);
-				}
+				
+			if (typeof(rcxData.dicPath) == 'undefined') throw 'dicPath does not exist';
+			if (typeof(rcxData.dicPath[id]) == 'undefined') throw 'dicPath.' + id + ' does not exist';
 
-				if (!f) throw 'Could not find or open ' + id + '/' + nm;
-			}
+			f = new fu.File(rcxData.dicPath[id]);
+			f.append(nm);
 		}
 		else {
-			f = Components.classes['@mozilla.org/file/local;1']
-				.createInstance(Components.interfaces.nsILocalFile);
-			f.initWithPath(name);
+			f = new fu.File(name);
 		}
 
-		// The files may get installed as read-only, breaking
-		// index creation. Try changing the file permission.
-		if (!f.isWritable()) f.permissions |= 0x180;	// 0x180=0600 strict mode doesn't like octals
+		if (!f.exists()) throw 'Could not find ' + id + '/' + nm;
+
+		try {
+			// The files may get installed as read-only, breaking
+			// index creation. Try changing the file permission.
+			if (!f.isWritable()) f.permissions |= 0x180;	// 0x180=0600 strict mode doesn't like octals
+		}
+		catch (ex) {
+			//
+		}
 
 		this.db = Components.classes['@mozilla.org/storage/service;1']
 			.getService(Components.interfaces.mozIStorageService)
