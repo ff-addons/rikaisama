@@ -964,7 +964,7 @@ var rcxData = {
     
     var ankiTags = rcxMain.trim(rcxConfig.atags);
     
-    var audioFile = reading + ' - ' + dictForm + '.mp3';
+    var audioFile = reading + ' - ' + entryData[1] + '.mp3';
     
     var translation = "";
         

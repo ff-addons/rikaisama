@@ -173,6 +173,8 @@
 <!ENTITY ClipSave.FmtCaption "Available save format tokens">
 <!ENTITY ClipSave.FmtAudioFile "Audio file:">
 <!ENTITY ClipSave.ToolTipFmtAudioFile "Name of pronunciation .mp3 file for the saved word. Format: 'kana - kanji.mp3'.">
+<!ENTITY ClipSave.FmtDefinition "Definition:">
+<!ENTITY ClipSave.ToolTipDefinition "The definition of the saved word.">
 <!ENTITY ClipSave.FmtDictForm "Dictionary form:">
 <!ENTITY ClipSave.ToolTipFmtDictForm "The dictionary/plain form of the saved word.">
 <!ENTITY ClipSave.FmtFrequency "Frequency:">
@@ -189,16 +191,14 @@
 <!ENTITY ClipSave.ToolTipFmtSentence "The sentence that the saved word appeared in.">
 <!ENTITY ClipSave.FmtSentenceWithBlank "Sentence w/ blank:">
 <!ENTITY ClipSave.ToolTipFmtSentenceWithBlank "Like 'Sentence' except the saved word is replaced with a fill-in-the-blank.">
-<!ENTITY ClipSave.FmtURL "Source URL:">
-<!ENTITY ClipSave.ToolTipFmtURL "The URL of the page that contains the saved word.">
 <!ENTITY ClipSave.FmtTab "Tab character:">
 <!ENTITY ClipSave.ToolTipFmtTab "A normal tab character (\t) used for separating fields.">
 <!ENTITY ClipSave.FmtAnkiTags "Tags:">
 <!ENTITY ClipSave.ToolTipFmtAnkiTags "The text from the 'Tags' text box above.">
 <!ENTITY ClipSave.FmtTitle "Title:">
 <!ENTITY ClipSave.ToolTipTitle "The title of the page that contains the saved word.">
-<!ENTITY ClipSave.FmtTranslation "Translation:">
-<!ENTITY ClipSave.ToolTipTranslation "The definition of the saved word.">
+<!ENTITY ClipSave.FmtURL "URL:">
+<!ENTITY ClipSave.ToolTipFmtURL "The URL of the page that contains the saved word.">
 
 
 <!ENTITY Vocab.KnownWordsCaption "Known Words">
@@ -213,6 +213,7 @@
 <!ENTITY Vocab.ToDoWordsFile "Text file that contains your to-do list of vocabulary words:">
 <!ENTITY Vocab.ToDoWordsFileTooltip "One word per line. Lines may contain multiple tab-separated columns.">
 <!ENTITY Vocab.ToDoWordsFileCol "If the file contains multiple columns, specify which column contains the word:">
+
 
 <!ENTITY Anki.RTICaption "Anki Real-Time Import">
 <!ENTITY Anki.RTIHelp "Options related to Anki's Real-Time Import shared plugin.">

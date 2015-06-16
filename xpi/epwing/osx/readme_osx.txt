@@ -2,4 +2,4 @@
 Compiled By: Landon Epps
 Version:     eplkup v1.4
 Compiler:    n/a
-Notes:       Use 10.5 SDK, so should be universally compatible.
+Notes:       64-bit. SDK 10.5.

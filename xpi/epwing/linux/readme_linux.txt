@@ -1,7 +1,7 @@
 ﻿Date:        5/2/2015
 Compiled By: Christopher Brochtrup
 Version:     eplkup v1.5
-Compiler:    gcc
+Compiler:    gcc 4.8.2
 Notes:       Executable is 32-bit. Compiled on Linux Mint 17 32-bit.
              Statically linked with zlib and eb.
 

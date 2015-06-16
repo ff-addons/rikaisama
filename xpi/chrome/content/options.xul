@@ -640,6 +640,10 @@
                       <description value="$a"/>
                     </row>
                     <row>
+                      <description value="&ClipSave.FmtDefinition;" tooltiptext="&ClipSave.ToolTipDefinition;"/>
+                      <description value="$n"/>
+                    </row>
+                    <row>
                       <description value="&ClipSave.FmtDictForm;" tooltiptext="&ClipSave.ToolTipFmtDictForm;"/>
                       <description value="$d"/>
                     </row>
@@ -651,10 +655,6 @@
                       <description value="&ClipSave.FmtHighlighted;" tooltiptext="&ClipSave.ToolTipFmtHighlighted;"/>
                       <description value="$h"/>
                     </row>
-                    <row>
-                      <description value="&ClipSave.FmtNotes;" tooltiptext="&ClipSave.ToolTipFmtNotes;"/>
-                      <description value="$o"/>
-                    </row>
                   </rows>
                 </grid>
                 <spacer style="width:2em"/>
@@ -664,6 +664,10 @@
                     <column/>
                   </columns>
                   <rows>
+                    <row>
+                      <description value="&ClipSave.FmtNotes;" tooltiptext="&ClipSave.ToolTipFmtNotes;"/>
+                      <description value="$o"/>
+                    </row>
                     <row>
                       <description value="&ClipSave.FmtPitch;" tooltiptext="&ClipSave.ToolTipFmtPitch;"/>
                       <description value="$p"/>
@@ -679,10 +683,6 @@
                     <row>
                       <description value="&ClipSave.FmtSentenceWithBlank;" tooltiptext="&ClipSave.ToolTipFmtSentenceWithBlank;"/>
                       <description value="$b"/>
-                    </row>
-                    <row>
-                      <description value="&ClipSave.FmtURL;" tooltiptext="&ClipSave.ToolTipFmtURL;"/>
-                      <description value="$u"/>
                     </row>
                   </rows>
                 </grid>
@@ -706,8 +706,8 @@
                       <description value="$i"/>
                     </row>
                     <row>
-                      <description value="&ClipSave.FmtTranslation;" tooltiptext="&ClipSave.ToolTipTranslation;"/>
-                      <description value="$n"/>
+                      <description value="&ClipSave.FmtURL;" tooltiptext="&ClipSave.ToolTipFmtURL;"/>
+                      <description value="$u"/>
                     </row>
                   </rows>
                 </grid>
