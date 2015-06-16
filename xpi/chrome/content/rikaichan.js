@@ -573,180 +573,204 @@ var rcxMain = {
 		if (b) b.setAttribute('rcx_enabled', en);
 	},
 
-	showPopup: function(text, elem, pos, lbPop) {
-		// outer-most document
-		var content = this.isTB ? this.getBrowser().contentWindow : window.content;
-		var topdoc = content.document;
-
-		var x = 0, y = 0;
-		if (pos) {
-			x = pos.screenX;
-			y = pos.screenY;
-		}
-
-		this.lbPop = lbPop;
-
-		var popup = topdoc.getElementById('rikaichan-window');
-		if (!popup) {
-			var css = topdoc.createElementNS('http://www.w3.org/1999/xhtml', 'link');
-			css.setAttribute('rel', 'stylesheet');
-			css.setAttribute('type', 'text/css');
-			css.setAttribute('href', rcxConfig.css);
-			css.setAttribute('id', 'rikaichan-css');
-			topdoc.getElementsByTagName('head')[0].appendChild(css);
-
-			popup = topdoc.createElementNS('http://www.w3.org/1999/xhtml', 'div');
-			popup.setAttribute('id', 'rikaichan-window');
-			topdoc.documentElement.appendChild(popup);
-
-			// if this is not set then Cyrillic text is displayed with Japanese
-			// font, if the web page uses a Japanese code page as opposed to Unicode.
-			// This makes it unreadable.
-			popup.setAttribute('lang', 'en');
-
-			popup.addEventListener('dblclick',
-				function (ev) {
-					rcxMain.hidePopup();
-					ev.stopPropagation();
-				}, true);
-
-			if (rcxConfig.resizedoc) {
-				if ((topdoc.body.clientHeight < 1024) && (topdoc.body.style.minHeight == '')) {
-					topdoc.body.style.minHeight = '1024px';
-					topdoc.body.style.overflow = 'auto';
-				}
-			}
-		}
-
-		popup.style.maxWidth = (lbPop ? '' : '600px');
-    
-    popup.style.opacity = rcxConfig.opacity / 100;
-    
-    if(rcxConfig.roundedcorners)
+	showPopup: function(text, elem, pos, lbPop) 
+  {
+    try
     {
-      popup.style.borderRadius = '5px';
+      // outer-most document
+      var content = this.isTB ? this.getBrowser().contentWindow : window.content;
+      var topdoc = content.document;
+
+      var x = 0, y = 0;
+      if (pos) {
+        x = pos.screenX;
+        y = pos.screenY;
+      }
+
+      this.lbPop = lbPop;
+
+      var popup = topdoc.getElementById('rikaichan-window');
+      if (!popup) {
+        var css = topdoc.createElementNS('http://www.w3.org/1999/xhtml', 'link');
+        css.setAttribute('rel', 'stylesheet');
+        css.setAttribute('type', 'text/css');
+        css.setAttribute('href', rcxConfig.css);
+        css.setAttribute('id', 'rikaichan-css');
+        
+        head = topdoc.getElementsByTagName('head')[0];
+        
+        if(head)
+        {
+          head.appendChild(css);
+        }
+        else
+        {
+          Components.utils.reportError("showPopup(): Unable to append css to head!");
+          return;
+        }
+
+        popup = topdoc.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+        popup.setAttribute('id', 'rikaichan-window');
+        topdoc.documentElement.appendChild(popup);
+
+        // if this is not set then Cyrillic text is displayed with Japanese
+        // font, if the web page uses a Japanese code page as opposed to Unicode.
+        // This makes it unreadable.
+        popup.setAttribute('lang', 'en');
+
+        popup.addEventListener('dblclick',
+          function (ev) {
+            rcxMain.hidePopup();
+            ev.stopPropagation();
+          }, true);
+
+        if (rcxConfig.resizedoc) {
+          if ((topdoc.body.clientHeight < 1024) && (topdoc.body.style.minHeight == '')) {
+            topdoc.body.style.minHeight = '1024px';
+            topdoc.body.style.overflow = 'auto';
+          }
+        }
+      }
+
+      popup.style.maxWidth = (lbPop ? '' : '600px');
+      
+      popup.style.opacity = rcxConfig.opacity / 100;
+      
+      if(rcxConfig.roundedcorners)
+      {
+        popup.style.borderRadius = '5px';
+      }
+      else
+      {
+        popup.style.borderRadius = '0px';
+      }
+
+      if (topdoc.contentType == 'text/plain') {
+        var df = document.createDocumentFragment();
+        var sp = document.createElementNS('http://www.w3.org/1999/xhtml', 'span');
+        df.appendChild(sp);
+        sp.innerHTML = text;
+        while (popup.firstChild) {
+          popup.removeChild(popup.firstChild);
+        }
+        popup.appendChild(df);
+      }
+      else {
+        popup.innerHTML = text;
+      }
+
+      if (elem && (typeof elem !== 'undefined') 
+         && elem.parentNode && (typeof elem.parentNode !== 'undefined')) {
+        popup.style.top = '-1000px';
+        popup.style.left = '0px';
+        popup.style.display = '';
+
+        var width = popup.offsetWidth;
+        var height = popup.offsetHeight;
+
+        // guess! (??? still need this?)
+        if (width <= 0) width = 200;
+        if (height <= 0) {
+          height = 0;
+          var j = 0;
+          while ((j = text.indexOf('<br', j)) != -1) {
+            j += 5;
+            height += 22;
+          }
+          height += 25;
+        }
+
+        if (this.altView == 1) {
+          // upper-left
+          x = 0;
+          y = 0;
+        }
+        else if (this.altView == 2) {
+          // lower-right
+          x = (content.innerWidth - (width + 20));
+          y = (content.innerHeight - (height + 20));
+        }
+        else {
+          // convert xy relative to outer-most document
+          var cb = this.getBrowser();
+          var bo = cb.boxObject;
+          x -= bo.screenX;
+          y -= bo.screenY;
+
+          // when zoomed, convert to zoomed document pixel position
+          // - not in TB compose and ...?
+          try {
+            var z = cb.fullZoom || 1;
+            if (z != 1) {
+              x = Math.round(x / z);
+              y = Math.round(y / z);
+            }
+          }
+          catch (ex) {
+            // console.log('ex: ' + ex)
+          }
+
+          if (elem instanceof Components.interfaces.nsIDOMHTMLOptionElement) {
+            // these things are always on z-top, so go sideways
+            x -= pos.pageX;
+            y -= pos.pageY;
+            var p = elem;
+            while (p) {
+              x += p.offsetLeft;
+              y += p.offsetTop;
+              p = p.offsetParent;
+            }
+
+            // right side of box
+            var w = elem.parentNode.offsetWidth + 5;
+            x += w;
+
+            if ((x + width) > content.innerWidth) {
+              // too much to the right, go left
+              x -= (w + width + 5);
+              if (x < 0) x = 0;
+            }
+
+            if ((y + height) > content.innerHeight) {
+              y = content.innerHeight - height - 5;
+              if (y < 0) y = 0;
+            }
+          }
+          else {
+            // go left if necessary
+            if ((x + width) > (content.innerWidth - 20)) {
+              x = (content.innerWidth - width) - 20;
+              if (x < 0) x = 0;
+            }
+
+            // below the mouse
+            var v = 25;
+
+            // under the popup title
+            if ((elem.title) && (elem.title != '')) v += 20;
+
+            // go up if necessary
+            if ((y + v + height) > content.innerHeight) {
+              var t = y - height - 30;
+              if (t >= 0) y = t;
+            }
+            else y += v;
+          }
+        }
+      }
+      else
+      {
+        Components.utils.reportError("showPopup(): elem or parentNode is not defined!");
+      }
+
+      popup.style.left = (x + content.scrollX) + 'px';
+      popup.style.top = (y + content.scrollY) + 'px';
+      popup.style.display = '';
     }
-    else
+    catch(ex)
     {
-      popup.style.borderRadius = '0px';
+      Components.utils.reportError("showPopup() Exception: " + ex);
     }
-
-		if (topdoc.contentType == 'text/plain') {
-			var df = document.createDocumentFragment();
-			var sp = document.createElementNS('http://www.w3.org/1999/xhtml', 'span');
-			df.appendChild(sp);
-			sp.innerHTML = text;
-			while (popup.firstChild) {
-				popup.removeChild(popup.firstChild);
-			}
-			popup.appendChild(df);
-		}
-		else {
-			popup.innerHTML = text;
-		}
-
-		if (elem) {
-			popup.style.top = '-1000px';
-			popup.style.left = '0px';
-			popup.style.display = '';
-
-			var width = popup.offsetWidth;
-			var height = popup.offsetHeight;
-
-			// guess! (??? still need this?)
-			if (width <= 0) width = 200;
-			if (height <= 0) {
-				height = 0;
-				var j = 0;
-				while ((j = text.indexOf('<br', j)) != -1) {
-					j += 5;
-					height += 22;
-				}
-				height += 25;
-			}
-
-			if (this.altView == 1) {
-				// upper-left
-				x = 0;
-				y = 0;
-			}
-			else if (this.altView == 2) {
-				// lower-right
-				x = (content.innerWidth - (width + 20));
-				y = (content.innerHeight - (height + 20));
-			}
-			else {
-				// convert xy relative to outer-most document
-				var cb = this.getBrowser();
-				var bo = cb.boxObject;
-				x -= bo.screenX;
-				y -= bo.screenY;
-
-				// when zoomed, convert to zoomed document pixel position
-				// - not in TB compose and ...?
-				try {
-					var z = cb.fullZoom || 1;
-					if (z != 1) {
-						x = Math.round(x / z);
-						y = Math.round(y / z);
-					}
-				}
-				catch (ex) {
-					// console.log('ex: ' + ex)
-				}
-
-				if (elem instanceof Components.interfaces.nsIDOMHTMLOptionElement) {
-					// these things are always on z-top, so go sideways
-					x -= pos.pageX;
-					y -= pos.pageY;
-					var p = elem;
-					while (p) {
-						x += p.offsetLeft;
-						y += p.offsetTop;
-						p = p.offsetParent;
-					}
-
-					// right side of box
-					var w = elem.parentNode.offsetWidth + 5;
-					x += w;
-
-					if ((x + width) > content.innerWidth) {
-						// too much to the right, go left
-						x -= (w + width + 5);
-						if (x < 0) x = 0;
-					}
-
-					if ((y + height) > content.innerHeight) {
-						y = content.innerHeight - height - 5;
-						if (y < 0) y = 0;
-					}
-				}
-				else {
-					// go left if necessary
-					if ((x + width) > (content.innerWidth - 20)) {
-						x = (content.innerWidth - width) - 20;
-						if (x < 0) x = 0;
-					}
-
-					// below the mouse
-					var v = 25;
-
-					// under the popup title
-					if ((elem.title) && (elem.title != '')) v += 20;
-
-					// go up if necessary
-					if ((y + v + height) > content.innerHeight) {
-						var t = y - height - 30;
-						if (t >= 0) y = t;
-					}
-					else y += v;
-				}
-			}
-		}
-
-		popup.style.left = (x + content.scrollX) + 'px';
-		popup.style.top = (y + content.scrollY) + 'px';
-		popup.style.display = '';
 	},
 
 	hidePopup: function() 
@@ -1774,7 +1798,7 @@ var rcxMain = {
         
         // Show the definition
         rcxMain.showPopup(rcxMain.getKnownWordIndicatorText() + rcxData.makeHtml(rcxMain.lastFound[0]), 
-          rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos);
+          rcxMain.lastTdata.get().prevTarget, rcxMain.lastTdata.get().pos);
         
         // Entry found, stop looking
         break;
@@ -1801,7 +1825,7 @@ var rcxMain = {
       else
       {
         // Fallback to the default non-sanseido dictionary that comes with rikaichan (JMDICT)
-        rcxMain.showPopup(rcxData.makeHtml(rcxMain.lastFound[0]), rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos);
+        rcxMain.showPopup(rcxData.makeHtml(rcxMain.lastFound[0]), rcxMain.lastTdata.get().prevTarget, rcxMain.lastTdata.get().pos);
       }
     }
   }, /* parseAndDisplaySanseido */
@@ -2044,7 +2068,7 @@ var rcxMain = {
 
         rcxMain.cleanupLookupEpwing();
         rcxMain.showPopup(rcxMain.getKnownWordIndicatorText() + rcxData.makeHtml(rcxMain.lastFound[0]), 
-          rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos);
+          rcxMain.lastTdata.get().prevTarget, rcxMain.lastTdata.get().pos);
       }
       else 
       {
@@ -2056,7 +2080,7 @@ var rcxMain = {
           // If so, fallback to JMDICT
           rcxMain.cleanupLookupEpwing();
           rcxMain.showPopup(rcxMain.getKnownWordIndicatorText() + rcxData.makeHtml(rcxMain.lastFound[0]), 
-            rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos);
+            rcxMain.lastTdata.get().prevTarget, rcxMain.lastTdata.get().pos);
           return;
         }       
         
@@ -2212,7 +2236,7 @@ var rcxMain = {
     }  
 
     // Show the EPWING text
-    rcxMain.showPopup(epwingText, rcxMain.lastTdata.prevTarget, rcxMain.lastTdata.pos); 
+    rcxMain.showPopup(epwingText, rcxMain.lastTdata.get().prevTarget, rcxMain.lastTdata.get().pos); 
 
     rcxMain.cleanupLookupEpwing();
 	},
@@ -2540,7 +2564,7 @@ var rcxMain = {
     }
      
     // Show the loading message to the screen while we fetch the entry page
-    rcxMain.showPopup("Loading...", this.lastTdata.prevTarget, this.lastTdata.pos);
+    rcxMain.showPopup("Loading...", this.lastTdata.get().prevTarget, this.lastTdata.get().pos);
     
     //
     // Get entry page asynchronously
@@ -3744,7 +3768,7 @@ var rcxMain = {
 		tdata.titleShown = false;
     
     // Save the tdata so that the sanseido routines can use it
-    this.lastTdata = tdata;
+    this.lastTdata = Components.utils.getWeakReference(tdata);
 
     // When auto play is enabled, the user must hilite a word for at least 500 ms before
     // the audio will be played.
