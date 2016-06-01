@@ -2752,7 +2752,7 @@ var rcxMain = {
     var hash = ch.finish(false);
 
     // Convert the binary hash data to a hex string
-    var s = [rcxMain.toHexString(hash.charCodeAt(i)) for (i in hash)].join("");
+    var s = [for (i of hash) rcxMain.toHexString(hash.charCodeAt(i))].join("");
 
     return s;
 
