@@ -421,6 +421,11 @@ var rcxMain = {
   // Add entry to rcxMain.noAudioDic and append it to no_audio_list.txt
   addNoAudioListEntry: function(entry)
   {
+    // In Firefox 44+, this routine will cause Firefox to disable Rikaisama because
+    // modifying or adding a file in the add-on install directory will change the 
+    // signature of the add-on. TODO: use another method to save the no audio words.
+    return;
+    
     // If entry is already added, exit
     if(rcxMain.noAudioDic[entry])
     {

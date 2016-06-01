@@ -2,8 +2,8 @@ Manifest-Version: 1.0
 
 Name: install.rdf
 Digest-Algorithms: MD5 SHA1
-MD5-Digest: SnBI72yatqrkMxBrBYljSA==
-SHA1-Digest: X/62CJt/r59oEqQTB1Siokwzcf0=
+MD5-Digest: jPW2NRZx9Q/MmzGhocya0A==
+SHA1-Digest: qNAcrJjdTIwhNVmedgTmrj0rGww=
 
 Name: chrome.manifest
 Digest-Algorithms: MD5 SHA1
@@ -22,8 +22,8 @@ SHA1-Digest: 2jmj7l5rSw0yVb/vlWAYkK/YBwk=
 
 Name: chrome/rikaichan.jar
 Digest-Algorithms: MD5 SHA1
-MD5-Digest: MmAn6Q978Wn15c6NpIKkcg==
-SHA1-Digest: aEWW6W6Ho6OAzo/fwOI/f7sfK9o=
+MD5-Digest: XlHfGan8xTRZikdEGjAGTA==
+SHA1-Digest: 392BhgA91P3/dyiBPD8EoHKnSV0=
 
 Name: defaults/preferences/rikaichan.js
 Digest-Algorithms: MD5 SHA1
