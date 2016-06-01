@@ -1365,7 +1365,7 @@ var rcxMain = {
           // Send the UDP message to Anki's Real-Time Import containing location of information to add
           // Use Firefox's own barely-publicized UDP service
           let udpSocket = Cc["@mozilla.org/network/udp-socket;1"].createInstance(Ci.nsIUDPSocket);
-          udpSocket.init(0, true, true);
+          udpSocket.init(0, true, null);
           let utf8encoder = new TextEncoder('utf-8');
           let msg = utf8encoder.encode(tempRtiFile.path);
           udpSocket.send('127.0.0.1', port, msg, msg.length);
