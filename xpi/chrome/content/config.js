@@ -145,6 +145,7 @@ var rcxConfigList = [
 	[0, 'vocabtodowordslistcolumn'],
 
   // Anki
+  [1, 'rti_save_format'],
 	[1, 'rtifieldnamestext'],
 	[2, 'rtisaveaudio'],
 	[0, 'rtiudpport'],

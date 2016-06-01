@@ -2,8 +2,8 @@ Manifest-Version: 1.0
 
 Name: install.rdf
 Digest-Algorithms: MD5 SHA1
-MD5-Digest: GC8qLgZvi0kuSgaAdykO0A==
-SHA1-Digest: cXtE1V4AXTsc8sNbs6CeeXigfmI=
+MD5-Digest: 61kQfIROievE3NkNV7Y13w==
+SHA1-Digest: lqhlMlu0hgK5JI1V/421MEv9OJU=
 
 Name: chrome.manifest
 Digest-Algorithms: MD5 SHA1
@@ -22,13 +22,13 @@ SHA1-Digest: 2jmj7l5rSw0yVb/vlWAYkK/YBwk=
 
 Name: chrome/rikaichan.jar
 Digest-Algorithms: MD5 SHA1
-MD5-Digest: nY3CHWmw0+Fl+dIfvHojsw==
-SHA1-Digest: I8O92kadtW38YN8epMGn9ZFyzkA=
+MD5-Digest: MmAn6Q978Wn15c6NpIKkcg==
+SHA1-Digest: aEWW6W6Ho6OAzo/fwOI/f7sfK9o=
 
 Name: defaults/preferences/rikaichan.js
 Digest-Algorithms: MD5 SHA1
-MD5-Digest: AWD/vsFbatKA72L575lKeQ==
-SHA1-Digest: 08YSZ6Ek02ZhNpgVezPAu4Ok41Y=
+MD5-Digest: +Ohuszu68C6FP/hCGUh4AA==
+SHA1-Digest: A8lObhGnd0erKMx9O4nRNLUU2sA=
 
 Name: epwing/eplkup_source_code/base64.c
 Digest-Algorithms: MD5 SHA1
@@ -162,13 +162,13 @@ SHA1-Digest: 9BFbT9ggBFgibTQTgWHiWr9BokU=
 
 Name: epwing/osx/eplkup
 Digest-Algorithms: MD5 SHA1
-MD5-Digest: zCHgDi+wVHqRGBtFOdBcbA==
-SHA1-Digest: 6NnHUWLd+RONYBptBaTHVva2wU4=
+MD5-Digest: Hs3jruPzXkr2XqoXThMBEw==
+SHA1-Digest: db8mzLhIL0SlW6+bROZsro1SQqQ=
 
 Name: epwing/osx/readme_osx.txt
 Digest-Algorithms: MD5 SHA1
-MD5-Digest: GQbzbh98WFbm4zzLwJ1zxw==
-SHA1-Digest: qiHn1qOilso6KEID34yeN5EncfE=
+MD5-Digest: Qyl0KACzQMFiPOTL2krTyA==
+SHA1-Digest: r35CqDkhaqTEhNbh7Osztlt4eco=
 
 Name: epwing/windows/eb.dll
 Digest-Algorithms: MD5 SHA1

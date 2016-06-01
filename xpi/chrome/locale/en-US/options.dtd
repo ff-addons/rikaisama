@@ -164,7 +164,7 @@
 <!ENTITY ClipSave.BomHeader "Add header to UTF-8">
 <!ENTITY ClipSave.LineEnding "Line ending:">
 <!ENTITY ClipSave.AnkiTags "Tags:">
-<!ENTITY ClipSave.ToolTipAnkiTags "The text to use for the Tags token below. Additionally, these tags will be used by the Anki Real-Time Import feature.">
+<!ENTITY ClipSave.ToolTipAnkiTags "The text to use for the Tags token below. Additionally, these tags will automatically be used with the Anki Real-Time Import feature.">
 <!ENTITY ClipSave.AnkiTagsHelp "(separated by spaces)">
 <!ENTITY ClipSave.SaveNotes "Notes:">
 <!ENTITY ClipSave.ToolTipSaveNotes "The text used for the Notes token below.">
@@ -217,9 +217,13 @@
 
 <!ENTITY Anki.RTICaption "Anki Real-Time Import">
 <!ENTITY Anki.RTIHelp "Options related to Anki's Real-Time Import shared plugin.">
+<!ENTITY Anki.ToolTipFmtNotes "The text from the 'Notes' text box in the 'Clipboard &amp; Save' tab.">
+<!ENTITY Anki.ToolTipFmtAnkiTags "The text from the 'Tags' text box in the 'Clipboard &amp; Save' tab.">
+<!ENTITY Anki.DownloadLink "(Download)">
+<!ENTITY Anki.HelpLink "(Help)">
 <!ENTITY Anki.RTIFieldNames "Field names:">
-<!ENTITY Anki.ToolTipRTIFieldNames "The field names from your Anki deck that map to each token in the 'Save format' text box on the 'Clipboard &amp; Save' tab">
-<!ENTITY Anki.RTIFieldNamesHelp "Separated by spaces. Should map to the save format in the 'Clipboard &amp; Save' tab.">
+<!ENTITY Anki.ToolTipRTIFieldNames "The field names from your Anki deck that map to each token in the 'Save format' text box above">
+<!ENTITY Anki.RTIFieldNamesHelp "Separated by spaces. Should map to the save format above.">
 <!ENTITY Anki.RTISaveAudio "Save audio when one of the Anki Real-Time Import keys is pressed">
 <!ENTITY Anki.RTIPort "UDP port:">
 <!ENTITY Anki.ToolTipRTIPort "The UDP port that matches the UDP port of the Anki Real-Time Import plugin.">

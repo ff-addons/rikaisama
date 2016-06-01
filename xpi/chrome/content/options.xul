@@ -794,7 +794,11 @@
           <caption label="&Anki.RTICaption;"/>
           <rows>
             <row>
-              <label value="&Anki.RTIHelp;"/>
+              <hbox>
+                <label value="&Anki.RTIHelp;"/>
+                <label class="text-link" value="&Anki.DownloadLink;" href="https://ankiweb.net/shared/info/2512410601"/>
+                <label class="text-link" value="&Anki.HelpLink;" href="http://rikaisama.sourceforge.net/#realtime_import_help"/>
+              </hbox>
             </row>
           </rows>
           <spacer style="height:1em"/>
@@ -804,6 +808,102 @@
               <column flex="1"/>
             </columns>
             <rows>
+              <row align="center">
+                <label value="&ClipSave.SaveFormat;" control="rcp-rti_save_format" tooltiptext="&ClipSave.ToolTipSaveFormat;"/>
+                <textbox id="rcp-rti_save_format"/>
+              </row>
+
+              <row>
+                <label value=""/>
+                <groupbox>
+                  <caption label="&ClipSave.FmtCaption;"/>
+                  <hbox>
+                    <grid> <!-- Column 1 -->
+                      <columns>
+                        <column/>
+                        <column/>
+                      </columns>
+                      <rows>
+                        <row>
+                          <description value="&ClipSave.FmtAudioFile;" tooltiptext="&ClipSave.ToolTipFmtAudioFile;"/>
+                          <description value="$a"/>
+                        </row>
+                        <row>
+                          <description value="&ClipSave.FmtDefinition;" tooltiptext="&ClipSave.ToolTipDefinition;"/>
+                          <description value="$n"/>
+                        </row>
+                        <row>
+                          <description value="&ClipSave.FmtDictForm;" tooltiptext="&ClipSave.ToolTipFmtDictForm;"/>
+                          <description value="$d"/>
+                        </row>
+                        <row>
+                          <description value="&ClipSave.FmtFrequency;" tooltiptext="&ClipSave.ToolTipFmtFrequency;"/>
+                          <description value="$f"/>
+                        </row>
+                        <row>
+                          <description value="&ClipSave.FmtHighlighted;" tooltiptext="&ClipSave.ToolTipFmtHighlighted;"/>
+                          <description value="$h"/>
+                        </row>
+                      </rows>
+                    </grid>
+                    <spacer style="width:2em"/>
+                    <grid> <!-- Column 2 -->
+                      <columns>
+                        <column/>
+                        <column/>
+                      </columns>
+                      <rows>
+                        <row>
+                          <description value="&ClipSave.FmtNotes;" tooltiptext="&Anki.ToolTipFmtNotes;"/>
+                          <description value="$o"/>
+                        </row>
+                        <row>
+                          <description value="&ClipSave.FmtPitch;" tooltiptext="&ClipSave.ToolTipFmtPitch;"/>
+                          <description value="$p"/>
+                        </row>
+                        <row>
+                          <description value="&ClipSave.FmtReading;" tooltiptext="&ClipSave.ToolTipFmtReading;"/>
+                          <description value="$r"/>
+                        </row>
+                        <row>
+                          <description value="&ClipSave.FmtSentence;" tooltiptext="&ClipSave.ToolTipFmtSentence;"/>
+                          <description value="$s"/>
+                        </row>
+                        <row>
+                          <description value="&ClipSave.FmtSentenceWithBlank;" tooltiptext="&ClipSave.ToolTipFmtSentenceWithBlank;"/>
+                          <description value="$b"/>
+                        </row>
+                      </rows>
+                    </grid>
+                    <spacer style="width:2em"/>
+                    <grid>  <!-- Column 3 -->
+                      <columns>
+                        <column/>
+                        <column/>
+                      </columns>
+                      <rows>
+                        <row>
+                          <description value="&ClipSave.FmtTab;" tooltiptext="&ClipSave.ToolTipFmtTab;"/>
+                          <description value="$t"/>
+                        </row>
+                        <row>
+                          <description value="&ClipSave.FmtAnkiTags;" tooltiptext="&Anki.ToolTipFmtAnkiTags;"/>
+                          <description value="$g"/>
+                        </row>
+                        <row>
+                          <description value="&ClipSave.FmtTitle;" tooltiptext="&ClipSave.ToolTipTitle;"/>
+                          <description value="$i"/>
+                        </row>
+                        <row>
+                          <description value="&ClipSave.FmtURL;" tooltiptext="&ClipSave.ToolTipFmtURL;"/>
+                          <description value="$u"/>
+                        </row>
+                      </rows>
+                    </grid>
+                  </hbox>
+                </groupbox>
+              </row>
+              
               <row align="center">
                 <label value="&Anki.RTIFieldNames;" control="rcp-rtifieldnamestext" tooltiptext="&Anki.ToolTipRTIFieldNames;"/>
                 <textbox id="rcp-rtifieldnamestext" maxlength="255"/>

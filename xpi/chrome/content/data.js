@@ -914,7 +914,8 @@ var rcxData = {
   // sentence       = The sentence containing the highlighted word
   // sentenceWBlank = Like sentence except the highlighted word is replaced with blanks
   // saveKana       = Replace kanji with kana (that is, $d=$r)
-  makeText: function(entry, word, sentence, sentenceWBlank, saveKana)
+  // saveFormat     = Token-based save format
+  makeText: function(entry, word, sentence, sentenceWBlank, saveKana, saveFormat)
   {
     var entryData;
     var b;
@@ -932,7 +933,7 @@ var rcxData = {
     }
 
     var prefs = new rcxPrefs();
-    var saveText = prefs.getString('saveformat');
+    var saveText = saveFormat;
 
     // Example of what entry.data[0][0] looks like (linebreak added by me):
     //   乃 [の] /(prt,uk) indicates possessive/verb and adjective nominalizer (nominaliser)/substituting

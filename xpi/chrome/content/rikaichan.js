@@ -74,8 +74,8 @@ var rcxMain = {
   prevKnownWordsFilePath: "",   // Previous path of the known words file. Used to determine in the use changed the path in the options.
   prevTodoWordsFilePath: "",    // Previous path of the to-do words file. Used to determine in the use changed the path in the options.
   epwingSearchTerm: "",         // Text to lookup in EPWING dictionary
-  epwingSearchingNextLongest: false, // true = Searching for the next longest word in the gloss if the longest was not found. 
-                                     //        For example, Kojien6 doesn't have 自由研究 (which is in EDICT) but it does have 自由, 
+  epwingSearchingNextLongest: false, // true = Searching for the next longest word in the gloss if the longest was not found.
+                                     //        For example, Kojien6 doesn't have 自由研究 (which is in EDICT) but it does have 自由,
                                      //        so 自由 is used for the next longest search
   epwingResultList: [],         // List of results from the previous EPWING search
   freqDB: null,                 // Frequency database connection
@@ -190,7 +190,7 @@ var rcxMain = {
 		onTabPersist: function(aTab) { },
 		onTabRestored: function(aTab, aState, aIsFirstTab) { }
 	},
-  
+
 	init: function() {
 		window.addEventListener('load', function() { rcxMain._init() }, false);
 	},
@@ -251,11 +251,11 @@ var rcxMain = {
 					this.onTabSelect();
 				}
 			}
-    
+
     // Needed to write asynchronously to file in the sendToAnki routine
     Components.utils.import("resource://gre/modules/FileUtils.jsm");
     Components.utils.import("resource://gre/modules/NetUtil.jsm");
-    
+
     // Needed to download the audio file
     Components.utils.import("resource://gre/modules/Downloads.jsm");
     Components.utils.import("resource://gre/modules/osfile.jsm")
@@ -278,44 +278,44 @@ var rcxMain = {
 		}
 
 		this.checkVersion();
-    
+
     // Enable Sanseido Mode at startup based on user preference
-    if (rcxConfig.startsanseido) 
+    if (rcxConfig.startsanseido)
     {
 			rcxMain.sanseidoMode = true;
-		} 
-    
+		}
+
     // Enable EPWING Mode at startup based on user preference
-    if (rcxConfig.startepwing) 
+    if (rcxConfig.startepwing)
     {
 			rcxMain.epwingMode = true;
-		} 
-    
+		}
+
     // Enable Sticky Mode at startup based on user preference
-    if (rcxConfig.startsticky) 
+    if (rcxConfig.startsticky)
     {
 			rcxMain.sticky = true;
 		}
-    
+
     // Enable Super Sticky Mode at startup based on user preference
-    if (rcxConfig.startsupersticky) 
+    if (rcxConfig.startsupersticky)
     {
 			rcxMain.superSticky = true;
 		}
-    
+
     // Enable Lookup Bar at startup based on user preference
-    if (rcxConfig.startlookupbar) 
+    if (rcxConfig.startlookupbar)
     {
 			rcxMain.lbToggle();
 		}
-    
+
     // If the no audio dictionary has not yet been initialized
     if(!rcxMain.noAudioDic)
     {
       // Get the path of the no audio list file
       var noAudioListPath = Components.classes["@mozilla.org/file/directory_service;1"]
         .getService(Components.interfaces.nsIProperties)
-        .get("ProfD", Components.interfaces.nsILocalFile);    
+        .get("ProfD", Components.interfaces.nsILocalFile);
       noAudioListPath.append("extensions");
       noAudioListPath.append(rcxMain.id); // GUID of extension
       noAudioListPath.append("audio");
@@ -326,17 +326,17 @@ var rcxMain = {
     }
 	},
 
-  
+
   // Read list of words in column wordColumn from file wordListFilePath into the outputDic associative array.
   // The key of outputDic will be the word, and the value will always be true.
-  readWordList: function(wordListFilePath, outputDic, wordColumn) 
-  {   
+  readWordList: function(wordListFilePath, outputDic, wordColumn)
+  {
     // Check if the user entered a known words file
     if(wordListFilePath.length == 0)
     {
       return;
     }
-    
+
     try
     {
       // Get file pointer to the word list file
@@ -360,44 +360,44 @@ var rcxMain = {
               createInstance(Components.interfaces.nsIFileInputStream);
     istream.init(wordListFile, 0x01, 0444, 0);
     istream.QueryInterface(Components.interfaces.nsILineInputStream);
-    
+
     // Used to convert lines to UTF-8
     var textConverter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].
        createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
-    
+
     textConverter.charset = "UTF-8";
-    
+
     var line = {};
     var utf8Line = "";
     var hasMore = false;
-    
+
     // Read each entry into outputDic
     // Note: Using synchronous operations, hopefully this won't be a problem.
-    do 
+    do
     {
       hasMore = istream.readLine(line);
-            
+
       // Convert line to UTF-8
-      utf8Line = textConverter.ConvertToUnicode(line.value); 
-      
+      utf8Line = textConverter.ConvertToUnicode(line.value);
+
       // Make sure that the line isn't blank
       if(utf8Line.length == 0)
       {
         continue;
       }
-      
+
       // Split line by tabs
       var lineFields = utf8Line.split("\t");
-      
+
       // Make sure that line has enough columns
       if(lineFields.length < wordColumn)
       {
         continue;
       }
-      
+
       // Get the word
       var word = this.trim(lineFields[wordColumn - 1]);
-      
+
       // Add the word to the provided associative array
       if(word != "")
       {
@@ -410,14 +410,14 @@ var rcxMain = {
           outputDic[word] = true; // Note: the value is not used
         }
       }
-        
+
     } while(hasMore);
 
     istream.close();
-  
+
   }, /* readWordList */
- 
- 
+
+
   // Add entry to rcxMain.noAudioDic and append it to no_audio_list.txt
   addNoAudioListEntry: function(entry)
   {
@@ -426,29 +426,29 @@ var rcxMain = {
     {
       return;
     }
-  
+
     // Add the entry to rcxMain.noAudioDic
     rcxMain.noAudioDic[entry] = true;
-    
+
     //
     // Append the entry to no_audio_list.txt
     // Note: Using synchronous operations, hopefully this won't be a problem.
     //
-      
+
     // Get the path of the no audio list file
     var noAudioListPath = Components.classes["@mozilla.org/file/directory_service;1"]
             .getService(Components.interfaces.nsIProperties)
-            .get("ProfD", Components.interfaces.nsILocalFile);    
+            .get("ProfD", Components.interfaces.nsILocalFile);
     noAudioListPath.append("extensions");
     noAudioListPath.append(rcxMain.id); // GUID of extension
     noAudioListPath.append("audio");
     noAudioListPath.append("no_audio_list.txt");
-        
+
     // Get file pointer to the no audio list file
     var noAudioListFile = Components.classes['@mozilla.org/file/local;1']
      .createInstance(Components.interfaces.nsILocalFile);
     noAudioListFile.initWithPath(noAudioListPath.path);
-  
+
     // Create file output stream
     var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"].
                      createInstance(Components.interfaces.nsIFileOutputStream);
@@ -462,13 +462,13 @@ var rcxMain = {
 
     // Append entry to file
     utf8Converter.writeString(entry + "\n");
-   
-    utf8Converter.close(); // Closes foStream
-      
-  }, /* addNoAudioListEntry */
-  
 
-	onUnload: function() {  
+    utf8Converter.close(); // Closes foStream
+
+  }, /* addNoAudioListEntry */
+
+
+	onUnload: function() {
 		this.rcxObs.unregister();
 		rcxConfig.observer.stop();
 		if (this.isTB) {
@@ -558,9 +558,9 @@ var rcxMain = {
 			// FF 14/15/+? weirdness:
 			//	attr false:   toolbar icon remains sunk (bad) / context/tools menu is unchecked (ok)
 			//	attr removed: toolbar icon is normal (ok) / context/tools menu remains checked (bad)
-			
+
 			b.setAttribute('checked', en);
-			
+
 			if (!en) {
 				b = document.getElementById('rikaichan-toggle-button');
 				if (b) b.removeAttribute('checked');
@@ -573,7 +573,7 @@ var rcxMain = {
 		if (b) b.setAttribute('rcx_enabled', en);
 	},
 
-	showPopup: function(text, elem, pos, lbPop) 
+	showPopup: function(text, elem, pos, lbPop)
   {
     try
     {
@@ -596,9 +596,9 @@ var rcxMain = {
         css.setAttribute('type', 'text/css');
         css.setAttribute('href', rcxConfig.css);
         css.setAttribute('id', 'rikaichan-css');
-        
+
         head = topdoc.getElementsByTagName('head')[0];
-        
+
         if(head)
         {
           head.appendChild(css);
@@ -633,9 +633,9 @@ var rcxMain = {
       }
 
       popup.style.maxWidth = (lbPop ? '' : '600px');
-      
+
       popup.style.opacity = rcxConfig.opacity / 100;
-      
+
       if(rcxConfig.roundedcorners)
       {
         popup.style.borderRadius = '5px';
@@ -659,7 +659,7 @@ var rcxMain = {
         popup.innerHTML = text;
       }
 
-      if (elem && (typeof elem !== 'undefined') 
+      if (elem && (typeof elem !== 'undefined')
          && elem.parentNode && (typeof elem.parentNode !== 'undefined')) {
         popup.style.top = '-1000px';
         popup.style.left = '0px';
@@ -773,26 +773,26 @@ var rcxMain = {
     }
 	},
 
-	hidePopup: function() 
+	hidePopup: function()
   {
     // Reset the EPWING hit number and hit totals
     this.epwingTotalHits = 0;
     this.epwingCurHit = 0;
     this.epwingPrevHit = 0;
-    
+
     // Don't hide popup in superSticky unless given permission to
     if(!this.superSticky || this.superStickyOkayToHide)
     {
       this.superStickyOkayToHide = false;
-      
+
 		  var doc = this.isTB ? new XPCNativeWrapper(this.getBrowser().contentDocument) : window.content.document;
 		  var popup = doc.getElementById('rikaichan-window');
-      
-      if (popup) 
+
+      if (popup)
       {
         popup.style.display = 'none';
         popup.innerHTML = '';
-        
+
         // Stop the current auto play timer
         if(rcxConfig.autoplayaudio)
         {
@@ -802,7 +802,7 @@ var rcxMain = {
             this.autoPlayAudioTimer = null;
           }
         }
-        
+
         // Stop the EPWING timer
         if(this.epwingTimer)
         {
@@ -810,7 +810,7 @@ var rcxMain = {
           this.epwingTimer = null;
         }
       }
-      
+
       this.lbPop = 0;
       this.title = null;
     }
@@ -843,7 +843,7 @@ var rcxMain = {
 
 	lastFound: null,
 
-	savePrep: function(clip) {
+	savePrep: function(clip, saveFormat) {
 		var me, mk;
 		var text;
 		var i;
@@ -856,7 +856,7 @@ var rcxMain = {
 		s = this.sentence;
 		sWBlank = this.sentenceWBlank;
 		w = this.word;
-		
+
 		if ((!f) || (f.length == 0)) return null;
 
 		if (clip) {
@@ -869,13 +869,13 @@ var rcxMain = {
 		}
 
 		if (!f.fromLB) mk = 1;
-		
+
 		e = f[0];
-		text = rcxData.makeText(e, w, s, sWBlank, rcxMain.saveKana);
-    
+		text = rcxData.makeText(e, w, s, sWBlank, rcxMain.saveKana, saveFormat);
+
     // Result the save kana ($d=$r) flag
     rcxMain.saveKana = false;
-		
+
 		if (rcxConfig.snlf == 1) text = text.replace(/\n/g, '\r\n');
 			else if (rcxConfig.snlf == 2) text = text.replace(/\n/g, '\r');
 
@@ -899,7 +899,7 @@ var rcxMain = {
 	copyToClip: function() {
 		var text;
 
-		if ((text = this.savePrep(1)) != null) {
+		if ((text = this.savePrep(1, rcxConfig.saveformat)) != null) {
 			Components.classes['@mozilla.org/widget/clipboardhelper;1']
 				.getService(Components.interfaces.nsIClipboardHelper)
 				.copyString(text);
@@ -910,14 +910,14 @@ var rcxMain = {
 		}
 	},
 
-  
+
   /* Get the CSS style to use when drawing the provided frequency */
   getFreqStyle: function(inFreqNum)
   {
     freqNum = inFreqNum.replace(/_r/g, "");
-  
+
     var freqStyle = 'w-freq-rare';
-                        
+
     if (freqNum <= 5000)
     {
       freqStyle = "w-freq-very-common";
@@ -930,42 +930,42 @@ var rcxMain = {
     {
       freqStyle = "w-freq-uncommon";
     }
-    
+
     return freqStyle;
-    
+
   }, /* getFreqStyle */
-  
-  
-  /* Get the frequency for the given expression/reading. If the frequency is based on the 
+
+
+  /* Get the frequency for the given expression/reading. If the frequency is based on the
      reading then "_r" is appended to the frequency string that is returned.
-     
+
      useHilitedWord - Set to true to allow the hilited word to be considered when
                       determining frequency.
-     
-     Note: frequency information comes from analysis of 5000+ novels (via 
+
+     Note: frequency information comes from analysis of 5000+ novels (via
            Japanese Text Analysis Tool). */
   getFreq: function(inExpression, inReading, useHilitedWord)
   {
     var expression = inExpression;
     var reading = inReading;
     var hilitedWord = this.word; // Hilited word without de-inflection
-    
+
     var freqNum = "";
     var freqStr = "";
     var freqBasedOnReading = false;
-      
+
     try
-    {       
+    {
       var readingFreqNum = this.lookupFreqInDb(reading);
       var readingSameAsExpression = (expression == reading);
       var expressionFreqNum = readingFreqNum;
-            
+
       // Don't waste time looking up the expression freq if expression is same as the reading
       if(!readingSameAsExpression)
       {
         expressionFreqNum = this.lookupFreqInDb(expression);
       }
-      
+
       // If frequency was found for either frequency or reading
       if((expressionFreqNum.length > 0) || (readingFreqNum.length > 0))
       {
@@ -980,7 +980,7 @@ var rcxMain = {
           freqNum = readingFreqNum;
           freqBasedOnReading = true;
         }
-        
+
         // If expression and reading are the same, use the reading frequency
         if((freqNum.length == 0)
             && readingSameAsExpression
@@ -988,13 +988,13 @@ var rcxMain = {
         {
           freqNum = readingFreqNum;
         }
-        
+
         // If the expression is in the freq db, use the expression frequency
         if((freqNum.length == 0) && (expressionFreqNum.length > 0))
         {
           freqNum = expressionFreqNum;
         }
-        
+
         // If the reading is in the freq db, use the the reading frequency
         if((freqNum.length == 0) && (readingFreqNum.length > 0))
         {
@@ -1002,14 +1002,14 @@ var rcxMain = {
           freqBasedOnReading = true;
         }
       }
-      
+
       freqStr = freqNum;
-      
+
       // Indicate that frequency was based on the reading
       if(freqBasedOnReading)
       {
         freqStr += "_r";
-      } 
+      }
     }
     catch(ex)
     {
@@ -1018,15 +1018,15 @@ var rcxMain = {
     }
 
     return freqStr;
-    
+
   }, /* getFreq */
-  
-  
+
+
   /* Lookup the provided word in the frequency database. */
   lookupFreqInDb: function(word)
   {
     var freq = "";
-          
+
     try
     {
       // If we have not yet made a connection to the database
@@ -1040,32 +1040,32 @@ var rcxMain = {
         freqDbPath.append(rcxMain.id); // GUID of extension
         freqDbPath.append("freq");
         freqDbPath.append("freq.sqlite");
-        
+
         // Is the frequency database could not be found, return
         if(!freqDbPath.exists())
         {
           return "";
         }
-      
+
         // Get file pointer to the frequency sqlite database
         var freqDbFile = Components.classes['@mozilla.org/file/local;1']
          .createInstance(Components.interfaces.nsILocalFile);
         freqDbFile.initWithPath(freqDbPath.path);
-      
+
         // Open the frequency database
         this.freqDB = Components.classes['@mozilla.org/storage/service;1']
          .getService(Components.interfaces.mozIStorageService)
          .openDatabase(freqDbFile);
       }
-      
+
       // Reference: https://developer.mozilla.org/en-US/docs/Storage
       var stFreq = this.freqDB.createStatement(
         "SELECT freq FROM Dict WHERE expression='" + word + "'");
 
       try
-      {      
+      {
         var freqFound = stFreq.executeStep();
-        
+
         if(freqFound)
         {
           freq = stFreq.row.freq;
@@ -1083,11 +1083,11 @@ var rcxMain = {
     }
 
     return freq;
-    
+
   }, /* lookupFreqInDb */
-  
-  
-  
+
+
+
   /* Get the pitch accent of the last hilited word if present. If inExpression is not provided,
      will get the pitch accent for the hilited word's expression and reading */
   getPitchAccent: function(inExpression, inReading)
@@ -1111,12 +1111,12 @@ var rcxMain = {
         {
           return "";
         }
-      
+
         // Get file pointer to the pitch accent sqlite database
         var pitchDbFile = Components.classes['@mozilla.org/file/local;1']
          .createInstance(Components.interfaces.nsILocalFile);
         pitchDbFile.initWithPath(pitchDbPath.path);
-      
+
         // Open the pitch accent database
         this.pitchDB = Components.classes['@mozilla.org/storage/service;1']
          .getService(Components.interfaces.mozIStorageService)
@@ -1165,11 +1165,11 @@ var rcxMain = {
       }
 
       var pitch = "";
-      
+
       try
-      {  
+      {
         stPitch.executeStep();
-        
+
         // Get the result of the query
         pitch = stPitch.row.pitch;
       }
@@ -1212,7 +1212,7 @@ var rcxMain = {
     var outText = "";
     var expression = "";
     var reading = "";
-    
+
     // Get the last highlighted word
     if(this.lastFound[0].data)
     {
@@ -1220,11 +1220,11 @@ var rcxMain = {
       //   entryData[0] = kanji/kana + kana + definition
       //   entryData[1] = kanji (or kana if no kanji)
       //   entryData[2] = kana (null if no kanji)
-      //   entryData[3] = definition   
-      
+      //   entryData[3] = definition
+
       var entryData = this.lastFound[0].data[0][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
       expression = entryData[1];
-      
+
       if(entryData[2])
       {
         reading = entryData[2];
@@ -1254,7 +1254,7 @@ var rcxMain = {
     //
     // First try the expression
     //
-        
+
     if(this.knownWordsDic[expression])
     {
       outText = "* ";
@@ -1263,11 +1263,11 @@ var rcxMain = {
     {
       outText = "*t ";
     }
-    
+
     //
     // If expression not found in either the known words or to-do lists, try the reading
-    // 
-    
+    //
+
     if(outText.length == 0)
     {
       if(this.knownWordsDic[reading])
@@ -1281,80 +1281,80 @@ var rcxMain = {
     }
 
     return outText;
-    
+
   }, /* getKnownWordIndicatorText */
-  
-  
+
+
   // Send the highlighted word to Anki's Real-Time Import plugin
   sendToAnki: function()
-  {  
+  {
     // Create message header
     var header = 'add\t1' // command and version
 
     // Get Anki field names to use
     var fieldNames = rcxMain.trim(rcxConfig.rtifieldnamestext);
     fieldNames = fieldNames.replace(/ /g, '\t')
-    
-    if (rcxConfig.saveformat.length == 0) 
+
+    if (fieldNames.length == 0)
     {
       this.showPopup('Please enter Anki field names in Preferences.');
       return;
     }
-    
+
     // Get tags
     var tags = rcxMain.trim(rcxConfig.atags);
-    
+
     // Get the field contents
-    if (rcxConfig.saveformat.length == 0) 
+    if (rcxConfig.rti_save_format.length == 0)
     {
-      this.showPopup('Please create a save format in Preferences.');
+      this.showPopup('Please create a save format in Preferences (Anki tab).');
       return;
     }
-    
+
     // Save the audio clip if the audio directory was specified by the user
     if (rcxConfig.rtisaveaudio && (rcxConfig.audiodir.length != 0))
     {
       this.playJDicAudio(true);
     }
-    
-    var fieldContents = this.savePrep(0);
-    
+
+    var fieldContents = this.savePrep(0, rcxConfig.rti_save_format);
+
     if(fieldContents == null)
     {
       return;
     }
-    
+
     var port = rcxConfig.rtiudpport;
-    
+
     if(port == null)
     {
       return;
     }
-    
+
     // Create the text that will be saved to the file
     fileText = header + '\n' + fieldNames + '\n' + tags + '\n' + fieldContents;
-    
+
     // Create the file that Real-Time Import will read
     var tempRtiFile = Components.classes["@mozilla.org/file/directory_service;1"]
       .getService(Components.interfaces.nsIProperties)
       .get("TmpD", Components.interfaces.nsIFile);
     tempRtiFile.append("~rikai_anki_rti.txt");
-        
+
     // Open a safe file output stream for writing
     var ostream = FileUtils.openSafeFileOutputStream(tempRtiFile)
-    
+
     // Convert the filename unicode string to an input stream
     var converter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"].
     createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
     converter.charset = "UTF-8";
     var istream = converter.convertToInputStream(fileText);
-  
-    // Asynchronously Write the file text to the file 
-    NetUtil.asyncCopy(istream, ostream, 
+
+    // Asynchronously Write the file text to the file
+    NetUtil.asyncCopy(istream, ostream,
       // This function will be called when the write to file is complete
-      function(status) 
+      function(status)
       {
-        if (!Components.isSuccessCode(status)) 
+        if (!Components.isSuccessCode(status))
         {
           // Error writing file
           rcxMain.showPopup('Error writing temp Real-Time Import file.');
@@ -1371,32 +1371,32 @@ var rcxMain = {
           udpSocket.send('127.0.0.1', port, msg, msg.length);
         }
       });
-      
+
   }, /* sendToAnki */
-  
-  
+
+
   // Populate the EPWING dictionary list with the user-entered EPWING dictionaries
   populateEpwingDics: function()
   {
     var dicFound = false;
-        
+
     // Reset the dictionary list
     this.epwingDicList = [];
     this.epwingDicTitleList = [];
-    
-    
+
+
     //
     // Add each dictionary to the list
     //
-    
+
     let epwingPaths = rcxConfig.epwingdiclist.split('|');
-   
-    for (let i = 0; i < epwingPaths.length; ++i) 
+
+    for (let i = 0; i < epwingPaths.length; ++i)
     {
       if(epwingPaths[i].length > 0)
       {
         let pathFields = epwingPaths[i].split('?'); // The paths are stored in "path?title" format
-        
+
         if(pathFields && (pathFields[0].length > 0) && (pathFields[1].length > 0))
         {
           this.epwingDicList.push(pathFields[0]);
@@ -1404,8 +1404,8 @@ var rcxMain = {
         }
       }
 		}
-    
-    
+
+
     // Does the current dictionary exist in the new list?
     for(i = 0; i < this.epwingDicList.length; i++)
     {
@@ -1415,7 +1415,7 @@ var rcxMain = {
         break;
       }
     }
-    
+
     // If the current dictionary does not exist in the new list, use the first dictionary
     if(!dicFound)
     {
@@ -1428,17 +1428,17 @@ var rcxMain = {
          this.epwingCurDic = "";
        }
     }
-        
+
   }, /* populateEpwingDics */
-  
-  
+
+
   // Get the index of the current dictionary (epwingCurDic) within the EPWING dictionary list (epwingDicList)
   getEpwingDicIndex: function()
   {
     var pos = 0;
-    
+
     this.populateEpwingDics();
-    
+
     for(i = 0; i < this.epwingDicList.length; i++)
     {
       if(this.epwingDicList[i] == this.epwingCurDic)
@@ -1447,27 +1447,27 @@ var rcxMain = {
         break;
       }
     }
-    
+
     return pos;
-    
+
   }, /* getEpwingDicIndex */
-  
-  
+
+
   // Get the title of the current dictionary
   getCurEpwingDicTitle: function()
   {
     var dicIdx = rcxMain.getEpwingDicIndex();
-    
+
     return rcxMain.epwingDicTitleList[dicIdx];
   },
-  
-  
+
+
   // Get the short form of the title for the current dictionary
   getCurEpwingDicShortTitle: function()
   {
     var title = rcxMain.getCurEpwingDicTitle();
     var shortTitle = "???";
-    
+
     if(title == "研究社　新和英大辞典　第５版") // Kenkyusha 5th J-E. Contains example sentences.
     {
       shortTitle = "研究社五";
@@ -1523,27 +1523,27 @@ var rcxMain = {
     else
     {
       var shortNameLen = 6;
-    
+
       if(title.length < shortNameLen)
       {
         shortNameLen = title.length;
       }
-      
+
       shortTitle = rcxMain.trim(title.substring(0, shortNameLen));
     }
-    
+
     return shortTitle;
   },
-  
-  
+
+
   // Sets the current EPWING dictionary (epwingCurDic) to the next available EPWING dictionary
   nextEpwingDic: function()
-  {       
+  {
     var dicPos = 0;
-  
+
     // Populate epwingDicList
     this.populateEpwingDics();
-        
+
     if(this.epwingDicList.length > 0)
     {
       // Find the position of the current dictionary
@@ -1555,16 +1555,16 @@ var rcxMain = {
           break;
         }
       }
-      
+
       // Increment to the next dictionary
       dicPos++;
-      
+
       // Wrap?
       if(dicPos >= this.epwingDicList.length)
       {
         dicPos = 0;
       }
-      
+
       // Set the current dictionary
       this.epwingCurDic = this.epwingDicList[dicPos];
     }
@@ -1574,12 +1574,12 @@ var rcxMain = {
 
   // Sets the current EPWING dictionary (epwingCurDic) to the previous available EPWING dictionary
   prevEpwingDic: function()
-  { 
+  {
     var dicPos = 0;
-    
+
     // Populate epwingDicList
     this.populateEpwingDics();
-        
+
     if(this.epwingDicList.length > 0)
     {
       // Find the position of the current dictionary
@@ -1591,23 +1591,23 @@ var rcxMain = {
           break;
         }
       }
-      
+
       // Decrement to the next dictionary
       dicPos--;
-      
+
       // Wrap?
       if(dicPos < 0)
       {
         dicPos = this.epwingDicList.length - 1;
       }
-      
+
       // Set the current dictionary
       this.epwingCurDic = this.epwingDicList[dicPos];
     }
-    
+
   }, /* prevEpwingDic */
-  
-  
+
+
   // If in Super Sticky mode, allow the popup to show just once
   allowOneTimeSuperSticky: function()
   {
@@ -1615,15 +1615,15 @@ var rcxMain = {
     {
       this.superStickyOkayToShow = true;
     }
-    
+
   }, /* allowOneTimeSuperSticky */
-  
-  
+
+
   // Toggle Super Sticky mode
   toggleSuperStickyMode: function()
   {
     this.superSticky = !this.superSticky;
-    
+
     if(this.superSticky)
     {
       this.status('Super Sticky Mode: ON');
@@ -1632,19 +1632,19 @@ var rcxMain = {
     {
       this.status('Super Sticky Mode: OFF');
     }
-    
+
   }, /* toggleSuperStickyMode */
-  
-  
+
+
   // Toggle EPWING mode
   toggleEpwingMode: function()
   {
     this.epwingMode = !this.epwingMode;
-    
+
     if(this.epwingMode)
     {
       this.status('EPWING Mode: ON');
-      
+
       if(this.sanseidoMode)
       {
         this.sanseidoMode = false;
@@ -1654,19 +1654,19 @@ var rcxMain = {
     {
       this.status('EPWING Mode: OFF');
     }
-    
+
   }, /* toggleEpwingMode */
 
- 
+
   // Toggle Sanseido mode
   toggleSanseidoMode: function()
   {
     this.sanseidoMode = !this.sanseidoMode;
-    
+
     if(this.sanseidoMode)
     {
       this.status('Sanseido Mode: ON');
-      
+
       if(this.epwingMode)
       {
         this.epwingMode = false;
@@ -1676,22 +1676,22 @@ var rcxMain = {
     {
       this.status('Sanseido Mode: OFF');
     }
-    
+
   }, /* toggleSanseidoMode */
-    
-    
+
+
   // Parse definition from Sanseido page and display it in a popup
   parseAndDisplaySanseido: function(entryPageText)
-  {    
+  {
     // Create DOM tree from entry page text
     var domPars = rcxMain.htmlParser(entryPageText);
-    
-    // Get list of div elements    
+
+    // Get list of div elements
     var divList = domPars.getElementsByTagName("div");
-    
+
     // Will be set if the entry page actually contains a definition
     var entryFound = false;
-    
+
     // Find the div that contains the definition
     for(divIdx = 0; divIdx < divList.length; divIdx++)
     {
@@ -1701,16 +1701,16 @@ var rcxMain = {
         entryFound = true;
 
         // rcxDebug.echo("Raw definition: " + divList[divIdx].innerHTML);
-      
+
         // Will contain the final parsed definition text
         var defText = "";
-        
+
         // A list of all child nodes in the div
         var childList = divList[divIdx].childNodes;
-        
+
         // Set when we need to end the parse
         var defFinished = false;
-   
+
         // Extract the definition from the div's child nodes
         for(nodeIdx = 0; nodeIdx < childList.length && !defFinished; nodeIdx++)
         {
@@ -1720,20 +1720,20 @@ var rcxMain = {
             // How many child nodes does this b element have?
             if(childList[nodeIdx].childNodes.length == 1)
             {
-              // Check for definition number: ［１］, ［２］, ... and add to def 
+              // Check for definition number: ［１］, ［２］, ... and add to def
               var defNum = childList[nodeIdx].childNodes[0].nodeValue.match(/［([１２３４５６７８９０]+)］/);
-                            
+
               if (defNum)
-              { 
+              {
                 defText += "<br />" + RegExp.$1;
               }
               else
               {
-                // Check for sub-definition number: （１）, （２）, ... and add to def 
+                // Check for sub-definition number: （１）, （２）, ... and add to def
                 var subDefNum = childList[nodeIdx].childNodes[0].nodeValue.match(/（([１２３４５６７８９０]+)）/);
-                
+
                 if (subDefNum)
-                { 
+                {
                   // Convert sub def number to circled number
                   defText += this.convertIntegerToCircledNumStr(this.convertJapNumToInteger(RegExp.$1));
                 }
@@ -1741,7 +1741,7 @@ var rcxMain = {
             }
             else // This b element has more than one child node
             {
-              // Check the b children for any spans. A span marks the start 
+              // Check the b children for any spans. A span marks the start
               // of non-definition portion, so end the parse.
               for(bIdx = 0; bIdx < childList[nodeIdx].childNodes.length; bIdx++)
               {
@@ -1752,71 +1752,71 @@ var rcxMain = {
               }
             }
           }
-          
+
           // Have we finished parsing the text?
           if(defFinished)
           {
             break;
           }
-          
+
           // If the current element is text, add it to the definition
-          if((childList[nodeIdx].nodeName == "#text") 
+          if((childList[nodeIdx].nodeName == "#text")
             && (rcxMain.trim(childList[nodeIdx].nodeValue) != ""))
           {
             defText += childList[nodeIdx].nodeValue;
           }
         }
-        
+
         // If the definition is blank (search ばかり for example), fallback
         if(defText.length == 0)
         {
           // Set to a state that will ensure fallback to default JMDICT popup
-          this.sanseidoFallbackState = 1; 
+          this.sanseidoFallbackState = 1;
           entryFound = false;
           break;
         }
-        
+
         var jdicCode = "";
-        
+
         // Get the part-of-speech and other JDIC codes
         rcxMain.lastFound[0].data[0][0].match(/\/(\(.+?\) ).+\//);
-        
+
         if(RegExp.$1)
         {
           jdicCode = RegExp.$1;
         }
-     
+
         // Replace the definition with the one we parsed from sanseido
         rcxMain.lastFound[0].data[0][0] = rcxMain.lastFound[0].data[0][0]
           .replace(/\/.+\//g, "/" + jdicCode + defText + "/");
- 
+
         // Remove all words except for the one we just looked up
         rcxMain.lastFound[0].data = [rcxMain.lastFound[0].data[0]];
-        
+
         // Prevent the "..." from being displayed at the end of the popup text
         rcxMain.lastFound[0].more = false;
-        
+
         // Show the definition
-        rcxMain.showPopup(rcxMain.getKnownWordIndicatorText() + rcxData.makeHtml(rcxMain.lastFound[0]), 
+        rcxMain.showPopup(rcxMain.getKnownWordIndicatorText() + rcxData.makeHtml(rcxMain.lastFound[0]),
           rcxMain.lastTdata.get().prevTarget, rcxMain.lastTdata.get().pos);
-        
+
         // Entry found, stop looking
         break;
       }
     }
-    
+
     // If the entry was not on sanseido, either try to lookup the kana form of the word
     // or display default JMDICT popup
     if(!entryFound)
     {
       this.sanseidoFallbackState++;
-      
+
       if(this.sanseidoFallbackState < 2)
-      { 
+      {
         // Set a timer to lookup again using the kana form of the word instead
         window.setTimeout
         (
-          function() 
+          function()
           {
             rcxMain.lookupSanseido();
           }, 10
@@ -1829,8 +1829,8 @@ var rcxMain = {
       }
     }
   }, /* parseAndDisplaySanseido */
-  
- 
+
+
   // Extract the first search term from the hilited word.
   // Returns search term string or null on error.
   // forceGetReading - true = force this routine to return the reading of the word
@@ -1838,37 +1838,37 @@ var rcxMain = {
   {
     // Get the currently hilited entry
     var hilitedEntry = this.lastFound;
- 
+
     if ((!hilitedEntry) || (hilitedEntry.length == 0))
     {
       return null;
     }
-    
+
     var searchTerm = "";
-    
+
     // Get the search term to use
     if(hilitedEntry[0] && hilitedEntry[0].kanji && hilitedEntry[0].onkun)
-    { 
+    {
       // A single kanji was selected
-      
+
       searchTerm = hilitedEntry[0].kanji;
     }
     else if(hilitedEntry[0] && hilitedEntry[0].data[0])
-    { 
+    {
       // An entire word was selected
-      
+
       var entryData = hilitedEntry[0].data[0][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
-      
+
       // Example of what data[0][0] looks like (linebreak added by me):
-      //   乃 [の] /(prt,uk) indicates possessive/verb and adjective nominalizer (nominaliser)/substituting 
+      //   乃 [の] /(prt,uk) indicates possessive/verb and adjective nominalizer (nominaliser)/substituting
       //   for "ga" in subordinate phrases/indicates a confident conclusion/emotional emphasis (sentence end) (fem)/(P)/
       //
       // Extract needed data from the hilited entry
       //   entryData[0] = kanji/kana + kana + definition
       //   entryData[1] = kanji (or kana if no kanji)
       //   entryData[2] = kana (null if no kanji)
-      //   entryData[3] = definition     
-      
+      //   entryData[3] = definition
+
       if(forceGetReading)
       {
         if(entryData[2])
@@ -1884,7 +1884,7 @@ var rcxMain = {
       {
         // If the highlighted word is kana, don't use the kanji.
         // Example1: if の is highlighted, use の rather than the kanji equivalent (乃)
-        // Example2: if された is highlighted, use される rather then 為れる        
+        // Example2: if された is highlighted, use される rather then 為れる
         if(entryData[2] && !this.containsKanji(this.word))
         {
           searchTerm = entryData[2];
@@ -1899,53 +1899,53 @@ var rcxMain = {
     {
       return null;
     }
-    
+
     return searchTerm;
-    
+
   }, /* extractSearchTerm */
-  
-  
+
+
   // Perform cleanup and reset variables after performing an EPWING search
-  cleanupLookupEpwing: function() 
+  cleanupLookupEpwing: function()
   {
     // Allow EPWING popups to occur again
     this.epwingActive = false;
-    
+
     this.epwingFallbackCount = 0;
 
     // Reset to pre-fallback dictionary
     this.epwingCurDic = this.epwingStartDic;
-    
+
     this.epwingSearchingNextLongest = false;
-    
+
   }, /* cleanupLookupEpwing */
-  
-  
+
+
   // Lookup hilited word in EPWING dictionary
   lookupEpwing: function()
   {
     // Is a word currently being looked up with EPWING?
     if(this.epwingActive)
-    { 
+    {
       return;
     }
 
     // Populate the EPWING dictionary list
     rcxMain.populateEpwingDics();
-    
+
     // Save the current dictionary so that we can restore it if we have to fallback to another EPWING dictionary
     if(this.epwingFallbackCount == 0)
     {
       this.epwingStartDic = this.epwingCurDic;
     }
-         
+
     // Did the user enter an EPWING path in the EPWING tab?
     try
     {
       var epwingDir = Components.classes["@mozilla.org/file/local;1"]
         .createInstance(Components.interfaces.nsILocalFile);
-      epwingDir.initWithPath(this.epwingCurDic);  
-      
+      epwingDir.initWithPath(this.epwingCurDic);
+
       if(!epwingDir.exists())
       {
         throw "Error";
@@ -1961,23 +1961,23 @@ var rcxMain = {
       {
         rcxMain.showPopup('Please add an EPWING dictionary in the EPWING tab of the options dialog.');
       }
-        
+
       return;
     }
-    
+
     // Prevent other EPWING lookups until this one is finished
     this.epwingActive = true;
-    
+
     // If searching for the next longest word in the gloss. For example, Kojien6 doesn't
     // have 自由研究 (which is in EDICT) but it does have 自由, so 自由 is used for the next longest search.
     if(rcxConfig.epwingsearchnextlongest && rcxMain.epwingSearchingNextLongest)
     {
       var hilitedEntry = this.lastFound;
-      
+
       if(hilitedEntry && (hilitedEntry.length > 0) && hilitedEntry[0] && hilitedEntry[0].data && hilitedEntry[0].data[1])
       {
         var entryData = hilitedEntry[0].data[1][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
-        
+
         if(entryData && entryData[1] && (entryData[1].length > 0))
         {
           this.epwingSearchTerm = entryData[1];
@@ -1995,7 +1995,7 @@ var rcxMain = {
         return;
       }
     }
-    
+
     // Reset the EPWING hit number and hit totals if a new word is being searched for
     if(this.epwingSearchTerm != this.prevEpwingSearchTerm)
     {
@@ -2013,24 +2013,24 @@ var rcxMain = {
         return;
       }
     }
-    
+
     // Form the list of words to lookup
     var wordList = [];
     wordList.push(this.epwingSearchTerm);
-    
+
     // Perform lookup. When lookup is complete, the results will be passed to lookupEpwingPart2().
     rcxEpwing.lookupWords(rcxMain.epwingCurDic, wordList, rcxMain.lookupEpwingPart2);
-    
+
   }, /* lookupEpwing */
-  
-  
-  // Callback that will be called when the rcxEpwing.lookupWords() function in lookupEpwing() is 
+
+
+  // Callback that will be called when the rcxEpwing.lookupWords() function in lookupEpwing() is
   // complete. It saves the EPWING results to rcxMain.epwingResultList. If no results are found,
   // it will fallback. If results are found, it will show a popup containing the results.
   lookupEpwingPart2: function(resultList)
-  {   
+  {
     rcxMain.epwingResultList = resultList;
-    
+
     // If no result where found in current EPWING dictionary, fallback
     if(resultList.length === 0)
     {
@@ -2038,23 +2038,23 @@ var rcxMain = {
       if(rcxConfig.epwingsearchnextlongest && !rcxMain.epwingSearchingNextLongest)
       {
         rcxMain.epwingSearchingNextLongest = true;
-        
+
         window.setTimeout
         (
-          function() 
+          function()
           {
             rcxMain.epwingActive = false;
             rcxMain.lookupEpwing();
           }, 10
         );
-        
+
         return;
       }
       else // Next longest search also failed
       {
         rcxMain.epwingSearchingNextLongest = false;
       }
-      
+
       // How should we fallback?
       if(rcxConfig.epwingfallback == "none")
       {
@@ -2067,27 +2067,27 @@ var rcxMain = {
         // Fallback to the default non-EPWING dictionary that comes with rikaichan (JMDICT)
 
         rcxMain.cleanupLookupEpwing();
-        rcxMain.showPopup(rcxMain.getKnownWordIndicatorText() + rcxData.makeHtml(rcxMain.lastFound[0]), 
+        rcxMain.showPopup(rcxMain.getKnownWordIndicatorText() + rcxData.makeHtml(rcxMain.lastFound[0]),
           rcxMain.lastTdata.get().prevTarget, rcxMain.lastTdata.get().pos);
       }
-      else 
+      else
       {
         // Fallback to the next available EPWING dictionary. If there aren't any, fallback to JMDICT.
-      
+
         // Are we out of EPWING dictionaries to fallback to?
         if(rcxMain.epwingFallbackCount > rcxMain.epwingDicList.length)
         {
           // If so, fallback to JMDICT
           rcxMain.cleanupLookupEpwing();
-          rcxMain.showPopup(rcxMain.getKnownWordIndicatorText() + rcxData.makeHtml(rcxMain.lastFound[0]), 
+          rcxMain.showPopup(rcxMain.getKnownWordIndicatorText() + rcxData.makeHtml(rcxMain.lastFound[0]),
             rcxMain.lastTdata.get().prevTarget, rcxMain.lastTdata.get().pos);
           return;
-        }       
-        
+        }
+
         // Set a timer to call this function again with the next available dictionary
         window.setTimeout
         (
-          function() 
+          function()
           {
             rcxMain.epwingActive = false;
             rcxMain.epwingFallbackCount++;
@@ -2099,35 +2099,35 @@ var rcxMain = {
 
       return;
     }
-    
+
     rcxMain.showEpwingPopup();
-    
+
   }, /* lookupEpwingPart2 */
-  
-  
+
+
   // Display the EPWING results in rcxMain.epwingResultList.
   showEpwingPopup: function()
   {
     var epwingText = rcxMain.epwingResultList[0];
-    
+
     //
     // Extract each entry
-    //    
-    
+    //
+
     // Replace carriage returns + linefeeds with linefeeds
     epwingText = epwingText.replace(/\r\n/g, '\n');
-    
+
     var entryFields = epwingText.split(/{ENTRY: \d+}\n/);
     var entryList = [];
-    
-    for (let i = 0; i < entryFields.length; ++i) 
+
+    for (let i = 0; i < entryFields.length; ++i)
     {
       var curEntry = entryFields[i];
-      
+
       if(curEntry.length > 0)
       {
         var isDuplicate = false;
-        
+
         for(let j = 0; j < entryList.length; ++j)
         {
           if(curEntry == entryList[j])
@@ -2136,12 +2136,12 @@ var rcxMain = {
             break;
           }
         }
-        
+
         if(!isDuplicate)
         {
           entryList.push(entryFields[i]);
         }
-        
+
         // If user wants to limit number of entries, check to see if we have enough
         if(rcxConfig.epwingshowallentries && (entryList.length >= rcxConfig.epwingmaxentries))
         {
@@ -2149,37 +2149,37 @@ var rcxMain = {
         }
       }
     }
-    
+
     // Store the total number of entries
     rcxMain.epwingTotalHits = entryList.length;
-        
+
     var jmdictGloss = "";
-    
+
     // Save the JMDICT gloss so that we can append it later
     if(rcxConfig.epwingappendjmdict)
     {
       jmdictGloss = rcxData.makeHtml(rcxMain.lastFound[0]);
     }
-    
+
     //
     // Format the entry/entries
     //
-    
+
     // The EPWING lookup text that will be used for the $n (translation) save token.
     var epwingDefText = "";
-    
+
     // If user wants to display all entries from the same dictionary
     if(rcxConfig.epwingshowallentries)
     {
       epwingText = "";
-      
-      for (let i = 0; i < entryList.length; ++i) 
+
+      for (let i = 0; i < entryList.length; ++i)
       {
         epwingDefText += entryList[i];
-        
+
         var showHeader = (i == 0);
         epwingText += rcxMain.epwingFormatEntry(entryList[i], showHeader, false);
-        
+
         // Add entry separator
         if(i != entryList.length - 1)
         {
@@ -2193,19 +2193,19 @@ var rcxMain = {
       epwingDefText = entryList[rcxMain.epwingCurHit];
       epwingText = rcxMain.epwingFormatEntry(entryList[rcxMain.epwingCurHit], true, true);
     }
-    
-    // If we were searching the next longest word, perform a new EDICT search so that the 
+
+    // If we were searching the next longest word, perform a new EDICT search so that the
     // expression and reading save tokens will be correct
     if(rcxConfig.epwingsearchnextlongest && rcxMain.epwingSearchingNextLongest)
     {
       var e = rcxData.wordSearch(rcxMain.epwingSearchTerm);
 		  this.lastFound = [e];
     }
-    
-    // Place the EPWING lookup text into rcxMain.lastFound so that the save and 
+
+    // Place the EPWING lookup text into rcxMain.lastFound so that the save and
     // real-time import features work correctly.
     try
-    {           
+    {
       if(rcxConfig.epwingstripnewlines)
       {
         epwingDefText = epwingDefText.replace(/\n/g, " ");
@@ -2214,7 +2214,7 @@ var rcxMain = {
       {
         epwingDefText = epwingDefText.replace(/\n/g, "<br />");
       }
-      
+
       // Strip initial whitespace/line break
       epwingDefText = epwingDefText.replace(/^( |<br \/>)/, "");
 
@@ -2228,58 +2228,58 @@ var rcxMain = {
     {
       // Probably here because a single kanji was selected that isn't also a regular word.
     }
-    
+
     // If the user wants to append the JMDICT gloss, do it
     if(rcxConfig.epwingappendjmdict)
     {
       epwingText += "<hr /><span class='epwing-dic-name'>EDICT</span>" + jmdictGloss;
-    }  
+    }
 
     // Show the EPWING text
-    rcxMain.showPopup(epwingText, rcxMain.lastTdata.get().prevTarget, rcxMain.lastTdata.get().pos); 
+    rcxMain.showPopup(epwingText, rcxMain.lastTdata.get().prevTarget, rcxMain.lastTdata.get().pos);
 
     rcxMain.cleanupLookupEpwing();
 	},
-  
-    
+
+
   // Format a single EPWING entry for display in the popup.
-  epwingFormatEntry: function(entryText, showHeader, showEntryNumber) 
+  epwingFormatEntry: function(entryText, showHeader, showEntryNumber)
   {
     // Trim whitespace
     epwingText = rcxMain.trimEnd(entryText);
-    
+
     // Remove text that matches the user's regex
     if(rcxConfig.epwingremoveregex != '')
     {
       // Get the regex
       var userRegex = new RegExp(rcxConfig.epwingremoveregex, "g");
-      
+
       // Use the regex
-      var afterRegexEpwingText = epwingText.replace(userRegex, "");    
- 
+      var afterRegexEpwingText = epwingText.replace(userRegex, "");
+
       //
       // Only apply the regex if it doesn't remove all of the text
       //
 
-      var isBlank = afterRegexEpwingText.match(/^\s*$/);  
-      
+      var isBlank = afterRegexEpwingText.match(/^\s*$/);
+
       if(!isBlank)
       {
         epwingText = afterRegexEpwingText;
       }
     }
-    
+
     // Expression parsed from entry if rcxConfig.epwingaddcolorandpitch is enabled
     var parsedExpression = "";
     var parsedReading = "";
-    
+
     //
-    // Parse entry and add color and pitch to the header line. 
+    // Parse entry and add color and pitch to the header line.
     // Only certain dictionaries are supported.
     //
-    
+
     var dicTitle = rcxMain.getCurEpwingDicTitle();
-    
+
     if(rcxConfig.epwingaddcolorandpitch
       &&  (rcxConfig.epwingforceparse
            || ((dicTitle == "研究社　新和英大辞典　第５版")
@@ -2291,40 +2291,40 @@ var rcxMain = {
            ||  (dicTitle == "新明解国語辞典　第五版"))))
     {
       var newLineIdx = epwingText.indexOf("\n", 1); // Start at 1 because 0 is a \n
-      
+
       if(newLineIdx != -1)
       {
         // Extract the header line
         var headerLine = epwingText.substr(0, newLineIdx);
         headerLine = rcxMain.trim(headerLine)
-                                   
+
         // Remove "ﾛｰﾏ" and onwards for Ken5
         if(dicTitle == "研究社　新和英大辞典　第５版")
         {
           headerLine = headerLine.replace(/ﾛｰﾏ.*/, '');
         }
-        
+
         // Get the reading. Example the "じんかん" from "じんかん<sup>１</sup>【人間】 "
-        headerLine.match(/^(.*?)[<【〘\[]/);     
+        headerLine.match(/^(.*?)[<【〘\[]/);
         var reading = RegExp.$1;
-        
+
         // If no reading found it is because the header line did not contain a <, 【, etc.
         if(!reading)
         {
           reading = rcxMain.trim(headerLine);
         }
-        
+
         // Get the expression. The "人間" from "じんかん<sup>１</sup>【人間】 "
-        headerLine.match(/【(.*?)】/);     
+        headerLine.match(/【(.*?)】/);
         var expression = RegExp.$1;
-        
+
         // Some dics like Meikyo contain alternate brackets for the expression
         if(!expression)
         {
-          headerLine.match(/〘(.*?)〙 /);     
+          headerLine.match(/〘(.*?)〙 /);
           expression = RegExp.$1;
         }
-                                   
+
         // Determine the expression and reading to use to get pitch
         if(!expression)
         {
@@ -2335,7 +2335,7 @@ var rcxMain = {
         {
           var pitchExpression = expression;
           var pitchReading = reading;
-          
+
           if((dicTitle == "三省堂　スーパー大辞林") || (dicTitle == "大辞林 第2版"))
           {
            // If the pitch reading contains a space, remove it and everything after it
@@ -2344,39 +2344,39 @@ var rcxMain = {
               pitchReading = pitchReading.replace(/^(.*?) .*$/, '$1');
             }
           }
-          
+
           pitchReading = pitchReading.replace(/[\-‐・ ]/g, '');
         }
 
         parsedReading = pitchReading;
-        
+
         // If the pitch expression contains a "・", remove it and everything after
         if(pitchExpression.indexOf("・") != -1)
         {
           pitchExpression = pitchExpression.replace(/^(.*?)・.*$/, '$1');
         }
-        
+
         // Remove characters found in some non-Ken5 dics
         pitchExpression = pitchExpression.replace(/[\-‐・▽▼△×《》○ ]/g, '');
         pitchExpression = pitchExpression.replace(/<.*?>/g, '');
         pitchExpression = pitchExpression.replace(/\(.*?\)/g, '');
         pitchExpression = pitchExpression.replace(/\（.*?\）/g, '');
-        
+
         parsedExpression = pitchExpression;
-                                 
+
         // Get the pitch accent
         var pitch = "";
-        
+
         if(rcxConfig.showpitchaccent)
         {
           pitch = rcxMain.getPitchAccent(pitchExpression, pitchReading);
         }
-        
+
         // Apply color and pitch
         if(headerLine[0] != '①') // This can happen in some non-Ken5 dictionaries
         {
           var newHeaderLine = "";
-          
+
           if(expression)
           {
             newHeaderLine = "<span class='w-kanji'>" + expression + "</span>"
@@ -2388,7 +2388,7 @@ var rcxMain = {
             newHeaderLine = "<span class='w-kana'>" + reading + "</span> "
              + "<span class='w-conj'>" + pitch + "</span>";
           }
-                                        
+
           // Add in the new header line
           if(rcxConfig.epwingstripnewlines)
           {
@@ -2400,17 +2400,17 @@ var rcxMain = {
           }
         }
       }
-      
+
     } // End add EPWING color and pitch
-    
+
     // Show the header text? (known word indicator, entry number, frequency, dictionary number)
     if(showHeader)
     {
       //
-      // Get the frequency  
+      // Get the frequency
       //
       var freqStr = "";
-      
+
       if(rcxConfig.showfreq)
       {
         // Used the parsed expression if found
@@ -2422,47 +2422,47 @@ var rcxMain = {
         {
           var freq = rcxMain.getFreq(rcxMain.epwingSearchTerm, 'DUMMY', false);
         }
-                                  
+
         if(freq && (freq.length > 0))
-        {            
+        {
           var freqClass = rcxMain.getFreqStyle(freq);
           freqStr = ' <span class="' + freqClass + '">' + freq + '</span>';
         }
       }
-    
+
       var entryNumber = "";
-      
+
       // Format the (num_entries / total_entries) text?
       if(showEntryNumber)
       {
         entryNumber = "(" + (rcxMain.epwingCurHit + 1) + "/" + rcxMain.epwingTotalHits + ") ";
       }
-      
+
       // Get the known/to-do list indicator
       knownWordIndicator =  rcxMain.getKnownWordIndicatorText();
-    
+
       // Add a linefeed at the beginning of epwingText if one does not already exist
       if(epwingText[0] != "\n")
       {
         epwingText = "<br />" + epwingText;
       }
-      
+
       // Format the conjugation
       var conjugation = "";
-       
+
       if (rcxConfig.epwingshowconjugation && rcxMain.lastFound[0].data && rcxMain.lastFound[0].data[0][1])
       {
         conjugation = '<span class="w-conj">(' + rcxMain.lastFound[0].data[0][1] + ')</span>';
       }
-      
+
       // Format the index and title of the current dictionary
       var whichDic = "";
-      
+
       if(rcxConfig.epwingshowdicnum)
       {
         var dicPos = rcxMain.getEpwingDicIndex() + 1;
         var title = "";
-        
+
         // If
         if(rcxConfig.epwingshowtitle)
         {
@@ -2475,31 +2475,31 @@ var rcxMain = {
             title = "　" + rcxMain.getCurEpwingDicTitle() + " - ";
           }
         }
-        
+
         whichDic = '<span class="epwing-dic-name">' + title + dicPos + '</span>';
       }
-      
+
       epwingText = knownWordIndicator + entryNumber + conjugation + freqStr + whichDic + epwingText;
     }
- 
+
     var showDots = false;
-    
-    // Limit text to the user-specified number of lines (not 
+
+    // Limit text to the user-specified number of lines (not
     // including lines generated from word wrap).
     // If 500 (max), don't even check.
     if(rcxConfig.epwingmaxlines != 500)
     {
       var maxLines = rcxConfig.epwingmaxlines;
-      
+
       // Compensate for the header line
       if(showHeader)
       {
         maxLines++;
       }
-      
+
       var epwingNumChars = epwingText.length;
       var newLines = 0;
-      
+
       for(var i = 0; i < epwingNumChars; i++)
       {
         if(epwingText[i] == '\n')
@@ -2533,12 +2533,12 @@ var rcxMain = {
     }
 
     return epwingText;
-    
+
   }, /* epwingFormatEntry */
-    
+
 
   // Fetch entry page from sanseido, parse out definition and display
-	lookupSanseido: function() 
+	lookupSanseido: function()
   {
     // Determine if we should use the kanji form or kana form when looking up the word
     if(this.sanseidoFallbackState == 0)
@@ -2549,35 +2549,35 @@ var rcxMain = {
     else if(this.sanseidoFallbackState == 1)
     {
       // Get the reading
-      var searchTerm = this.extractSearchTerm(true); 
+      var searchTerm = this.extractSearchTerm(true);
     }
- 
+
     if(!searchTerm)
     {
       return;
     }
- 
+
     // If the kanji form was requested but it returned the kana form anyway, then update the state
     if((this.sanseidoFallbackState == 0) && !this.containsKanji(searchTerm))
     {
       this.sanseidoFallbackState = 1;
     }
-     
+
     // Show the loading message to the screen while we fetch the entry page
     rcxMain.showPopup("Loading...", this.lastTdata.get().prevTarget, this.lastTdata.get().pos);
-    
+
     //
     // Get entry page asynchronously
     //
-    
+
     rcxMain.sanseidoReq = new XMLHttpRequest();
-    rcxMain.sanseidoReq.open('GET', 'http://www.sanseido.net/User/Dic/Index.aspx?TWords=' 
+    rcxMain.sanseidoReq.open('GET', 'http://www.sanseido.net/User/Dic/Index.aspx?TWords='
       + searchTerm + '&st=0&DailyJJ=checkbox', true);
-    
+
     // This routine is called periodically with status updates as the entry page is being fetched
-    rcxMain.sanseidoReq.onreadystatechange = function (aEvt) 
-    {     
-      if(rcxMain.sanseidoReq.readyState == 4) 
+    rcxMain.sanseidoReq.onreadystatechange = function (aEvt)
+    {
+      if(rcxMain.sanseidoReq.readyState == 4)
       {
         if(rcxMain.sanseidoReq.status == 200)
         {
@@ -2590,13 +2590,13 @@ var rcxMain = {
         }
       }
     };
-    
+
     // Fetch the entry page
     rcxMain.sanseidoReq.send(null);
-    
+
   }, /* lookupSanseido */
-  
-  
+
+
   // Convert an integer to a circled number string:
   // 1 --> ①, 2 --> ②.
   // Range: [0, 50].
@@ -2605,7 +2605,7 @@ var rcxMain = {
   convertIntegerToCircledNumStr: function(num)
   {
     var circledNumStr = "(" + num + ")";
-  
+
     if (num == 0)
     {
       circledNumStr = "⓪";
@@ -2622,22 +2622,22 @@ var rcxMain = {
     {
       circledNumStr = String.fromCharCode(("㊱".charCodeAt(0) - 1) + num);
     }
-  
+
     return circledNumStr;
-    
+
   }, /* convertIntegerToCircledNumStr */
-  
-  
+
+
   // Converts a Japanese number to an integer.
   // ５ --> 5, １２ --> 12, etc.
   convertJapNumToInteger: function(japNum)
   {
     var numStr = "";
-    
+
     for (i = 0; i < japNum.length; i++)
     {
       c = japNum[i];
-  
+
       if ((c >= "０") && (c <= "９"))
       {
         convertedNum = (c.charCodeAt(0) - "０".charCodeAt(0));
@@ -2646,141 +2646,141 @@ var rcxMain = {
     }
 
     return Number(numStr);
-    
+
   }, /* convertJapNumToInteger */
-  
-  
+
+
   // Does the provided text contain a kanji?
-  containsKanji: function(text) 
+  containsKanji: function(text)
   {
-    for (i = 0; i < text.length; i++) 
+    for (i = 0; i < text.length; i++)
     {
       c = text[i];
-      
+
       if((c >= '\u4E00') && (c <= '\u9FBF'))
       {
         return true;
       }
     }
-    
+
     return false;
   },
 
-  
+
   // Trim whitespace from the beginning and end of text
-  trim: function(text) 
+  trim: function(text)
   {
     return text.replace(/^\s\s*/, "").replace(/\s\s*$/, "");
-    
+
   }, /* trim */
-  
+
 
   // Trim whitespace from the end of text
-  trimEnd: function(text) 
+  trimEnd: function(text)
   {
     return text.replace(/\s\s*$/, "");
-    
+
   }, /* trimEnd */
-  
-  
+
+
   // Sanitize and create DOM tree from HTML input text
   htmlParser: function(aHTMLString)
-  {   
+  {
     var html = document.implementation.createDocument("http://www.w3.org/1999/xhtml", "html", null),
       body = document.createElementNS("http://www.w3.org/1999/xhtml", "body");
     html.documentElement.appendChild(body);
- 
+
     body.appendChild(Components.classes["@mozilla.org/feed-unescapehtml;1"]
       .getService(Components.interfaces.nsIScriptableUnescapeHTML)
       .parseFragment(aHTMLString, false, null, body));
- 
+
     return body;
   }, /* htmlParser */
-  
-  
+
+
   // Get the size of a file in bytes.
-  getFileSize: function(path) 
+  getFileSize: function(path)
   {
     var file =
         Components.classes["@mozilla.org/file/local;1"].
         createInstance(Components.interfaces.nsILocalFile);
     file.initWithPath(path);
     return file.fileSize;
-    
+
   }, /* getFileSize */
-  
-  
+
+
   // Return the two-digit hexadecimal code for a byte.
   toHexString: function(charCode)
   {
     return ("0" + charCode.toString(16)).slice(-2);
-    
+
   }, /* toHexString */
-  
-  
+
+
   // Return the MD5 hash of the provided file as a string.
   // https://developer.mozilla.org/en-US/docs/XPCOM_Interface_Reference/nsICryptoHash
   // filePath - (string) The path of the file to hash.
   getFileHash: function(filePath)
   {
     var file = new FileUtils.File(filePath);
-    
-    var istream = Components.classes["@mozilla.org/network/file-input-stream;1"]           
+
+    var istream = Components.classes["@mozilla.org/network/file-input-stream;1"]
       .createInstance(Components.interfaces.nsIFileInputStream);
-      
+
     // Open for reading
     istream.init(file, 0x01, 0444, 0);
-    
+
     var ch = Components.classes["@mozilla.org/security/hash;1"]
       .createInstance(Components.interfaces.nsICryptoHash);
-                       
+
     // We want to use the MD5 algorithm
     ch.init(ch.MD5);
-    
+
     // This tells updateFromStream to read the entire file
     const PR_UINT32_MAX = 0xffffffff;
     ch.updateFromStream(istream, PR_UINT32_MAX);
-    
+
     istream.close();
-    
+
     // Pass false here to get binary data back
     var hash = ch.finish(false);
 
     // Convert the binary hash data to a hex string
     var s = [rcxMain.toHexString(hash.charCodeAt(i)) for (i in hash)].join("");
-    
+
     return s;
-    
+
   }, /* getFileHash */
-  
-  
+
+
   // Download the JDIC audio and then play it.
   // httpLoc - (string) The URL of the MP3 to download.
   // saveFilename - (string) Name of save file (without path).
   // saveAudioClipToDisk - (bool) True = Save the audio clip to the audio directory.
   downloadAndPlayAudio: function(httpLoc, saveFilename, saveAudioClipToDisk)
   {
-    if(!httpLoc || (httpLoc.length == 0) 
+    if(!httpLoc || (httpLoc.length == 0)
       || !saveFilename || (saveFilename.length == 0))
     {
       return;
     }
-    
+
     try
-    { 
+    {
       // The shorter 'no audio' mp3 file
       var noAudioPath = OS.Path.join(
         OS.Constants.Path.profileDir, "extensions", rcxMain.id, "audio", "no_audio.mp3");
-      
+
       var savedAudioPath = null;
-        
+
       // If the user entered a directory in which to store the audio files
       if(rcxConfig.audiodir && (rcxConfig.audiodir.length > 0))
       {
         // Create the file object for the file to save to the audio directory
         savedAudioPath = OS.Path.join(rcxConfig.audiodir, saveFilename);
       }
-      
+
       // If saveFilename is in the 'no audio' dictionary
       if(rcxMain.noAudioDic[saveFilename])
       {
@@ -2789,17 +2789,17 @@ var rcxMain = {
         {
           rcxMain.playAudioFile(noAudioPath);
         }
-        
+
         // Exit - There is nothing to save
         return;
       }
-      
+
       // Does the file already exist in the audio dir? If so, play it and don't download.
       if(savedAudioPath)
-      {   
-        // Create a file object for the saved file (for checking existence)        
+      {
+        // Create a file object for the saved file (for checking existence)
         var savedAudioFile = new FileUtils.File(savedAudioPath);
-          
+
         // If the destination already exists, play it and skip the download
         if(savedAudioFile.exists())
         {
@@ -2808,7 +2808,7 @@ var rcxMain = {
           {
             this.noAudioFileHash = rcxMain.getFileHash(noAudioPath);
           }
-        
+
           // If user doesn't want to hear the 'no audio' clip.
           if(!rcxConfig.enablenoaudioclip)
           {
@@ -2817,21 +2817,21 @@ var rcxMain = {
             //       for caching purposes. This code is left here in case the user still has these
             //       clips in the audio folder from a previous version.
             var hash = rcxMain.getFileHash(savedAudioPath);
-            
+
             if(hash == this.noAudioFileHash)
             {
               return;
             }
           }
-                   
+
           rcxMain.playAudioFile(savedAudioPath);
           return;
         }
       }
-      
+
       var downloadedAudioPath = OS.Path.join(OS.Constants.Path.tmpDir, "~rikai_audio.mp3");
       var audioFileToPlay = null;
-      
+
       Task.spawn(function ()
       {
         try
@@ -2840,12 +2840,12 @@ var rcxMain = {
           yield Downloads.fetch(httpLoc, downloadedAudioPath);
 
           var fileSize = rcxMain.getFileSize(downloadedAudioPath);
-          
+
           // Did we just download the 'no audio' clip? If so, play a shorter 'no audio' clip instead
           if(fileSize > 52000)
           {
             rcxMain.addNoAudioListEntry(saveFilename);
-            
+
             // If the user wants to hear the 'no audio' clip
             if(rcxConfig.enablenoaudioclip)
             {
@@ -2855,14 +2855,14 @@ var rcxMain = {
           else // Not the 'no audio' clip
           {
             audioFileToPlay = downloadedAudioPath;
-            
+
             // Save audio file to user-provided directory
             if(saveAudioClipToDisk && savedAudioPath)
             {
               OS.File.copy(downloadedAudioPath, savedAudioPath);
             }
           }
-          
+
           if(audioFileToPlay)
           {
             rcxMain.playAudioFile(audioFileToPlay);
@@ -2879,115 +2879,115 @@ var rcxMain = {
       Components.utils.reportError("[2] downloadAndPlayAudio() Error: " + ex);
     }
   }, /* downloadAndPlayAudio() */
-  
-   
+
+
   // Play the provided audio file.
   // audioFilePath - (string) The path of the audio file to play.
   playAudioFile: function(audioFilePath)
   {
     var audioFile = new FileUtils.File(audioFilePath);
-  
+
     // Get the URL of the file
     var ioService = Components.classes["@mozilla.org/network/io-service;1"]
                       .getService(Components.interfaces.nsIIOService);
-    var fileURL = ioService.newFileURI(audioFile).spec;  
-    
+    var fileURL = ioService.newFileURI(audioFile).spec;
+
     var audioCtx = new AudioContext();
     var source = audioCtx.createBufferSource();
     var request = new XMLHttpRequest();
-  
+
     // Open the file and store into an ArrayBuffer
     request.open('GET', fileURL, true);
     request.responseType = 'arraybuffer';
-    request.onload = function() 
+    request.onload = function()
     {
       var audioData = request.response;
-  
-      audioCtx.decodeAudioData(audioData, function(buffer) 
+
+      audioCtx.decodeAudioData(audioData, function(buffer)
       {
           // Set the volume to a [0.0, 1.0] range
           var gainNode = audioCtx.createGain();
           gainNode.gain.value = rcxConfig.volume / 100.0;
-          
+
           source.buffer = buffer;
           source.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          
+
           // Play
           source.start();
       }, function(e){"Error with decoding audio data" + e.err});
     }
-    
+
     request.send();
-    
+
   }, /* playAudioFile */
-  
-  
+
+
   // Play the JDIC audio for the hilited word.
   // saveAudio - (boolean) Save the audio in the user specified audio folder
-	playJDicAudio: function(saveAudio) 
-	{    
+	playJDicAudio: function(saveAudio)
+	{
     // Get the currently hilited entry
     var hilitedEntry = this.lastFound;
-    
+
     if ((!hilitedEntry) || (hilitedEntry.length == 0))
     {
       return 0;
     }
-  
+
     var kanjiText;
     var kanaText;
-    
+
     // Is a single kanji selected?
     if(hilitedEntry[0] && hilitedEntry[0].kanji && hilitedEntry[0].onkun)
     {
-      //rcxDebug.echo("hilitedEntry[0].kanji = \"" + hilitedEntry[0].kanji + "\"");    
+      //rcxDebug.echo("hilitedEntry[0].kanji = \"" + hilitedEntry[0].kanji + "\"");
       //rcxDebug.echo("hilitedEntry[0].onkun = \"" + hilitedEntry[0].onkun + "\"");
-      
-      hilitedEntry[0].onkun.match(/^([^\u3001]*)/);     
-      
+
+      hilitedEntry[0].onkun.match(/^([^\u3001]*)/);
+
       kanjiText = hilitedEntry[0].kanji;
       kanaText = RegExp.$1;
-           
-      if(!kanjiText || !kanaText) 
+
+      if(!kanjiText || !kanaText)
       {
         return 0;
       }
 
       // For kanji readings, JDIC uses hiragana instead of katakana
       kanaText = rcxData.convertKatakanaToHiragana(kanaText);
-      
-      if(!kanaText) 
+
+      if(!kanaText)
       {
         return 0;
       }
     }
     // Is an entire word selected?
     else if(hilitedEntry[0] && hilitedEntry[0].data[0])
-    {     
+    {
       // Extract needed data from the hilited entry
       //   entryData[0] = kanji/kana + kana + definition
       //   entryData[1] = kanji (or kana if no kanji)
       //   entryData[2] = kana (null if no kanji)
       //   entryData[3] = definition
-      var entryData = 
+      var entryData =
         hilitedEntry[0].data[0][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
-      
+
       if (!entryData)
-      { 
-        return 0;
-      }
-      
-      // Get just the kanji and kana
-      kanjiText = entryData[1];
-      kanaText = entryData[2];
-      
-      if(!kanjiText) 
       {
         return 0;
       }
-      
-      if(!kanaText) 
+
+      // Get just the kanji and kana
+      kanjiText = entryData[1];
+      kanaText = entryData[2];
+
+      if(!kanjiText)
+      {
+        return 0;
+      }
+
+      if(!kanaText)
       {
         kanaText = kanjiText;
       }
@@ -2996,48 +2996,52 @@ var rcxMain = {
     {
       return 0;
     }
-    
-    //rcxDebug.echo("Kana =\"" + kanaText + "\"  Kanji = \"" + kanjiText + "\"");    
-        
+
+    //rcxDebug.echo("Kana =\"" + kanaText + "\"  Kanji = \"" + kanjiText + "\"");
+
     // Form the URL
-    var jdicAudioUrlText = 
-      "http://assets.languagepod101.com/dictionary/japanese/audiomp3.php?kana=" 
+    var jdicAudioUrlText =
+      "http://assets.languagepod101.com/dictionary/japanese/audiomp3.php?kana="
       + kanaText + "&kanji=" + kanjiText;
-      
+
     //rcxDebug.echo(jdicAudioUrlText);
-    
+
     // Encode link to ASCII character set
     //encodedJdicAudioUrlText = encodeURI(jdicAudioUrlText);
 
     var saveFile = kanaText + ' - ' + kanjiText + '.mp3';
-    
+
     var saveAudioClipToDisk = (saveAudio || rcxConfig.saveaudioonplay);
-    
+
     this.downloadAndPlayAudio(jdicAudioUrlText, saveFile, saveAudioClipToDisk);
-    
+
 	}, /* playJDicAudio */
-		
-	
+
+
 	saveToFile: function() {
 		var text;
 		var i;
 		var lf, fos, os;
 
-		try 
+		try
     {
-			if ((text = this.savePrep(0)) == null) 
-        return;
-
-			if (rcxConfig.sfile.length == 0) {
+			if (rcxConfig.sfile.length == 0)
+      {
 				this.showPopup('Please set the filename in Preferences.');
 				return;
 			}
 
-			if (rcxConfig.saveformat.length == 0) {
+			if (rcxConfig.saveformat.length == 0)
+      {
 				this.showPopup('Please create a save format in Preferences.');
 				return;
 			}
-      
+
+			if ((text = this.savePrep(0, rcxConfig.saveformat)) == null)
+      {
+        return;
+      }
+
       // Save the audio clip if the audio directory was specified by the user
       if (rcxConfig.audiodir.length != 0)
       {
@@ -3049,11 +3053,11 @@ var rcxMain = {
 
 			lf.initWithPath(rcxConfig.sfile);
 			let exists = lf.exists();
-			
+
 			fos = Components.classes['@mozilla.org/network/file-output-stream;1']
 				.createInstance(Components.interfaces.nsIFileOutputStream);
 			fos.init(lf, 0x02 | 0x08 | 0x10, -1, 0);	//writing only, create file if none exists, pointer set to end of file for writing
-			
+
 			if ((!exists) && (rcxConfig.ubom) && (rcxConfig.sfcs == 'utf-8')) {
 				let bom = '\xEF\xBB\xBF';
 				fos.write(bom, bom.length);
@@ -3076,7 +3080,7 @@ var rcxMain = {
 		}
 	},
 
-	configPage: function() 
+	configPage: function()
   {
 		window.openDialog('chrome://rikaichan/content/options.xul', '', 'chrome,centerscreen,resizable');
 	},
@@ -3095,15 +3099,15 @@ var rcxMain = {
 		if ((rcxConfig.nopopkeys) && (ev.keyCode != 16)) return;
 
 		var i;
-    
-		switch (ev.keyCode) 
+
+		switch (ev.keyCode)
     {
 		case 13:	// ENTER - Switch dictionary
 			this.clearHi();
 			// continues...
 		case 16:	// SHIFT - Switch dictionary
       this.allowOneTimeSuperSticky();
-      
+
 			let tdata = ev.currentTarget.rikaichan;
 			if (tdata) {
 				rcxData.selectNext();	// @@@ hmm
@@ -3111,55 +3115,55 @@ var rcxMain = {
 					else this.show(tdata);
 			}
 			break;
-      
+
 		case 27:	// ESC - Remove popup
-    
+
       // If in Super Sticky mode, allow the popup to hide
       if(this.superSticky)
       {
         this.superStickyOkayToHide = true;
       }
-      
+
 			this.hidePopup();
 			this.clearHi();
 			break;
-      
+
 		case parseInt(rcxConfig.kbalternateview): // a - Alternate popup location
       this.allowOneTimeSuperSticky();
-    
+
 			this.altView = (this.altView + 1) % 3;
 			if (this.altView) this.status('Alternate View #' + this.altView);
 				else this.status('Normal View');
 			this.show(ev.currentTarget.rikaichan);
 			break;
-      
+
 		case parseInt(rcxConfig.kbcopytoclipboard):	// c - Copy to clipboard
 			this.copyToClip();
 			break;
-      
+
 		case parseInt(rcxConfig.kbhideshowdefinitions):	// d - Hide/show definitions
       this.allowOneTimeSuperSticky();
-      
+
 			rcxConfig.hidedef = !rcxConfig.hidedef;
 			this.status((rcxConfig.hidedef ? 'Hide' : 'Show') + ' definition');
 			if (rcxConfig.hidedef) this.showPopup('Hiding definitions. Press "D" to show again.');
 				else this.show(ev.currentTarget.rikaichan);
 			break;
-      
+
 		case parseInt(rcxConfig.kbjdicaudio):	// f - JDIC Audio
-			this.playJDicAudio(false);      
+			this.playJDicAudio(false);
 			break;
-      
+
 		case parseInt(rcxConfig.kbsavetofile):	// s - Save to file
       rcxMain.saveKana = false;
 			this.saveToFile();
 			break;
-      
+
 		case parseInt(rcxConfig.kbsavetofilekana):	// x - Save to file (kana version $d=$r)
       rcxMain.saveKana = true;
 			this.saveToFile();
 			break;
-      
+
 		case parseInt(rcxConfig.kbpreviouscharacter):	// b - Previous character
       this.allowOneTimeSuperSticky();
 			var ofs = ev.currentTarget.rikaichan.uofs;
@@ -3171,63 +3175,63 @@ var rcxMain = {
 				}
 			}
 			break;
-      
+
 		case parseInt(rcxConfig.kbnextcharacter):	// m - Next character
       this.allowOneTimeSuperSticky();
 			ev.currentTarget.rikaichan.uofsNext = 1;
-      
+
 		case parseInt(rcxConfig.kbnextword):	// n - Next word
       this.allowOneTimeSuperSticky();
-      
+
 			for (i = 50; i > 0; --i) {
 				ev.currentTarget.rikaichan.uofs += ev.currentTarget.rikaichan.uofsNext;
 				rcxData.select(0);
 				if (this.show(ev.currentTarget.rikaichan) >= 0) break;
 			}
 			break;
-      
+
 		case parseInt(rcxConfig.kbstickypopup):	// k - Sticky popup behavior
 			this.sticky = !this.sticky;
 			this.status(this.sticky ? 'Sticky Popup' : 'Normal Popup');
 			break;
-      
+
     case parseInt(rcxConfig.kbsanseidomode): // o - Sanseido mode
       this.allowOneTimeSuperSticky();
       this.toggleSanseidoMode();
       this.show(ev.currentTarget.rikaichan);
       break;
-      
+
     case parseInt(rcxConfig.kbepwingmode): // p - EPWING mode
       this.allowOneTimeSuperSticky();
       this.toggleEpwingMode();
       this.show(ev.currentTarget.rikaichan);
       break;
-      
+
     case parseInt(rcxConfig.kbrealtimeimport): // r - Anki Real-Time Import
       rcxMain.saveKana = false;
       this.sendToAnki();
       break;
-      
+
     case parseInt(rcxConfig.kbrealtimeimportkana): // t - Anki Real-Time Import (kana version $d=$r)
       rcxMain.saveKana = true;
       this.sendToAnki();
       break;
-      
+
     case parseInt(rcxConfig.kbsuperstickymode): // u - Super Sticky mode
       this.toggleSuperStickyMode();
       break;
-      
+
 		case parseInt(rcxConfig.kbmovepopupdown):	// y - Move popup location down
       this.allowOneTimeSuperSticky();
-      
+
 			this.altView = 0;
 			ev.currentTarget.rikaichan.popY += 20;
 			this.show(ev.currentTarget.rikaichan);
 			break;
-      
+
     case parseInt(rcxConfig.kbeditnotes): // j - Edit notes
       var notes = prompt("Enter text to use with the Notes save token:", rcxConfig.savenotes);
-      
+
       // If OK was pressed, save the notes
       if(notes)
       {
@@ -3235,78 +3239,78 @@ var rcxMain = {
         prefs.setString('savenotes', notes);
       }
       break;
-      
+
 		case parseInt(rcxConfig.kbepwingnextdic):	// + - Goto next dictionary
       var origDic = this.epwingCurDic;
-      
+
       this.nextEpwingDic();
-      
+
       if(origDic != this.epwingCurDic)
       {
         this.allowOneTimeSuperSticky();
-        
+
         // Reset the EPWING hit number and hit totals
         this.epwingTotalHits = 0;
         this.epwingCurHit = 0;
         this.epwingPrevHit = 0;
-        
+
         this.show(ev.currentTarget.rikaichan);
       }
 			break;
 
 		case parseInt(rcxConfig.kbepwingprevdic):	// - - Goto previous dictionary
       var origDic = this.epwingCurDic;
-      
+
       this.prevEpwingDic();
-      
+
       if(origDic != this.epwingCurDic)
       {
         this.allowOneTimeSuperSticky();
-       
+
        // Reset the EPWING hit number and hit totals
         this.epwingTotalHits = 0;
         this.epwingCurHit = 0;
         this.epwingPrevHit = 0;
-    
+
         this.show(ev.currentTarget.rikaichan);
       }
 			break;
-      
+
     case parseInt(rcxConfig.kbepwingpreventry): // [ - Move to previous hit (EPWING mode)
       if(this.epwingTotalHits > 0)
       {
         this.allowOneTimeSuperSticky();
-        
+
         this.epwingPrevHit =  this.epwingCurHit;
-      
+
         this.epwingCurHit--;
-        
+
         if(this.epwingCurHit < 0)
         {
           this.epwingCurHit = this.epwingTotalHits - 1;
         }
-        
+
         this.show(ev.currentTarget.rikaichan);
       }
       break;
-    
+
     case parseInt(rcxConfig.kbepwingnextentry): // ] - Move to next hit (EPWING mode)
-    
+
       if(this.epwingTotalHits > 0)
-      { 
+      {
         this.allowOneTimeSuperSticky();
-      
+
         this.epwingPrevHit = this.epwingCurHit;
         this.epwingCurHit = (this.epwingCurHit + 1) % this.epwingTotalHits;
         this.show(ev.currentTarget.rikaichan);
       }
       break;
-      
+
 		default:
 			if ((ev.keyCode >= 49) && (ev.keyCode <= 57)) // 1-9 - Switch dictionary
       {
         this.allowOneTimeSuperSticky();
-      
+
 				rcxData.select(ev.keyCode - 49);
 				this.show(ev.currentTarget.rikaichan);
 			}
@@ -3326,29 +3330,29 @@ var rcxMain = {
 	onKeyUp: function(ev) {
 		if (rcxMain.keysDown[ev.keyCode]) rcxMain.keysDown[ev.keyCode] = 0;
 	},
-  
-    
-	onMouseUp: function(ev) 
-  {  
+
+
+	onMouseUp: function(ev)
+  {
     // Did a Ctrl-right click just occur in Super Sticky mode?
     if(ev.ctrlKey && (ev.button == 2) && rcxMain.superSticky)
     {
-      // Set a timer to remove the right-click context menu by creating a key press event 
-      // that simulates an ESC press. It won't work if we send the ESC press right away, 
+      // Set a timer to remove the right-click context menu by creating a key press event
+      // that simulates an ESC press. It won't work if we send the ESC press right away,
       // we have to wait a little while, hence the timer.
         window.setTimeout
         (
-          function() 
+          function()
           {
             var evnt = document.createEvent("KeyboardEvent");
-            evnt.initKeyEvent("keypress", true, true, window, false, false, false, false, 27, 0);                
+            evnt.initKeyEvent("keypress", true, true, window, false, false, false, false, 27, 0);
             ev.target.dispatchEvent(evnt);
           }, 15);
     }
   },
 
-  
-	onMouseDown: function(ev) 
+
+	onMouseDown: function(ev)
   {
     // Did a Ctrl-click or Alt-click just occur in Super Sticky mode?
     if(rcxMain.superSticky && (ev.ctrlKey || ev.altKey))
@@ -3359,18 +3363,18 @@ var rcxMain = {
       {
         ev.preventDefault();
       }
-     
+
       let tdata = ev.currentTarget.rikaichan;
-     
+
       rcxMain.superStickyOkayToShow = true;
-      
-      if(tdata) 
+
+      if(tdata)
       {
         if (tdata.titleShown)
         {
           rcxMain.showTitle(tdata);
         }
-        else 
+        else
         {
           rcxMain.show(tdata);
         }
@@ -3432,20 +3436,20 @@ var rcxMain = {
 		'RB': true,
 		'RT': true,
 		'RP': true,
-    
+
     // User configurable elements
     'DIV': false,
 	},
 
-  
+
   // Configure this.inlineNames based on user settings.
   configureInlineNames: function()
   {
     this.inlineNames["DIV"] = rcxConfig.mergedivs;
 
   }, /* configureInlineNames */
-  
-  
+
+
 	// Gets text from a node and returns it
 	// node: a node
 	// selEnd: the selection end object will be changed as a side effect
@@ -3495,22 +3499,22 @@ var rcxMain = {
 
 		return text;
 	},
-  
-  
-	getInlineTextPrev: function (node, selEndList, maxLength) 
+
+
+	getInlineTextPrev: function (node, selEndList, maxLength)
   {
 		if((node.nodeType == Node.TEXT_NODE) && (node.data.length == 0))
-    {    
+    {
       return ''
     }
 
 		let text = '';
-    
+
 		let result = node.ownerDocument.evaluate('descendant-or-self::text()[not(parent::rp) and not(ancestor::rt)]',
 						     node, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
-        
-		while((text.length < maxLength) && (node = result.iterateNext())) 
-    {     
+
+		while((text.length < maxLength) && (node = result.iterateNext()))
+    {
       if(text.length + node.data.length >= maxLength)
       {
         text += node.data.substr(node.data.length - (maxLength - text.length), maxLength - text.length);
@@ -3522,42 +3526,42 @@ var rcxMain = {
 
 			selEndList.push(node);
 		}
-    
+
 		return text;
 	},
-    
-    
-	getPrev: function(node) 
+
+
+	getPrev: function(node)
   {
-		do 
+		do
     {
-			if (node.previousSibling) 
+			if (node.previousSibling)
       {
         return node.previousSibling;
       }
-      
+
 			node = node.parentNode;
-		} 
+		}
     while ((node) && (this.inlineNames[node.nodeName]));
-    
+
 		return null;
 	},
-  
-  
-	getTextFromRangePrev: function(rangeParent, offset, selEndList, maxLength) 
+
+
+	getTextFromRangePrev: function(rangeParent, offset, selEndList, maxLength)
   {
 		if (rangeParent.ownerDocument.evaluate('boolean(parent::rp or ancestor::rt)',
 			rangeParent, null, XPathResult.BOOLEAN_TYPE, null).booleanValue)
     {
 			return '';
     }
-      
+
 		let text = '';
 		var prevNode = rangeParent;
-    
+
 		while ((text.length < maxLength) &&
 			((prevNode = this.getPrev(prevNode)) != null) &&
-			(this.inlineNames[prevNode.nodeName])) 
+			(this.inlineNames[prevNode.nodeName]))
     {
       textTemp = text;
       text = this.getInlineTextPrev(prevNode, selEndList, maxLength - text.length) + textTemp;
@@ -3566,7 +3570,7 @@ var rcxMain = {
 		return text;
 	},
 
-  
+
 	highlightMatch: function(doc, rp, ro, matchLen, selEndList, tdata) {
 		if (selEndList.length === 0) return;
 
@@ -3614,7 +3618,7 @@ var rcxMain = {
 			this.hidePopup();
 			return 0;
 		}
-		
+
 		if ((ro < 0) || (ro >= rp.data.length)) {
 			this.clearHi();
 			this.hidePopup();
@@ -3636,60 +3640,60 @@ var rcxMain = {
 
     // Configure this.inlineNames based on user settings
     this.configureInlineNames();
-         
+
 		//selection end data
 		var selEndList = [];
-    
+
     // The text here will be used to lookup the word
 		var text = this.getTextFromRange(rp, ro, selEndList, 20);
-    
-    // The text from the currently selection node + 50 more characters from the next nodes    
+
+    // The text from the currently selection node + 50 more characters from the next nodes
 		var sentence = this.getTextFromRange(rp, 0, selEndList, rp.data.length + 50);
-    
+
     // 50 characters from the previous nodes.
-    // The above sentence var will stop at first ruby tag encountered to the 
-    // left because it has a different node type. prevSentence will start where 
+    // The above sentence var will stop at first ruby tag encountered to the
+    // left because it has a different node type. prevSentence will start where
     // the above sentence left off moving to the left and will capture the ruby tags.
     var prevSentence = this.getTextFromRangePrev(rp, 0, selEndList, 50);
-    
+
     // Combine the full sentence text, including stuff that will be chopped off later.
     sentence = prevSentence + sentence;
-		
+
 		//this.word = text;
-		
+
     //
 		// Find the sentence in the node
     //
-    
+
     // Get the position of the first selected character in the sentence variable
-		i = ro + prevSentence.length; 
-    
+		i = ro + prevSentence.length;
+
 		var sentenceStartPos;
 		var sentenceEndPos;
-		
+
     // Find the last character of the sentence
-		while (i < sentence.length) 
+		while (i < sentence.length)
     {
-			if (sentence[i] == "。" || sentence[i] == "\n" || sentence[i] == "？" ||　sentence[i] == "！") 
+			if (sentence[i] == "。" || sentence[i] == "\n" || sentence[i] == "？" ||　sentence[i] == "！")
       {
 				sentenceEndPos = i;
 				break;
-			} 
+			}
       else if (i == (sentence.length - 1))
       {
 				sentenceEndPos = i;
 			}
-      
+
 			i++;
 		}
-    
+
 		i = ro + prevSentence.length;
-    
-    
+
+
     // Find the first character of the sentence
-		while (i >= 0) 
-    {      
-			if (sentence[i] == "。" || sentence[i] == "\n" || sentence[i] == "？" ||　sentence[i] == "！") 
+		while (i >= 0)
+    {
+			if (sentence[i] == "。" || sentence[i] == "\n" || sentence[i] == "？" ||　sentence[i] == "！")
       {
 				sentenceStartPos = i + 1;
 				break;
@@ -3698,32 +3702,32 @@ var rcxMain = {
       {
 				sentenceStartPos = i;
 			}
-      
+
 			i--;
 		}
-		
+
     // Extract the sentence
 		sentence = sentence.substring(sentenceStartPos, sentenceEndPos + 1);
-         
+
     var startingWhitespaceMatch = sentence.match(/^\s+/);
-                
+
     // Strip out control characters
-		sentence = sentence.replace(/[\n\r\t]/g, '');	
-    
+		sentence = sentence.replace(/[\n\r\t]/g, '');
+
     var startOffset = 0;
-    
-   // Adjust offset of selected word according to the number of 
+
+   // Adjust offset of selected word according to the number of
    // whitespace chars at the beginning of the sentence
    if(startingWhitespaceMatch)
    {
      startOffset -= startingWhitespaceMatch[0].length;
    }
-       
+
     // Trim
     sentence = rcxMain.trim(sentence);
-    		
+
 		this.sentence = sentence;
-		
+
 		if (text.length == 0) {
 			this.clearHi();
 			this.hidePopup();
@@ -3737,18 +3741,18 @@ var rcxMain = {
 			return 0;
 		}
 		this.lastFound = [e];
-		 
+
     // Find the highlighted word, rather than the JMDICT lookup
 		this.word = text.substring(0, e.matchLen);
 
 		var wordPosInSentence = ro + prevSentence.length - sentenceStartPos + startOffset;
-		
+
     // Add blanks in place of the hilited word for use with the save feature
-		sentenceWBlank = sentence.substring(0, wordPosInSentence) + "___" 
+		sentenceWBlank = sentence.substring(0, wordPosInSentence) + "___"
 					+ sentence.substring(wordPosInSentence + e.matchLen, sentence.length);
-		
+
 		this.sentenceWBlank = sentenceWBlank;
-		
+
 		if (!e.matchLen) e.matchLen = 1;
 		tdata.uofsNext = e.matchLen;
 		tdata.uofs = (ro - tdata.prevRangeOfs);
@@ -3766,7 +3770,7 @@ var rcxMain = {
 		}
 
 		tdata.titleShown = false;
-    
+
     // Save the tdata so that the sanseido routines can use it
     this.lastTdata = Components.utils.getWeakReference(tdata);
 
@@ -3779,18 +3783,18 @@ var rcxMain = {
         clearTimeout(this.autoPlayAudioTimer);
         this.autoPlayAudioTimer = null;
       }
-      
+
       this.autoPlayAudioTimer = setTimeout(function() { rcxMain.playJDicAudio(false) }, 500);
     }
-    
+
     // If not in Super Sticky mode or the user manually requested a popup
     if(!this.superSticky || this.superStickyOkayToShow)
     {
       // Clear the one-time okay-to-show flag
       this.superStickyOkayToShow = false;
-    
+
       // If we are in sanseido mode and the normal non-names, non-kanji dictionary is selected
-      if(this.sanseidoMode 
+      if(this.sanseidoMode
         && (rcxData.dicList[rcxData.selected].name.indexOf("Names") == -1)
         && (rcxData.dicList[rcxData.selected].name.indexOf("Kanji") == -1))
       {
@@ -3798,7 +3802,7 @@ var rcxMain = {
         this.lookupSanseido();
       }
       // If we are in EPWING mode and the normal non-names, non-kanji dictionary is selected
-      else if(this.epwingMode 
+      else if(this.epwingMode
         && (rcxData.dicList[rcxData.selected].name.indexOf("Names") == -1)
         && (rcxData.dicList[rcxData.selected].name.indexOf("Kanji") == -1))
       {
@@ -3807,20 +3811,20 @@ var rcxMain = {
           clearTimeout(this.epwingTimer);
           this.epwingTimer = null;
         }
-       
+
         // The user must hilite a word for at least 100 ms before the lookup will occur
         this.epwingTimer = setTimeout(function() { rcxMain.lookupEpwing() }, 0);
       }
       // Normal popup
       else
-      {        
+      {
         this.showPopup(rcxMain.getKnownWordIndicatorText() + rcxData.makeHtml(e), tdata.prevTarget, tdata.pos);
       }
     }
-    
+
 		return 1;
 	},
-  
+
 
 	showTitle: function(tdata) {
 		var e = rcxData.translate(tdata.title);
@@ -3834,12 +3838,12 @@ var rcxMain = {
 
 		this.lastFound = [e];
 		tdata.titleShown = true;
-    
+
     if(!this.superSticky || this.superStickyOkayToShow)
     {
       // Clear the one-time okay-to-show flag
       this.superStickyOkayToShow = false;
-      
+
 		  this.showPopup(rcxData.makeHtml(e), tdata.prevTarget, tdata.pos);
     }
 	},
@@ -3942,7 +3946,7 @@ var rcxMain = {
 			(pos.pageY >= popup.offsetTop) &&
 			(pos.pageY <= popup.offsetTop + popup.offsetHeight));
 	},
- 
+
 	_enable: function(b) {
 		if ((b != null) && (b.rikaichan == null)) {
 			//	alert('enable ' + b.id);
@@ -3956,7 +3960,7 @@ var rcxMain = {
 		}
 		return false;
 	},
-  
+
 	enable: function(b, mode) {
 		if (!this.initDictionary()) return;
 		var ok = this._enable(b, mode);
@@ -3979,7 +3983,7 @@ var rcxMain = {
 				if(rcxConfig.minihelp)
         {
           // https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode
-          var keycode2Key = 
+          var keycode2Key =
           {
             "65"  : "A",        "66"  : "B",        "67"  : "C",         "68"  : "D",        "69"  : "E",         "70"  : "F",        "71"  : "G",         "72"  : "H",        "73"  : "I",   "74" : "J",
             "75"  : "K",        "76"  : "L",        "77"  : "M",         "78"  : "N",        "79"  : "O",         "80"  : "P",        "81"  : "Q",         "82"  : "R",        "83"  : "S",   "84" : "T",
@@ -3991,9 +3995,9 @@ var rcxMain = {
             "97"  : "NUMPAD 1", "98"  : "NUMPAD 2", "99"  : "NUMPAD 3",  "100" : "NUMPAD 4", "101" : "NUMPAD 5",  "102" : "NUMPAD 6", "103" : "NUMPAD 7",
             "104" : "NUMPAD 8", "105" : "NUMPAD 9", "107" : "NUMPAD +",  "109" : "NUMPAD -", "111" : "NUMPAD /",  "106" : "NUMPAD *", "110" : "NUMPAD ."
           };
-        
+
           var minihelpText = rcxFile.read('chrome://rikaichan/locale/minihelp.htm');
-          
+
           minihelpText = minihelpText.replace(/@AlternatePopupLocation/   , keycode2Key[rcxConfig.kbalternateview]);
           minihelpText = minihelpText.replace(/@StickyPopupBehavior/      , keycode2Key[rcxConfig.kbstickypopup]);
           minihelpText = minihelpText.replace(/@MovePopupLocationDown/    , keycode2Key[rcxConfig.kbmovepopupdown]);
@@ -4025,7 +4029,7 @@ var rcxMain = {
 			}
 		}
 	},
-  
+
   _disable: function(b) {
 		if (b != null) {
 			//	alert('disable ' + b.id);
@@ -4046,7 +4050,7 @@ var rcxMain = {
 		}
 		return false;
 	},
-  
+
 	disable: function(b, mode) {
 		this._disable(b);
 		if (this.isTB) {
@@ -4134,7 +4138,7 @@ var rcxMain = {
 					}
 				}
 			}
-		
+
 			e.hidden = false;
 			this.lbText.focus();
 		}
@@ -4178,7 +4182,7 @@ var rcxMain = {
 		this.lbText.focus();
 	},
 
-  
+
   // Perform lookup bar search
 	lookupSearch: function(text) {
 		let s = text.replace(/^\s+|\s+$/g, '');
@@ -4232,8 +4236,8 @@ var rcxMain = {
 					}
 				}
 			}
-      
-			this.showPopup('<table class="q-tb"><tr><td class="q-w">' + this.getKnownWordIndicatorText() 
+
+			this.showPopup('<table class="q-tb"><tr><td class="q-w">' + this.getKnownWordIndicatorText()
         + html + '</td>' + kanji + '</tr></table>', null, null, true);
 		}
 	},
@@ -4305,7 +4309,7 @@ var rcxConfig = {
 		}
 		catch (ex) {
 		}
-    
+
 		for (let i = rcxConfigList.length - 1; i >= 0; --i) {
 			let [type, name] = rcxConfigList[i];
 			switch (type) {
@@ -4355,7 +4359,7 @@ var rcxConfig = {
 		}
 
 		rcxData.loadConfig();
-    
+
     rcxMain.populateEpwingDics();
 	}
 };
