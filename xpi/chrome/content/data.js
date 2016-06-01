@@ -276,11 +276,11 @@ var rcxData = {
 		0x3062,0x3065,0x3067,0x3069,0xFF85,0xFF86,0xFF87,0xFF88,0xFF89,0x3070,0x3073,0x3076,0x3079,0x307C],
 	cs:[0x3071,0x3074,0x3077,0x307A,0x307D],
 
-  convertKatakanaToHiragana: function(word) 
+  convertKatakanaToHiragana: function(word)
 	{
   	var i, u, v, r, p;
 		var trueLen = [0];
-		
+
 		// half & full-width katakana to hiragana conversion
 		// note: katakana vu is never converted to hiragana
 
@@ -288,7 +288,7 @@ var rcxData = {
 		r = '';
 		for (i = 0; i < word.length; ++i) {
 			u = v = word.charCodeAt(i);
-			
+
 			if (u <= 0x3000) break;
 
 			// full-width katakana to hiragana
@@ -318,16 +318,16 @@ var rcxData = {
 				p = 0;
 				continue;
 			}
-			
+
 			r += String.fromCharCode(u);
 			trueLen[r.length] = i + 1;	// need to keep real length because of the half-width semi/voiced conversion
 			p = v;
 		}
-				
+
 		return r;
 	},
-  
-  
+
+
 	_wordSearch: function(word, dic, max) {
 		if (!this.ready) this.init();
 
@@ -482,7 +482,7 @@ var rcxData = {
 		} while (ds != this.selected);
 		return null;
 	},
-  
+
 	translate: function(text) {
 		var result = { data: [], textLen: text.length };
 		while (text.length > 0) {
@@ -587,19 +587,19 @@ var rcxData = {
 		} while (ds != this.selected);
 		return null;
 	},
-  
-  
+
+
   /* Get the number of times that the provided reading appears in EDICT. */
   getReadingCount: function(reading)
   {
     let dic = this.dicList[this.selected];
     let readingsList = dic.getReadings(reading);
     var count = readingsList.length;
-    
+
     return count;
-    
+
   }, /* getReadingCount */
-    
+
 
 	// @@@ todo later...
 	kanjiSearch: function(kanji) {
@@ -615,7 +615,7 @@ var rcxData = {
 		if (!this.kanjiData) {
 			this.kanjiData = rcxFile.read((typeof(rcxKanjiURI) == 'string') ? rcxKanjiURI : 'chrome://rikaichan/content/kanji.dat');
 		}
-    
+
 		kde = this.find(this.kanjiData, kanji);
 		if (!kde) return null;
 
@@ -747,12 +747,12 @@ var rcxData = {
 				if (this.kanjiShown[c]) {
 					s = entry.misc[c]; // The number
 					c = ' class="k-mix-td' + (j ^= 1) + '"';
-          
+
           if(this.numList[i + 1] == "Heisig")
           {
             var revTkLink = 'http://kanji.koohii.com/study/kanji/' + entry.kanji;
-					  nums += '<tr><td' + c + '>' + '<a' + c + 'href="' + revTkLink + '">' 
-              + this.numList[i + 1] + '</a>' + '</td><td' + c + '>' + '<a' + c + 'href="' + revTkLink + '">' 
+					  nums += '<tr><td' + c + '>' + '<a' + c + 'href="' + revTkLink + '">'
+              + this.numList[i + 1] + '</a>' + '</td><td' + c + '>' + '<a' + c + 'href="' + revTkLink + '">'
               + (s ? s : '-') + '</a>' + '</td></tr>';
           }
           else
@@ -836,7 +836,7 @@ var rcxData = {
           e[2] = kana (null if no kanji)
           e[3] = definition
 				*/
-                
+
 				if (s != e[3]) {
 					b.push(t);
 					pK = k = '';
@@ -860,35 +860,35 @@ var rcxData = {
         if (rcxConfig.showpitchaccent)
         {
           var pitchAccent = rcxMain.getPitchAccent(e[1], e[2]);
-          
+
           if(pitchAccent && (pitchAccent.length > 0))
           {
             b.push('<span class="w-conj"> ' + pitchAccent + '</span>');
           }
         }
-                
+
 				if (entry.data[i][1]) b.push(' <span class="w-conj">(' + entry.data[i][1] + ')</span>');
-        
+
         // Add frequency
         if(rcxConfig.showfreq)
         {
           var freqExpression = e[1];
           var freqReading = e[2];
-          
+
           if(freqReading == null)
           {
             var freqReading = freqExpression;
           }
-          
+
           var freq = rcxMain.getFreq(freqExpression, freqReading, (i == 0));
-          
+
           if(freq && (freq.length > 0))
-          {            
+          {
             var freqClass = rcxMain.getFreqStyle(freq);
             b.push('<span class="' + freqClass + '"> ' + freq + '</span>');
           }
         }
-    
+
 				s = e[3];
 				if (rcxConfig.hidedef) {
 					t = '<br/>';
@@ -908,76 +908,105 @@ var rcxData = {
 		return b.join('');
 	},
 
-  
+
   // entry          = Contains the work lookup info (kana, kanji, def)
   // word           = Highlighted Word
   // sentence       = The sentence containing the highlighted word
   // sentenceWBlank = Like sentence except the highlighted word is replaced with blanks
   // saveKana       = Replace kanji with kana (that is, $d=$r)
-	makeText: function(entry, word, sentence, sentenceWBlank, saveKana) 
+  makeText: function(entry, word, sentence, sentenceWBlank, saveKana)
   {
-		var entryData;
-		var b;
-		var i, j, k;
-		var t;
+    var entryData;
+    var b;
+    var i, j, k;
+    var t;
 
-		if (entry == null || entry.data == null) 
+    if ((entry == null) || (entry.data == null))
+    {
       return '';
-      
-		if (!this.ready) 
+    }
+
+    if (!this.ready)
+    {
       this.init();
-		
-		var prefs = new rcxPrefs();
+    }
+
+    var prefs = new rcxPrefs();
     var saveText = prefs.getString('saveformat');
-		
+
     // Example of what entry.data[0][0] looks like (linebreak added by me):
-    //   乃 [の] /(prt,uk) indicates possessive/verb and adjective nominalizer (nominaliser)/substituting 
+    //   乃 [の] /(prt,uk) indicates possessive/verb and adjective nominalizer (nominaliser)/substituting
     //   for "ga" in subordinate phrases/indicates a confident conclusion/emotional emphasis (sentence end) (fem)/(P)/
-    
+
     // Extract needed data from the hilited entry
     //   entryData[0] = kanji/kana + kana + definition
     //   entryData[1] = kanji (or kana if no kanji)
     //   entryData[2] = kana (null if no kanji)
     //   entryData[3] = definition
-      
-		entryData = entry.data[0][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
-    
+
+    entryData = entry.data[0][0].match(/^(.+?)\s+(?:\[(.*?)\])?\s*\/(.+)\//);
+
     // Components.utils.reportError("entryData[0]="+entryData[0]);
     // Components.utils.reportError("entryData[1]="+entryData[1]);
     // Components.utils.reportError("entryData[2]="+entryData[2]);
     // Components.utils.reportError("entryData[3]="+entryData[3]);
-    
+
     var dictForm = entryData[1];
     var reading = entryData[2];
-    
+
     // Does the user want to use the reading in place of kanji for the $d token?
     if(entryData[2] && saveKana)
     {
       dictForm = entryData[2];
     }
-        
+
     // Ensure that reading is never blank
     if(!reading)
     {
       reading = dictForm;
     }
-    
+
     var ankiTags = rcxMain.trim(rcxConfig.atags);
-    
+
     var audioFile = reading + ' - ' + entryData[1] + '.mp3';
-    
+
     var translation = "";
-        
+
     if(rcxMain.epwingMode)
     {
       translation = entryData[3];
+      
+      // Remove text that matches the user's regex
+      if((rcxConfig.epwingremoveregex != '')
+        && rcxConfig.epwing_apply_remove_regex_when_saving)
+      {
+        // Get the user regex
+        var userRegex = new RegExp(rcxConfig.epwingremoveregex, "g");
+        
+        // Convert <br /> to linefeed
+        var translationWithLinefeeds = translation.replace(/<br \/>/g, "\n");
+        
+        // Apply the user regex
+        var afterRegexEpwingText = translationWithLinefeeds.replace(userRegex, "");
+     
+        //
+        // Only apply the regex if it doesn't remove all of the text
+        //
+        var isBlank = afterRegexEpwingText.match(/^\s*$/);
+     
+        if(!isBlank)
+        {
+          translation = afterRegexEpwingText;
+          translation = translation.replace(/\n/g, "<br />");
+        }
+      }
     }
-    else
+    else // Not EPWING mode
     {
       translation = entryData[3].replace(/\//g, "; ");
-      
+
       // Remove word type indicators? [example: (v1,n)]
-      if(!rcxConfig.wpos) 
+      if(!rcxConfig.wpos)
       {
         translation = translation.replace(/^\([^)]+\)\s*/, '');
       }
@@ -988,17 +1017,17 @@ var rcxData = {
         translation = translation.replace('; (P)', '');
       }
     }
-    
+
     // Get the page title
     var pageTitle = window.document.title;
-    pageTitle = pageTitle.replace(/ \- Mozilla Firefox$/, '');	
-    
+    pageTitle = pageTitle.replace(/ \- Mozilla Firefox$/, '');
+
     // Frequency
     var freqStr = rcxMain.getFreq(dictForm, reading, true);
-    
+
     // Pitch accent
     var pitch = rcxMain.getPitchAccent(dictForm, reading);
-    
+
     saveText = saveText.replace(/\$a/g, audioFile);             // Audio file
     saveText = saveText.replace(/\$d/g, dictForm);              // Dictionary form (expression)
     saveText = saveText.replace(/\$h/g, word);                  // Highlighted Word
@@ -1013,11 +1042,11 @@ var rcxData = {
     saveText = saveText.replace(/\$n/g, translation);           // Translation/definition
     saveText = saveText.replace(/\$f/g, freqStr);               // Frequency
     saveText = saveText.replace(/\$p/g, pitch);                 // Pitch accent
-    
+
     saveText += '\n';
-        
+
     return saveText;
-	},
+  },
 
 	// ---
 
@@ -1080,7 +1109,7 @@ function RcxDb(name)
 		if (name.match(/(.+)\|(.+)/)) {
 			let id = RegExp.$1;
 			let nm = RegExp.$2;
-				
+
 			if (typeof(rcxData.dicPath) == 'undefined') throw 'dicPath does not exist';
 			if (typeof(rcxData.dicPath[id]) == 'undefined') throw 'dicPath.' + id + ' does not exist';
 
@@ -1223,12 +1252,12 @@ function RcxDic(dic)
 	this.findText = function(text) {
 		return this.find('SELECT * FROM dict WHERE entry LIKE ?1 LIMIT 300', '%' + text + '%');
 	};
-  
-  this.getReadings = function(reading) 
+
+  this.getReadings = function(reading)
   {
     return this.find('SELECT * FROM dict WHERE kana=?1 LIMIT 10', reading);
   };
-  
+
 
 	return this;
 };

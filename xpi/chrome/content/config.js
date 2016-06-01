@@ -103,7 +103,7 @@ var rcxConfigList = [
 	// kanji
 	[1, 'kindex'],
   
-	// Epwing
+	// EPWING
 	[1, 'epwingdiclist'],           // Format: dic1?dic1_title|dic2?dic2_title|etc...
 	[1, 'epwingfallback'],          // none, jmdict, or epwing
 	[0, 'epwingmaxlines'],          // Max lines per entry
@@ -119,6 +119,7 @@ var rcxConfigList = [
   [2, 'epwingforceparse'],        // Force entry to be parsed even if dic is not supported
 	[2, 'epwingsearchnextlongest'], // Search for next longest word if longest word not found
  	[1, 'epwingremoveregex'],       // Remove text matching this regex
+ 	[2, 'epwing_apply_remove_regex_when_saving'], // True = Apply epwingremoveregex when saving EPWING text
  	[2, 'epwingusewine'],           // On Linux, use Wine with the Windows exe instead of using the native exe
 
 	// clipboard / save file
